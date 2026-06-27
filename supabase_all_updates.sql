@@ -43,8 +43,9 @@ ALTER TABLE responses ADD COLUMN IF NOT EXISTS is_read boolean DEFAULT false;
 -- 6. Сообщения: is_read (получатель прочитал)
 ALTER TABLE messages  ADD COLUMN IF NOT EXISTS is_read boolean DEFAULT false;
 
--- 7. Realtime для messages (чат)
+-- 7. Realtime для messages (чат) и orders (уведомления мастерам)
 ALTER PUBLICATION supabase_realtime ADD TABLE messages;
+ALTER PUBLICATION supabase_realtime ADD TABLE orders;
 
 -- 8. Избранные мастера (Мои мастера)
 CREATE TABLE IF NOT EXISTS favorites (

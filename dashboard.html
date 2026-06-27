@@ -282,6 +282,13 @@ input,select,textarea{font-family:'Inter',sans-serif}
 
 /* UNREAD BADGE */
 .unread-badge{background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:1px 6px;border-radius:100px;margin-left:auto}
+
+/* ORDER NOTIFICATION POPUP */
+.order-notif{position:fixed;top:80px;right:24px;width:300px;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:16px;z-index:700;box-shadow:0 8px 32px rgba(0,0,0,.15);transform:translateX(340px);transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .35s ease;opacity:0;pointer-events:none}
+.order-notif.show{transform:translateX(0);opacity:1;pointer-events:all}
+.order-notif-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:13px;font-weight:700;color:var(--gold)}
+.order-notif-head button{background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer;line-height:1;padding:0}
+.order-notif-body{font-size:13px;line-height:1.5;color:var(--t2);margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -742,6 +749,8 @@ let chatOtherId=null;
 let chatOtherName='';
 let selectedBudget='';
 let selectedPlan='pro';
+let ordersChannel=null;
+let newOrdersCount=0;
 
 // ============ INIT ============
 async function init(){
@@ -772,6 +781,7 @@ async function init(){
     loadNewOrders();
     showPanel('p-master-profile');
     showSubBanner();
+    subscribeNewOrders();
   } else {
     loadMyOrders();
     showPanel('p-my-orders');
@@ -833,7 +843,7 @@ function showPanel(id,fromNav){
     n.classList.toggle('active',n.dataset.panel===id);
   });
   if(fromNav){
-    if(id==='p-new-orders')loadNewOrders();
+    if(id==='p-new-orders'){newOrdersCount=0;updateOrdersBadge(0);loadNewOrders();}
     if(id==='p-my-responses')loadMyResponses();
     if(id==='p-messages')loadChatList();
     if(id==='p-my-orders')loadMyOrders();
@@ -1652,6 +1662,80 @@ async function checkEmailCode(){
   if(error){toast('Неверный код',false);return}
   toast('✅ Email успешно подтверждён!');
   loadVerification();
+}
+
+// ============ УВЕДОМЛЕНИЯ О НОВЫХ ЗАКАЗАХ ============
+function subscribeNewOrders(){
+  if(CP.role!=='master'||!CP.city)return;
+  if(ordersChannel)sb.removeChannel(ordersChannel);
+  ordersChannel=sb.channel('orders_notif_'+CU.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'orders',filter:`city=eq.${CP.city}`},
+      payload=>{
+        const order=payload.new;
+        if(order.status!=='open')return;
+        newOrdersCount++;
+        updateOrdersBadge(newOrdersCount);
+        playNotifSound();
+        showOrderNotif(order);
+      }
+    )
+    .subscribe();
+}
+
+function updateOrdersBadge(count){
+  document.querySelectorAll('[data-panel="p-new-orders"]').forEach(el=>{
+    let badge=el.querySelector('.nav-badge');
+    if(count>0){
+      if(!badge){badge=document.createElement('span');badge.className='nav-badge';el.appendChild(badge);}
+      badge.textContent=count;
+    } else {
+      if(badge)badge.remove();
+    }
+  });
+}
+
+function playNotifSound(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    // Первый бип
+    const o1=ctx.createOscillator(),g1=ctx.createGain();
+    o1.connect(g1);g1.connect(ctx.destination);
+    o1.type='sine';
+    o1.frequency.setValueAtTime(880,ctx.currentTime);
+    o1.frequency.exponentialRampToValueAtTime(660,ctx.currentTime+0.12);
+    g1.gain.setValueAtTime(0.25,ctx.currentTime);
+    g1.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
+    o1.start(ctx.currentTime);o1.stop(ctx.currentTime+0.3);
+    // Второй бип (чуть выше)
+    const o2=ctx.createOscillator(),g2=ctx.createGain();
+    o2.connect(g2);g2.connect(ctx.destination);
+    o2.type='sine';
+    o2.frequency.setValueAtTime(1100,ctx.currentTime+0.2);
+    o2.frequency.exponentialRampToValueAtTime(880,ctx.currentTime+0.38);
+    g2.gain.setValueAtTime(0.25,ctx.currentTime+0.2);
+    g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.55);
+    o2.start(ctx.currentTime+0.2);o2.stop(ctx.currentTime+0.55);
+  }catch(e){}
+}
+
+function showOrderNotif(order){
+  const id='notif_'+Date.now();
+  const div=document.createElement('div');
+  div.id=id;div.className='order-notif';
+  div.innerHTML=`
+    <div class="order-notif-head">
+      <span>📋 Новый заказ!</span>
+      <button onclick="document.getElementById('${id}').remove()">✕</button>
+    </div>
+    <div class="order-notif-body">
+      <div style="font-weight:700;margin-bottom:4px">${order.category||'Другое'} · ${order.city||'—'}</div>
+      <div style="font-size:12px">${(order.title||'').substring(0,80)}</div>
+    </div>
+    <button class="btn btn-gold btn-sm" style="width:100%" onclick="showPanel('p-new-orders',true);document.getElementById('${id}').remove()">Смотреть заказы →</button>
+  `;
+  document.body.appendChild(div);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>div.classList.add('show')));
+  setTimeout(()=>{div.classList.remove('show');setTimeout(()=>div.remove(),400);},8000);
 }
 
 init();
