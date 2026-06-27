@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вход — BUDUJ.BY</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#1C1512;--bg2:#241B14;--bg3:#2E2219;
+  --gold:#F5A623;--green:#3ECF8E;--red:#E05252;
+  --white:#FFFFFF;--t2:#C4A882;--t3:#7A6358;
+  --border:rgba(245,166,35,0.15);--border2:rgba(245,166,35,0.3)
+}
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:28px;color:var(--gold);margin-bottom:32px;text-decoration:none;display:block;text-align:center;letter-spacing:-1px}
+.logo span{color:var(--white);opacity:.45}
+.card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:40px 36px;width:100%;max-width:440px;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.mode-tabs{display:flex;background:var(--bg3);border-radius:12px;padding:4px;margin-bottom:24px;gap:4px}
+.mode-tab{flex:1;padding:10px;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;background:transparent;color:var(--t3);transition:.2s;font-family:'Inter',sans-serif}
+.mode-tab.active{background:var(--bg2);color:var(--white);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+
+.method-wrap{display:flex;gap:8px;margin-bottom:20px}
+.method-btn{flex:1;padding:9px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--t3);transition:.2s;font-family:'Inter',sans-serif}
+.method-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(245,166,35,.06)}
+
+.label{font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+.input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:13px 16px;color:var(--white);font-size:16px;font-family:'Inter',sans-serif;outline:none;transition:.2s;margin-bottom:16px;-webkit-appearance:none}
+.input:focus{border-color:var(--gold)}
+.input::placeholder{color:var(--t3)}
+select.input{cursor:pointer}
+select.input option{background:var(--bg3)}
+
+.btn{width:100%;padding:14px;background:var(--gold);border:none;border-radius:10px;font-size:15px;font-weight:700;color:#1C1512;cursor:pointer;transition:.2s;font-family:'Inter',sans-serif}
+.btn:hover{background:#e09415}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--t2);margin-top:10px}
+.btn-ghost:hover{border-color:var(--gold);color:var(--white);background:transparent}
+
+.msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none;line-height:1.5}
+.msg.error{background:rgba(224,82,82,.12);border:1px solid var(--red);color:var(--red)}
+.msg.success{background:rgba(62,207,142,.12);border:1px solid var(--green);color:var(--green)}
+.msg.show{display:block}
+
+.pass-wrap{position:relative;margin-bottom:16px}
+.pass-wrap .input{margin-bottom:0;padding-right:50px}
+.pass-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--t3);font-size:18px;user-select:none;line-height:1}
+.pass-eye:hover{color:var(--t2)}
+
+.step{display:none}
+.step.active{display:block}
+
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.role-card{background:var(--bg3);border:2px solid var(--border);border-radius:14px;padding:20px 12px;text-align:center;cursor:pointer;transition:.25s}
+.role-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.role-card.sel{border-color:var(--gold);background:rgba(245,166,35,.06)}
+.role-icon{font-size:32px;margin-bottom:8px}
+.role-name{font-size:15px;font-weight:700}
+.role-desc{font-size:12px;color:var(--t3);margin-top:3px}
+
+.step2-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;margin-bottom:6px}
+.step2-sub{font-size:14px;color:var(--t2);margin-bottom:24px}
+
+.back-home{display:block;text-align:center;margin-top:24px;font-size:13px;color:var(--t3)}
+.back-home a{color:var(--t2);text-decoration:none}
+.back-home a:hover{color:var(--gold)}
+@media(max-width:480px){.card{padding:28px 20px}}
+</style>
+</head>
+<body>
+
+<a href="index.html" class="logo">BUDUJ<span>.BY</span></a>
+
+<div class="card">
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" onclick="setMode('login')">Войти</button>
+    <button class="mode-tab" onclick="setMode('register')">Регистрация</button>
+  </div>
+
+  <div class="method-wrap">
+    <button class="method-btn active" onclick="setMethod('phone')">📱 Телефон</button>
+    <button class="method-btn" onclick="setMethod('email')">✉️ Email</button>
+  </div>
+
+  <div class="msg" id="mainMsg"></div>
+
+  <!-- ШАГ 1: Учётные данные -->
+  <div class="step active" id="step1">
+    <div id="phoneField">
+      <label class="label">Номер телефона</label>
+      <input class="input" id="phoneInput" type="tel" placeholder="+375 29 000-00-00"
+        onkeydown="if(event.key==='Enter')submitCreds()">
+    </div>
+    <div id="emailField" style="display:none">
+      <label class="label">Email</label>
+      <input class="input" id="emailInput" type="email" placeholder="example@gmail.com"
+        onkeydown="if(event.key==='Enter')submitCreds()">
+    </div>
+    <label class="label">Пароль</label>
+    <div class="pass-wrap">
+      <input class="input" id="passwordInput" type="password" placeholder="Минимум 6 символов"
+        onkeydown="if(event.key==='Enter')submitCreds()">
+      <span class="pass-eye" onclick="togglePass('passwordInput')">👁</span>
+    </div>
+    <div id="confirmWrap" style="display:none">
+      <label class="label">Повторите пароль</label>
+      <div class="pass-wrap">
+        <input class="input" id="confirmInput" type="password" placeholder="Повторите пароль"
+          onkeydown="if(event.key==='Enter')submitCreds()">
+        <span class="pass-eye" onclick="togglePass('confirmInput')">👁</span>
+      </div>
+    </div>
+    <button class="btn" id="credsBtn" onclick="submitCreds()">Войти →</button>
+  </div>
+
+  <!-- ШАГ 2: Профиль (только при регистрации) -->
+  <div class="step" id="step2">
+    <div class="step2-title">Расскажите о себе</div>
+    <div class="step2-sub">Последний шаг — займёт 1 минуту</div>
+    <div class="msg" id="profileMsg"></div>
+    <div class="role-grid">
+      <div class="role-card" id="rcClient" onclick="selectRole('client')">
+        <div class="role-icon">🏠</div>
+        <div class="role-name">Я заказчик</div>
+        <div class="role-desc">Ищу мастера для работ</div>
+      </div>
+      <div class="role-card" id="rcMaster" onclick="selectRole('master')">
+        <div class="role-icon">🔨</div>
+        <div class="role-name">Я мастер</div>
+        <div class="role-desc">Ищу заказы</div>
+      </div>
+    </div>
+    <label class="label">Ваше имя</label>
+    <input class="input" id="nameInput" placeholder="Имя и фамилия">
+    <div id="specWrap" style="display:none">
+      <label class="label">Специализация</label>
+      <input class="input" id="specInput" placeholder="Электрик, сантехник, плиточник…">
+    </div>
+    <label class="label">Город</label>
+    <select class="input" id="cityInput">
+      <option value="">Выберите город…</option>
+      <option>Минск</option><option>Брест</option><option>Гродно</option>
+      <option>Витебск</option><option>Гомель</option><option>Могилёв</option>
+    </select>
+    <button class="btn" onclick="createProfile()">Сохранить и войти →</button>
+    <button class="btn btn-ghost" onclick="goStep(1)">← Назад</button>
+  </div>
+
+</div>
+
+<div class="back-home"><a href="index.html">← На главную</a></div>
+
+<script>
+const SUPABASE_URL = 'https://inhlhqzavjtghechstzb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let mode = 'login';
+let method = 'phone';
+let selectedRole = '';
+let pendingUser = null;
+
+// Уже залогинен?
+(async () => {
+  const {data: {user}} = await sb.auth.getUser();
+  if (user) {
+    const {data: p} = await sb.from('profiles').select('role').eq('id', user.id).single();
+    if (p) location.href = 'dashboard.html';
+  }
+})();
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-tab').forEach((t, i) =>
+    t.classList.toggle('active', (i === 0 && m === 'login') || (i === 1 && m === 'register'))
+  );
+  document.getElementById('confirmWrap').style.display = m === 'register' ? 'block' : 'none';
+  document.getElementById('credsBtn').textContent = m === 'login' ? 'Войти →' : 'Продолжить →';
+  clearMsg('mainMsg');
+  goStep(1);
+}
+
+function setMethod(m) {
+  method = m;
+  document.querySelectorAll('.method-btn').forEach((b, i) =>
+    b.classList.toggle('active', (i === 0 && m === 'phone') || (i === 1 && m === 'email'))
+  );
+  document.getElementById('phoneField').style.display = m === 'phone' ? 'block' : 'none';
+  document.getElementById('emailField').style.display = m === 'email' ? 'block' : 'none';
+  clearMsg('mainMsg');
+}
+
+function goStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'msg ' + type + ' show';
+}
+function clearMsg(id) { document.getElementById(id).className = 'msg'; }
+
+function togglePass(id) {
+  const i = document.getElementById(id);
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
+
+function normalizePhone(p) {
+  p = p.replace(/[\s\-()]/g, '');
+  if (p.startsWith('80')) p = '+375' + p.slice(1);
+  if (/^375\d{9}$/.test(p)) p = '+' + p;
+  if (/^\+375\d{9}$/.test(p)) return p;
+  return null;
+}
+
+function phoneToEmail(phone) {
+  return phone.replace('+', 'p') + '@users.buduj.by';
+}
+
+async function submitCreds() {
+  clearMsg('mainMsg');
+  const password = document.getElementById('passwordInput').value;
+  if (!password || password.length < 6) {
+    showMsg('mainMsg', 'Пароль минимум 6 символов', 'error'); return;
+  }
+  const btn = document.getElementById('credsBtn');
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = 'Загрузка…';
+  try {
+    if (mode === 'login') await doLogin(password);
+    else await doRegister(password);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
+}
+
+async function doLogin(password) {
+  let email;
+  if (method === 'email') {
+    email = document.getElementById('emailInput').value.trim();
+    if (!email) { showMsg('mainMsg', 'Введите email', 'error'); return; }
+  } else {
+    const phone = normalizePhone(document.getElementById('phoneInput').value);
+    if (!phone) { showMsg('mainMsg', 'Введите номер: +375 29 XXX-XX-XX', 'error'); return; }
+    const {data: prof} = await sb.from('profiles').select('auth_email').eq('phone', phone).maybeSingle();
+    if (!prof) { showMsg('mainMsg', 'Номер не найден. Сначала зарегистрируйтесь.', 'error'); return; }
+    email = prof.auth_email;
+  }
+  const {error} = await sb.auth.signInWithPassword({email, password});
+  if (error) {
+    showMsg('mainMsg', error.message.includes('Invalid') ? 'Неверный пароль' : 'Ошибка: ' + error.message, 'error');
+    return;
+  }
+  location.href = 'dashboard.html';
+}
+
+async function doRegister(password) {
+  const confirm = document.getElementById('confirmInput').value;
+  if (password !== confirm) { showMsg('mainMsg', 'Пароли не совпадают', 'error'); return; }
+
+  let email, phone = null;
+  if (method === 'email') {
+    email = document.getElementById('emailInput').value.trim();
+    if (!email || !email.includes('@')) { showMsg('mainMsg', 'Введите корректный email', 'error'); return; }
+  } else {
+    phone = normalizePhone(document.getElementById('phoneInput').value);
+    if (!phone) { showMsg('mainMsg', 'Введите номер: +375 29 XXX-XX-XX', 'error'); return; }
+    const {data: ex} = await sb.from('profiles').select('id').eq('phone', phone).maybeSingle();
+    if (ex) { showMsg('mainMsg', 'Этот номер уже зарегистрирован. Войдите.', 'error'); return; }
+    email = phoneToEmail(phone);
+  }
+
+  const {data, error} = await sb.auth.signUp({email, password});
+  if (error) {
+    const txt = error.message.includes('already')
+      ? (method === 'email' ? 'Этот email уже зарегистрирован. Войдите.' : 'Этот номер уже зарегистрирован. Войдите.')
+      : 'Ошибка: ' + error.message;
+    showMsg('mainMsg', txt, 'error'); return;
+  }
+
+  pendingUser = {userId: data.user.id, email, phone};
+  goStep(2);
+}
+
+function selectRole(r) {
+  selectedRole = r;
+  document.getElementById('rcClient').classList.toggle('sel', r === 'client');
+  document.getElementById('rcMaster').classList.toggle('sel', r === 'master');
+  document.getElementById('specWrap').style.display = r === 'master' ? 'block' : 'none';
+}
+
+async function createProfile() {
+  clearMsg('profileMsg');
+  if (!selectedRole) { showMsg('profileMsg', 'Выберите роль: заказчик или мастер', 'error'); return; }
+  const name = document.getElementById('nameInput').value.trim();
+  const city = document.getElementById('cityInput').value;
+  if (!name) { showMsg('profileMsg', 'Введите ваше имя', 'error'); return; }
+  if (!city) { showMsg('profileMsg', 'Выберите город', 'error'); return; }
+
+  const {data: {user}} = await sb.auth.getUser();
+  const uid = pendingUser?.userId || user?.id;
+  if (!uid) { showMsg('profileMsg', 'Ошибка сессии. Обновите страницу.', 'error'); return; }
+
+  const profile = {
+    id: uid,
+    role: selectedRole,
+    name,
+    city,
+    auth_email: pendingUser?.email || user?.email,
+    phone: pendingUser?.phone || null
+  };
+  if (selectedRole === 'master') {
+    profile.spec = document.getElementById('specInput').value.trim() || 'Строительные работы';
+  }
+
+  const {error} = await sb.from('profiles').insert(profile);
+  if (error) { showMsg('profileMsg', 'Ошибка: ' + error.message, 'error'); return; }
+  location.href = 'dashboard.html';
+}
+</script>
+</body>
+</html>

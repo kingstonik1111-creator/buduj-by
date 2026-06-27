@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кабинет — BUDUJ.BY</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#1C1512;--bg2:#241B14;--bg3:#2E2219;--bg4:#3A2B1F;
+  --gold:#F5A623;--green:#3ECF8E;--red:#E05252;--amber:#FF8C42;
+  --white:#FFFFFF;--t2:#C4A882;--t3:#7A6358;
+  --border:rgba(245,166,35,0.15);--border2:rgba(245,166,35,0.3);
+  --r:12px
+}
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
+a{color:inherit;text-decoration:none}
+button{font-family:'Inter',sans-serif;cursor:pointer}
+input,select,textarea{font-family:'Inter',sans-serif}
+
+/* LOADING */
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px}
+.loading-screen .logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:28px;color:var(--gold)}
+.loading-screen .logo span{color:var(--white);opacity:.4}
+.spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* HEADER */
+.dash-header{position:sticky;top:0;z-index:200;background:rgba(28,21,18,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:64px;gap:16px}
+.dash-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:var(--gold);flex-shrink:0}
+.dash-logo span{color:var(--white);opacity:.4}
+.dash-user{display:flex;align-items:center;gap:10px;margin-left:auto}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:rgba(245,166,35,.15);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--gold);flex-shrink:0}
+.user-name{font-size:14px;font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role-badge{padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;flex-shrink:0}
+.role-badge.master{background:rgba(245,166,35,.12);color:var(--gold);border:1px solid var(--border2)}
+.role-badge.client{background:rgba(62,207,142,.12);color:var(--green);border:1px solid rgba(62,207,142,.3)}
+.btn-logout{padding:6px 14px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--t3);background:none;transition:.2s}
+.btn-logout:hover{color:var(--white);border-color:var(--border2)}
+
+/* LAYOUT */
+.dash-layout{display:flex;min-height:calc(100vh - 64px)}
+.dash-sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);padding:24px 0;flex-shrink:0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.dash-main{flex:1;min-width:0;padding:24px}
+
+/* NAV */
+.nav-section{margin-bottom:4px}
+.nav-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;padding:8px 20px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:14px;font-weight:500;color:var(--t2);cursor:pointer;transition:.2s;border-left:3px solid transparent}
+.nav-item:hover{color:var(--white);background:var(--bg3)}
+.nav-item.active{color:var(--gold);background:rgba(245,166,35,.06);border-left-color:var(--gold)}
+.nav-icon{font-size:16px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--gold);color:#1C1512;font-size:10px;font-weight:800;padding:2px 7px;border-radius:100px}
+
+/* PANELS */
+.panel{display:none}
+.panel.active{display:block}
+.panel-title{font-size:22px;margin-bottom:6px}
+.panel-sub{font-size:14px;color:var(--t2);margin-bottom:24px}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px;transition:.2s}
+.card:hover{border-color:var(--border2)}
+.card-clickable{cursor:pointer}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.card-title-sm{font-size:15px;font-weight:700;line-height:1.4}
+.card-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--t3);margin-bottom:12px}
+.tag{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:var(--t2)}
+.badge-open{background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.3);color:var(--green);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+.badge-new{background:rgba(245,166,35,.1);border:1px solid var(--border2);color:var(--gold);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+.badge-done{background:rgba(122,99,88,.15);color:var(--t3);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+
+/* BUTTONS */
+.btn{padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;border:none}
+.btn-gold{background:var(--gold);color:#1C1512}
+.btn-gold:hover{background:#e09415}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#2db87a}
+.btn-ghost{background:none;border:1px solid var(--border2);color:var(--t2)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--white)}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn-full{width:100%;padding:13px;font-size:14px}
+
+/* FORM */
+.form-group{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;color:var(--white);font-size:14px;outline:none;transition:.2s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--t3)}
+.form-select{cursor:pointer;appearance:none}
+.form-select option{background:var(--bg3)}
+.form-textarea{resize:vertical;min-height:100px;line-height:1.6}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.budget-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.budget-chip{background:var(--bg3);border:2px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center;cursor:pointer;transition:.2s;font-size:13px;font-weight:600}
+.budget-chip:hover,.budget-chip.sel{border-color:var(--gold);color:var(--gold)}
+
+/* MASTER RESPONSE CARDS */
+.response-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
+.rc-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.rc-avatar{width:44px;height:44px;border-radius:50%;background:rgba(245,166,35,.15);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;color:var(--gold);flex-shrink:0}
+.rc-name{font-size:15px;font-weight:700}
+.rc-spec{font-size:12px;color:var(--t3);margin-top:2px}
+.rc-stars{color:var(--gold);font-size:13px;margin-top:3px}
+.rc-price{margin-left:auto;font-size:17px;font-weight:800;color:var(--gold);white-space:nowrap}
+.rc-msg{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:12px}
+.rc-phone{padding:10px 14px;background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.rc-phone-num{font-size:15px;font-weight:700;color:var(--green)}
+.rc-phone-hidden{font-size:13px;color:var(--t3)}
+.btn-reveal{padding:6px 14px;background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.3);border-radius:8px;font-size:12px;font-weight:700;color:var(--green);cursor:pointer;transition:.2s;flex-shrink:0}
+.btn-reveal:hover{background:rgba(62,207,142,.2)}
+
+/* CHAT DRAWER */
+.chat-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none}
+.chat-overlay.open{display:block}
+.chat-drawer{position:fixed;top:0;right:-100%;width:100%;max-width:420px;height:100vh;background:var(--bg2);border-left:1px solid var(--border2);z-index:401;display:flex;flex-direction:column;transition:right .3s ease}
+.chat-drawer.open{right:0}
+.chat-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.chat-head-info h4{font-size:14px;font-weight:700}
+.chat-head-info p{font-size:12px;color:var(--t3);margin-top:2px}
+.chat-close{margin-left:auto;background:none;border:none;color:var(--t2);font-size:22px;cursor:pointer;line-height:1}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.cm{max-width:80%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;word-break:break-word}
+.cm.mine{background:var(--gold);color:#1C1512;align-self:flex-end;border-radius:12px 12px 2px 12px;font-weight:500}
+.cm.theirs{background:var(--bg3);color:var(--t2);align-self:flex-start;border-radius:12px 12px 12px 2px}
+.cm-time{font-size:10px;opacity:.6;margin-top:3px;text-align:right}
+.chat-input-row{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.chat-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;color:var(--white);font-size:13px;outline:none;resize:none}
+.chat-input:focus{border-color:var(--gold)}
+.chat-send{padding:10px 16px;background:var(--gold);border:none;border-radius:10px;font-size:16px;color:#1C1512;cursor:pointer;transition:.2s;flex-shrink:0}
+.chat-send:hover{background:#e09415}
+
+/* PROFILE VIEW */
+.profile-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:28px;margin-bottom:20px}
+.profile-top{display:flex;gap:20px;align-items:flex-start;margin-bottom:20px}
+.profile-avatar-big{width:80px;height:80px;border-radius:50%;background:rgba(245,166,35,.15);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:28px;color:var(--gold);flex-shrink:0}
+.profile-name{font-size:22px;font-weight:800;margin-bottom:4px}
+.profile-spec{font-size:14px;color:var(--t2);margin-bottom:6px}
+.profile-city{font-size:13px;color:var(--t3)}
+.rating-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.stars-big{color:var(--gold);font-size:16px}
+.rating-num{font-size:16px;font-weight:800}
+.reviews-num{font-size:13px;color:var(--t3)}
+
+/* SUBSCRIPTION */
+.sub-card{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--border2);border-radius:var(--r);padding:24px;margin-bottom:20px}
+.sub-plan{font-size:13px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.sub-name{font-size:22px;font-weight:800;color:var(--gold);margin-bottom:6px}
+.sub-end{font-size:13px;color:var(--t2);margin-bottom:16px}
+.sub-plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+.plan-item{background:var(--bg2);border:2px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:.2s;text-align:center}
+.plan-item:hover,.plan-item.sel{border-color:var(--gold)}
+.plan-item.sel{background:rgba(245,166,35,.06)}
+.plan-price{font-size:20px;font-weight:800;color:var(--gold);margin-bottom:2px}
+.plan-name-sm{font-size:12px;color:var(--t3);margin-bottom:8px}
+.plan-feat{font-size:11px;color:var(--t2);line-height:1.6}
+
+/* VERIFICATION */
+.verify-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:14px}
+.verify-status{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.verify-icon{font-size:22px}
+.verify-label{font-size:15px;font-weight:700;flex:1}
+.verify-ok{padding:4px 12px;border-radius:100px;background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.3);color:var(--green);font-size:11px;font-weight:700}
+.verify-no{padding:4px 12px;border-radius:100px;background:rgba(122,99,88,.12);border:1px solid var(--border);color:var(--t3);font-size:11px;font-weight:700}
+.code-input-big{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:13px 16px;color:var(--white);font-size:22px;font-weight:700;text-align:center;outline:none;letter-spacing:10px;width:180px}
+.code-input-big:focus{border-color:var(--gold)}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 24px;color:var(--t3)}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty h3{font-size:18px;color:var(--t2);margin-bottom:8px}
+.empty p{font-size:13px;margin-bottom:20px}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:500;pointer-events:none}
+.toast-msg{padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;transition:.3s;pointer-events:all}
+.toast-msg.show{opacity:1}
+
+/* MOBILE BOTTOM NAV */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:200;padding:0 8px}
+.mobile-nav-inner{display:flex;justify-content:space-around}
+.mn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 8px;font-size:10px;font-weight:600;color:var(--t3);cursor:pointer;transition:.2s;flex:1;border-top:2px solid transparent;min-width:0}
+.mn-item.active{color:var(--gold);border-top-color:var(--gold)}
+.mn-icon{font-size:20px}
+
+/* ORDER FORM in dashboard */
+.order-form-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:28px;max-width:600px}
+
+@media(max-width:900px){
+  .dash-sidebar{display:none}
+  .mobile-nav{display:flex}
+  .dash-main{padding:16px 16px 80px}
+  .form-row{grid-template-columns:1fr}
+  .sub-plans{grid-template-columns:1fr}
+  .budget-grid{grid-template-columns:1fr 1fr}
+  .chat-drawer{max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="logo">BUDUJ<span>.BY</span></div>
+  <div class="spinner"></div>
+</div>
+
+<!-- HEADER -->
+<header class="dash-header" id="dashHeader" style="display:none">
+  <a href="index.html" class="dash-logo">BUDUJ<span>.BY</span></a>
+  <div class="dash-user">
+    <div class="user-avatar" id="uAvatar">?</div>
+    <div class="user-name" id="uName"></div>
+    <div class="role-badge" id="uBadge"></div>
+    <button class="btn-logout" onclick="logout()">Выйти</button>
+  </div>
+</header>
+
+<!-- DASHBOARD -->
+<div class="dash-layout" id="dashLayout" style="display:none">
+
+  <!-- SIDEBAR -->
+  <nav class="dash-sidebar" id="sideNav"></nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="dash-main" id="dashMain">
+
+    <!-- ===== КЛИЕНТ ===== -->
+
+    <!-- Клиент: Мои заказы -->
+    <div class="panel" id="p-my-orders">
+      <h2 class="panel-title">Мои заказы</h2>
+      <p class="panel-sub">Все заказы, которые вы разместили</p>
+      <button class="btn btn-green btn-full" style="max-width:300px;margin-bottom:24px" onclick="showPanel('p-new-order')">+ Разместить новый заказ</button>
+      <div id="myOrdersList"></div>
+    </div>
+
+    <!-- Клиент: Новый заказ -->
+    <div class="panel" id="p-new-order">
+      <h2 class="panel-title">Разместить заказ</h2>
+      <p class="panel-sub">Мастера сами найдут вас и предложат цену</p>
+      <div class="order-form-wrap">
+        <div class="form-group">
+          <label class="form-label">Тип работы</label>
+          <select class="form-select" id="noCat">
+            <option value="">Выберите категорию…</option>
+            <option>Электрика</option><option>Сантехника</option>
+            <option>Ремонт квартир под ключ</option><option>Укладка плитки</option>
+            <option>Укладка ламината / полов</option><option>Покраска и штукатурка</option>
+            <option>Кровельные работы</option><option>Сварочные работы</option>
+            <option>Натяжные потолки</option><option>Установка дверей и окон</option>
+            <option>Другое</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Опишите задачу</label>
+          <textarea class="form-textarea" id="noTitle" placeholder="Подробно опишите что нужно сделать…"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Город</label>
+            <select class="form-select" id="noCity">
+              <option value="">Выберите город…</option>
+              <option>Минск</option><option>Брест</option><option>Гродно</option>
+              <option>Витебск</option><option>Гомель</option><option>Могилёв</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Когда нужно</label>
+            <select class="form-select" id="noTiming">
+              <option value="">Выберите срок…</option>
+              <option>Срочно (сегодня-завтра)</option>
+              <option>На этой неделе</option>
+              <option>В этом месяце</option>
+              <option>Не спешу</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Примерный бюджет</label>
+          <div class="budget-grid" id="noBudgetGrid">
+            <div class="budget-chip" onclick="selBudget(this,'до 100 BYN')">до 100 BYN</div>
+            <div class="budget-chip" onclick="selBudget(this,'100–300 BYN')">100–300 BYN</div>
+            <div class="budget-chip" onclick="selBudget(this,'300–700 BYN')">300–700 BYN</div>
+            <div class="budget-chip" onclick="selBudget(this,'700–1500 BYN')">700–1500 BYN</div>
+            <div class="budget-chip" onclick="selBudget(this,'1500+ BYN')">1500+ BYN</div>
+            <div class="budget-chip" onclick="selBudget(this,'Нужна смета')">Нужна смета</div>
+          </div>
+        </div>
+        <button class="btn btn-gold btn-full" onclick="submitNewOrder()">Разместить заказ бесплатно →</button>
+      </div>
+    </div>
+
+    <!-- Клиент: Отклики на заказ -->
+    <div class="panel" id="p-order-detail">
+      <button class="btn btn-ghost btn-sm" onclick="showPanel('p-my-orders');loadMyOrders()" style="margin-bottom:16px">← Назад к заказам</button>
+      <h2 class="panel-title" id="detailTitle"></h2>
+      <div class="card-meta" id="detailMeta" style="margin-bottom:20px"></div>
+      <h3 style="font-size:16px;margin-bottom:16px">Отклики мастеров <span id="respCount" style="font-size:13px;color:var(--t3)"></span></h3>
+      <div id="responsesList"></div>
+    </div>
+
+    <!-- ===== МАСТЕР ===== -->
+
+    <!-- Мастер: Профиль -->
+    <div class="panel" id="p-master-profile">
+      <div class="profile-section">
+        <div class="profile-top">
+          <div class="profile-avatar-big" id="mpAvatar">?</div>
+          <div>
+            <div class="profile-name" id="mpName"></div>
+            <div class="profile-spec" id="mpSpec"></div>
+            <div class="profile-city" id="mpCity"></div>
+            <div class="rating-row">
+              <div class="stars-big" id="mpStars">★★★★★</div>
+              <div class="rating-num" id="mpRating">0.0</div>
+              <div class="reviews-num" id="mpRevCount">(0 отзывов)</div>
+            </div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-gold btn-sm" onclick="toggleProfileEdit()">✏️ Редактировать профиль</button>
+        </div>
+      </div>
+
+      <!-- Редактирование профиля -->
+      <div id="profileEditForm" style="display:none">
+        <div class="profile-section">
+          <h3 style="font-size:16px;margin-bottom:16px">Редактировать профиль</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Имя</label>
+              <input class="form-input" id="epName" placeholder="Имя и фамилия">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Специализация</label>
+              <input class="form-input" id="epSpec" placeholder="Электрик, плиточник…">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Город</label>
+            <select class="form-select" id="epCity">
+              <option>Минск</option><option>Брест</option><option>Гродно</option>
+              <option>Витебск</option><option>Гомель</option><option>Могилёв</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">О себе</label>
+            <textarea class="form-textarea" id="epBio" placeholder="Расскажите о вашем опыте, специализации, подходе к работе…"></textarea>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-gold" onclick="saveProfile()">Сохранить</button>
+            <button class="btn btn-ghost" onclick="toggleProfileEdit()">Отмена</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Подписка -->
+      <div class="sub-card">
+        <div class="sub-plan">Текущий тариф</div>
+        <div class="sub-name" id="subName">Бесплатный</div>
+        <div class="sub-end" id="subEnd">Доступен до истечения пробного периода</div>
+        <div class="sub-plans">
+          <div class="plan-item" onclick="selPlan(this,'basic')" data-plan="basic">
+            <div class="plan-price">20–30</div>
+            <div class="plan-name-sm">BYN/мес • Базовый</div>
+            <div class="plan-feat">5 фото · 3 отклика/мес</div>
+          </div>
+          <div class="plan-item sel" onclick="selPlan(this,'pro')" data-plan="pro">
+            <div class="plan-price">50–70</div>
+            <div class="plan-name-sm">BYN/мес • Профи ⭐</div>
+            <div class="plan-feat">20 фото · ∞ откликов · Приоритет</div>
+          </div>
+          <div class="plan-item" onclick="selPlan(this,'biz')" data-plan="biz">
+            <div class="plan-price">100–150</div>
+            <div class="plan-name-sm">BYN/мес • Бизнес</div>
+            <div class="plan-feat">До 5 мастеров · Топ выдачи</div>
+          </div>
+        </div>
+        <button class="btn btn-gold btn-full" style="margin-top:16px" onclick="goToPay()">Оплатить подписку →</button>
+        <p style="font-size:12px;color:var(--t3);text-align:center;margin-top:8px">Первые 3 месяца бесплатно для всех</p>
+      </div>
+    </div>
+
+    <!-- Мастер: Новые заказы -->
+    <div class="panel" id="p-new-orders">
+      <h2 class="panel-title">Новые заказы</h2>
+      <p class="panel-sub" id="newOrdersSub">Открытые заказы в вашем городе</p>
+      <div id="newOrdersList"></div>
+    </div>
+
+    <!-- Мастер: Мои отклики -->
+    <div class="panel" id="p-my-responses">
+      <h2 class="panel-title">Мои отклики</h2>
+      <p class="panel-sub">Заказы, на которые вы откликнулись</p>
+      <div id="myResponsesList"></div>
+    </div>
+
+    <!-- ===== ОБЩЕЕ ===== -->
+
+    <!-- Сообщения -->
+    <div class="panel" id="p-messages">
+      <h2 class="panel-title">Сообщения</h2>
+      <p class="panel-sub">Чаты с клиентами / мастерами</p>
+      <div id="chatList"></div>
+    </div>
+
+    <!-- Верификация -->
+    <div class="panel" id="p-verification">
+      <h2 class="panel-title">Верификация</h2>
+      <p class="panel-sub">Подтвердите контакты — это повышает доверие к вашему аккаунту</p>
+
+      <!-- Email -->
+      <div class="verify-item">
+        <div class="verify-status">
+          <span class="verify-icon">✉️</span>
+          <span class="verify-label">Email</span>
+          <span id="emailVerifyBadge" class="verify-no">Не подтверждён</span>
+        </div>
+        <div id="emailVerifyDesc" style="font-size:13px;color:var(--t2);margin-bottom:14px"></div>
+        <div id="emailVerifyFlow">
+          <button class="btn btn-gold" id="sendEmailCodeBtn" onclick="sendVerifyEmail()">Отправить код на email →</button>
+          <div id="emailCodeWrap" style="display:none;margin-top:14px">
+            <div style="font-size:13px;color:var(--t2);margin-bottom:10px">Введите 6-значный код из письма:</div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <input class="code-input-big" id="emailCodeInput" maxlength="8" placeholder="00000000"
+                onkeydown="if(event.key==='Enter')checkEmailCode()">
+              <button class="btn btn-gold" onclick="checkEmailCode()">Подтвердить</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Телефон -->
+      <div class="verify-item">
+        <div class="verify-status">
+          <span class="verify-icon">📱</span>
+          <span class="verify-label">Телефон</span>
+          <span id="phoneVerifyBadge" class="verify-no">Не подтверждён</span>
+        </div>
+        <div id="phoneVerifyDesc" style="font-size:13px;color:var(--t2);margin-bottom:14px"></div>
+        <div style="font-size:12px;color:var(--t3);background:var(--bg3);border-radius:8px;padding:12px;line-height:1.6">
+          📲 Верификация по телефону через SMS появится в следующем обновлении
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="mobile-nav" id="mobileNav" style="display:none">
+  <div class="mobile-nav-inner" id="mobileNavInner"></div>
+</div>
+
+<!-- CHAT DRAWER -->
+<div class="chat-overlay" id="chatOverlay" onclick="closeChat()"></div>
+<div class="chat-drawer" id="chatDrawer">
+  <div class="chat-head">
+    <div class="user-avatar" id="chatAvatar">?</div>
+    <div class="chat-head-info">
+      <h4 id="chatTitle">Чат</h4>
+      <p id="chatSubtitle"></p>
+    </div>
+    <button class="chat-close" onclick="closeChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-row">
+    <textarea class="chat-input" id="chatInput" placeholder="Написать сообщение…" rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+    <button class="chat-send" onclick="sendMsg()">↑</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap"><div class="toast-msg" id="toastMsg"></div></div>
+
+<script>
+const SUPABASE_URL='https://inhlhqzavjtghechstzb.supabase.co';
+const SUPABASE_KEY='sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let CU=null; // current user
+let CP=null; // current profile
+let chatChannel=null;
+let chatOrderId=null;
+let chatOtherId=null;
+let chatOtherName='';
+let selectedBudget='';
+let selectedPlan='pro';
+
+// ============ INIT ============
+async function init(){
+  const{data:{user}}=await sb.auth.getUser();
+  if(!user){location.href='login.html';return}
+  CU=user;
+  const{data:profile}=await sb.from('profiles').select('*').eq('id',user.id).single();
+  if(!profile){location.href='login.html';return}
+  CP=profile;
+
+  // Render header
+  document.getElementById('uName').textContent=profile.name||'Пользователь';
+  document.getElementById('uAvatar').textContent=(profile.name||'?')[0].toUpperCase();
+  const badge=document.getElementById('uBadge');
+  badge.textContent=profile.role==='master'?'Мастер':'Заказчик';
+  badge.className='role-badge '+(profile.role==='master'?'master':'client');
+
+  // Build nav
+  buildNav();
+
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('dashHeader').style.display='flex';
+  document.getElementById('dashLayout').style.display='flex';
+  document.getElementById('mobileNav').style.display='flex';
+
+  if(profile.role==='master'){
+    loadMasterProfile();
+    loadNewOrders();
+    showPanel('p-master-profile');
+  } else {
+    loadMyOrders();
+    showPanel('p-my-orders');
+  }
+}
+
+function buildNav(){
+  const isMaster=CP.role==='master';
+  const items=isMaster?[
+    {id:'p-master-profile',icon:'👤',label:'Профиль'},
+    {id:'p-new-orders',icon:'📋',label:'Новые заказы'},
+    {id:'p-my-responses',icon:'✅',label:'Мои отклики'},
+    {id:'p-messages',icon:'💬',label:'Сообщения'},
+    {id:'p-verification',icon:'🔐',label:'Верификация'},
+  ]:[
+    {id:'p-my-orders',icon:'📋',label:'Мои заказы'},
+    {id:'p-new-order',icon:'➕',label:'Новый заказ'},
+    {id:'p-messages',icon:'💬',label:'Сообщения'},
+    {id:'p-verification',icon:'🔐',label:'Верификация'},
+  ];
+
+  const sidebar=document.getElementById('sideNav');
+  const mobInner=document.getElementById('mobileNavInner');
+  sidebar.innerHTML='<div class="nav-label">Навигация</div>';
+  mobInner.innerHTML='';
+
+  items.forEach(item=>{
+    const div=document.createElement('div');
+    div.className='nav-item';div.dataset.panel=item.id;
+    div.innerHTML=`<span class="nav-icon">${item.icon}</span>${item.label}`;
+    div.onclick=()=>showPanel(item.id,true);
+    sidebar.appendChild(div);
+
+    const mn=document.createElement('div');
+    mn.className='mn-item';mn.dataset.panel=item.id;
+    mn.innerHTML=`<span class="mn-icon">${item.icon}</span>${item.label}`;
+    mn.onclick=()=>showPanel(item.id,true);
+    mobInner.appendChild(mn);
+  });
+}
+
+function showPanel(id,fromNav){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-item,.mn-item').forEach(n=>{
+    n.classList.toggle('active',n.dataset.panel===id);
+  });
+  if(fromNav){
+    if(id==='p-new-orders')loadNewOrders();
+    if(id==='p-my-responses')loadMyResponses();
+    if(id==='p-messages')loadChatList();
+    if(id==='p-my-orders')loadMyOrders();
+    if(id==='p-verification')loadVerification();
+  }
+}
+
+async function logout(){
+  await sb.auth.signOut();
+  location.href='login.html';
+}
+
+// ============ TOAST ============
+function toast(msg,ok=true){
+  const el=document.getElementById('toastMsg');
+  el.textContent=msg;
+  el.style.background=ok?'#1e3a2e':'#3a1e1e';
+  el.style.border=ok?'1px solid var(--green)':'1px solid var(--red)';
+  el.className='toast-msg show';
+  setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+// ============ HELPERS ============
+function timeAgo(ts){
+  const d=(Date.now()-new Date(ts))/1000;
+  if(d<60)return 'только что';
+  if(d<3600)return Math.floor(d/60)+' мин назад';
+  if(d<86400)return Math.floor(d/3600)+' ч назад';
+  return Math.floor(d/86400)+' дн назад';
+}
+function stars(n){
+  n=Math.round(n||0);
+  return '★'.repeat(n)+'☆'.repeat(5-n);
+}
+function initials(name){return(name||'?')[0].toUpperCase()}
+
+// ============ КЛИЕНТ: МОИ ЗАКАЗЫ ============
+async function loadMyOrders(){
+  const el=document.getElementById('myOrdersList');
+  el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto"></div></div>';
+  const{data:orders,error}=await sb.from('orders').select('*,resp_count:responses(count)')
+    .eq('owner_id',CU.id).order('created_at',{ascending:false});
+  if(error||!orders||!orders.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><h3>Заказов пока нет</h3><p>Разместите первый заказ и получите отклики от мастеров</p><button class="btn btn-green" onclick="showPanel('p-new-order')">Разместить заказ →</button></div>`;
+    return;
+  }
+  el.innerHTML=orders.map(o=>`
+    <div class="card card-clickable" onclick="openOrderDetail('${o.id}','${(o.title||'').replace(/'/g,'').substring(0,60)}','${o.category||''}','${o.city||''}','${o.budget||''}')">
+      <div class="card-header">
+        <div class="card-title-sm">${o.title||'Без названия'}</div>
+        <span class="${o.status==='open'?'badge-open':'badge-done'}">${o.status==='open'?'Открыт':'Закрыт'}</span>
+      </div>
+      <div class="card-meta">
+        <span>📍 ${o.city||'—'}</span>
+        <span>🏷️ ${o.category||'—'}</span>
+        <span>💰 ${o.budget||'—'}</span>
+        <span>${timeAgo(o.created_at)}</span>
+      </div>
+      <div class="btn-row">
+        <span style="font-size:13px;color:var(--green);font-weight:700">
+          ${(o.resp_count&&o.resp_count[0])?o.resp_count[0].count:0} откликов
+        </span>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto">Смотреть отклики →</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function openOrderDetail(id,title,cat,city,budget){
+  showPanel('p-order-detail');
+  document.getElementById('detailTitle').textContent=title;
+  document.getElementById('detailMeta').innerHTML=
+    `<span class="tag">📍 ${city}</span><span class="tag">${cat}</span><span class="tag">💰 ${budget}</span>`;
+  const el=document.getElementById('responsesList');
+  el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto"></div></div>';
+
+  const{data:resps}=await sb.from('responses').select('*').eq('order_id',id).order('created_at');
+  document.getElementById('respCount').textContent=`(${resps?resps.length:0})`;
+
+  if(!resps||!resps.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><h3>Откликов пока нет</h3><p>Мастера увидят заказ и свяжутся с вами</p></div>';
+    return;
+  }
+
+  // Загружаем профили мастеров
+  const masterIds=resps.filter(r=>r.master_user_id).map(r=>r.master_user_id);
+  let profiles={};
+  if(masterIds.length){
+    const{data:ps}=await sb.from('profiles').select('id,name,spec,rating,reviews_count').in('id',masterIds);
+    if(ps) ps.forEach(p=>{profiles[p.id]=p});
+  }
+
+  // Проверяем уже раскрытые номера
+  const{data:revealed}=await sb.from('revealed_contacts').select('master_id').eq('client_id',CU.id).eq('order_id',id);
+  const revealedIds=new Set((revealed||[]).map(r=>r.master_id));
+
+  el.innerHTML=resps.map(r=>{
+    const mp=r.master_user_id?profiles[r.master_user_id]:null;
+    const rating=mp?mp.rating:0;
+    const name=mp?mp.name:(r.master_name||'Мастер');
+    const spec=mp?mp.spec:(r.master_spec||'Специалист');
+    const isRevealed=r.master_user_id&&revealedIds.has(r.master_user_id);
+    return `
+    <div class="response-card">
+      <div class="rc-top">
+        <div class="rc-avatar">${initials(name)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="rc-name">${name}</div>
+          <div class="rc-spec">${spec}</div>
+          <div class="rc-stars">${stars(rating)} ${rating>0?rating.toFixed(1):''}</div>
+        </div>
+        <div class="rc-price">${r.price||'По договорённости'}</div>
+      </div>
+      <div class="rc-msg">${r.message||''}</div>
+      <div class="rc-phone">
+        ${isRevealed
+          ?`<span class="rc-phone-num">📞 ${r.master_phone||'Номер не указан'}</span>`
+          :`<span class="rc-phone-hidden">📞 +375 ** ***-**-**</span>
+           <button class="btn-reveal" onclick="revealPhone('${r.id}','${r.master_user_id||''}','${id}','${r.master_phone||''}',this)">Показать номер</button>`
+        }
+      </div>
+      <div class="btn-row">
+        ${r.master_user_id?`<button class="btn btn-gold btn-sm" onclick="openChat('${id}','${r.master_user_id}','${name}','${title}')">💬 Написать</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function revealPhone(responseId,masterUserId,orderId,phone,btn){
+  if(masterUserId){
+    await sb.from('revealed_contacts').upsert({client_id:CU.id,master_id:masterUserId,order_id:orderId});
+  }
+  const phoneBlock=btn.parentElement;
+  phoneBlock.innerHTML=`<span class="rc-phone-num">📞 ${phone||'Позвоните напрямую'}</span>`;
+  toast('Номер открыт! Можете звонить напрямую.');
+}
+
+// НОВЫЙ ЗАКАЗ ИЗ КАБИНЕТА
+function selBudget(el,val){
+  document.querySelectorAll('.budget-chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');selectedBudget=val;
+}
+async function submitNewOrder(){
+  const title=document.getElementById('noTitle').value.trim();
+  const city=document.getElementById('noCity').value;
+  const category=document.getElementById('noCat').value;
+  if(!title){toast('Опишите задачу',false);return}
+  if(!city){toast('Выберите город',false);return}
+  const{error}=await sb.from('orders').insert({
+    title,city,category,
+    timing:document.getElementById('noTiming').value,
+    budget:selectedBudget,
+    phone:CP.phone||'',
+    status:'open',
+    owner_id:CU.id
+  });
+  if(error){toast('Ошибка: '+error.message,false);return}
+  toast('Заказ размещён! Мастера увидят его и свяжутся с вами.');
+  document.getElementById('noTitle').value='';
+  selectedBudget='';
+  document.querySelectorAll('.budget-chip').forEach(c=>c.classList.remove('sel'));
+  loadMyOrders();
+  showPanel('p-my-orders');
+}
+
+// ============ МАСТЕР: ПРОФИЛЬ ============
+function loadMasterProfile(){
+  document.getElementById('mpName').textContent=CP.name||'Имя не указано';
+  document.getElementById('mpAvatar').textContent=initials(CP.name);
+  document.getElementById('mpSpec').textContent=CP.spec||'Специализация не указана';
+  document.getElementById('mpCity').textContent='📍 '+(CP.city||'—');
+  document.getElementById('mpRating').textContent=(CP.rating||0).toFixed(1);
+  document.getElementById('mpRevCount').textContent=`(${CP.reviews_count||0} отзывов)`;
+  document.getElementById('mpStars').textContent=stars(CP.rating||0);
+  document.getElementById('subName').textContent=
+    CP.subscription_plan==='pro'?'Профи':CP.subscription_plan==='biz'?'Бизнес':'Бесплатный';
+  if(CP.subscription_end){
+    document.getElementById('subEnd').textContent='Активен до: '+new Date(CP.subscription_end).toLocaleDateString('ru');
+  }
+  // Заполняем форму редактирования
+  document.getElementById('epName').value=CP.name||'';
+  document.getElementById('epSpec').value=CP.spec||'';
+  document.getElementById('epBio').value=CP.bio||'';
+  document.getElementById('epCity').value=CP.city||'Минск';
+}
+
+function toggleProfileEdit(){
+  const f=document.getElementById('profileEditForm');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+
+async function saveProfile(){
+  const name=document.getElementById('epName').value.trim();
+  const spec=document.getElementById('epSpec').value.trim();
+  const city=document.getElementById('epCity').value;
+  const bio=document.getElementById('epBio').value.trim();
+  if(!name){toast('Введите имя',false);return}
+  const{error}=await sb.from('profiles').update({name,spec,city,bio}).eq('id',CU.id);
+  if(error){toast('Ошибка: '+error.message,false);return}
+  CP={...CP,name,spec,city,bio};
+  loadMasterProfile();
+  toggleProfileEdit();
+  toast('Профиль сохранён!');
+}
+
+function selPlan(el,plan){
+  selectedPlan=plan;
+  document.querySelectorAll('.plan-item').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function goToPay(){
+  const prices={basic:'20–30 BYN',pro:'50–70 BYN',biz:'100–150 BYN'};
+  toast(`Для оплаты тарифа «${selectedPlan}» (${prices[selectedPlan]}/мес) напишите нам: +375 29 000-00-00`);
+}
+
+// ============ МАСТЕР: НОВЫЕ ЗАКАЗЫ ============
+async function loadNewOrders(){
+  const el=document.getElementById('newOrdersList');
+  el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto"></div></div>';
+  document.getElementById('newOrdersSub').textContent=`Открытые заказы в городе ${CP.city||'вашем городе'}`;
+
+  let q=sb.from('orders').select('*').eq('status','open').order('created_at',{ascending:false});
+  if(CP.city) q=q.eq('city',CP.city);
+
+  const{data:orders,error}=await q;
+  if(error||!orders||!orders.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><h3>Заказов пока нет</h3><p>Новые заказы появятся здесь</p></div>`;
+    return;
+  }
+  el.innerHTML=orders.map(o=>`
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <span class="tag">${o.category||'Другое'}</span>
+        </div>
+        <span style="font-size:12px;color:var(--t3)">${timeAgo(o.created_at)}</span>
+      </div>
+      <div class="card-title-sm" style="margin:8px 0">${o.title||'Без описания'}</div>
+      <div class="card-meta">
+        <span>📍 ${o.city||'—'}</span>
+        <span>💰 ${o.budget||'—'}</span>
+        <span>⏰ ${o.timing||'—'}</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-gold btn-sm" onclick="openRespondModal('${o.id}','${(o.title||'').replace(/'/g,'').substring(0,50)}','${o.owner_id||''}')">Откликнуться →</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ОТКЛИК НА ЗАКАЗ (мастер)
+let respondOrderId='';let respondClientId='';
+function openRespondModal(orderId,title,clientId){
+  respondOrderId=orderId;respondClientId=clientId;
+  const msg=`Хочу откликнуться на заказ: ${title}\n\nМастер: ${CP.name}\nСпециализация: ${CP.spec}`;
+  openChat(orderId,clientId||'',CP.name||'Клиент',title,true);
+}
+
+// ============ МАСТЕР: МОИ ОТКЛИКИ ============
+async function loadMyResponses(){
+  const el=document.getElementById('myResponsesList');
+  el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto"></div></div>';
+  const{data:resps}=await sb.from('responses').select('*,order:orders(id,title,city,category,status,owner_id)')
+    .eq('master_user_id',CU.id).order('created_at',{ascending:false});
+  if(!resps||!resps.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">✅</div><h3>Откликов пока нет</h3><p>Найдите заказ и откликнитесь</p><button class="btn btn-gold" onclick="showPanel(\'p-new-orders\',true)">Смотреть заказы →</button></div>';
+    return;
+  }
+  el.innerHTML=resps.map(r=>{
+    const o=r.order||{};
+    return `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-sm">${o.title||'Заказ'}</div>
+        <span class="${o.status==='open'?'badge-open':'badge-done'}">${o.status==='open'?'Активен':'Закрыт'}</span>
+      </div>
+      <div class="card-meta">
+        <span>📍 ${o.city||'—'}</span>
+        <span>🏷️ ${o.category||'—'}</span>
+        <span>${timeAgo(r.created_at)}</span>
+      </div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:12px">💰 Ваша цена: <strong style="color:var(--gold)">${r.price||'—'}</strong></div>
+      <div class="btn-row">
+        ${o.owner_id?`<button class="btn btn-gold btn-sm" onclick="openChat('${o.id}','${o.owner_id}','Клиент','${(o.title||'').replace(/'/g,'').substring(0,40)}')">💬 Написать клиенту</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============ ЧАТЫ ============
+async function loadChatList(){
+  const el=document.getElementById('chatList');
+  el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto"></div></div>';
+  const{data:msgs}=await sb.from('messages')
+    .select('*')
+    .or(`sender_id.eq.${CU.id},receiver_id.eq.${CU.id}`)
+    .order('created_at',{ascending:false});
+  if(!msgs||!msgs.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">💬</div><h3>Сообщений пока нет</h3><p>Начните общение с мастером или клиентом</p></div>';
+    return;
+  }
+  // Группируем по order_id + собеседнику
+  const seen=new Set();
+  const unique=[];
+  msgs.forEach(m=>{
+    const otherId=m.sender_id===CU.id?m.receiver_id:m.sender_id;
+    const key=`${m.order_id}_${otherId}`;
+    if(!seen.has(key)){seen.add(key);unique.push({...m,otherId});}
+  });
+  // Загружаем имена собеседников
+  const ids=[...new Set(unique.map(u=>u.otherId))].filter(Boolean);
+  let names={};
+  if(ids.length){
+    const{data:ps}=await sb.from('profiles').select('id,name').in('id',ids);
+    if(ps)ps.forEach(p=>{names[p.id]=p.name});
+  }
+  // Загружаем заголовки заказов
+  const orderIds=[...new Set(unique.map(u=>u.order_id))].filter(Boolean);
+  let orderTitles={};
+  if(orderIds.length){
+    const{data:os}=await sb.from('orders').select('id,title').in('id',orderIds);
+    if(os)os.forEach(o=>{orderTitles[o.id]=o.title});
+  }
+  el.innerHTML=unique.map(u=>`
+    <div class="card card-clickable" onclick="openChat('${u.order_id}','${u.otherId}','${names[u.otherId]||'Пользователь'}','${(orderTitles[u.order_id]||'Заказ').substring(0,40)}')">
+      <div class="card-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="user-avatar" style="width:36px;height:36px;font-size:12px">${initials(names[u.otherId])}</div>
+          <div>
+            <div style="font-size:14px;font-weight:700">${names[u.otherId]||'Пользователь'}</div>
+            <div style="font-size:12px;color:var(--t3)">${(orderTitles[u.order_id]||'').substring(0,40)}</div>
+          </div>
+        </div>
+        <span style="font-size:11px;color:var(--t3)">${timeAgo(u.created_at)}</span>
+      </div>
+      <div style="font-size:13px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        ${u.sender_id===CU.id?'Вы: ':''}${u.content}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============ ЧАТ ============
+async function openChat(orderId,otherId,otherName,orderTitle,isMasterInit){
+  if(!otherId||otherId===''){toast('Клиент не зарегистрирован. Отклик отправлен.',false);return}
+  chatOrderId=orderId;chatOtherId=otherId;chatOtherName=otherName;
+  document.getElementById('chatTitle').textContent=otherName;
+  document.getElementById('chatSubtitle').textContent=(orderTitle||'').substring(0,50);
+  document.getElementById('chatAvatar').textContent=initials(otherName);
+  document.getElementById('chatMessages').innerHTML='<div style="text-align:center;padding:20px;color:var(--t3)">Загружаем...</div>';
+
+  // Показываем drawer
+  document.getElementById('chatOverlay').classList.add('open');
+  document.getElementById('chatDrawer').classList.add('open');
+
+  // Загружаем сообщения
+  const{data:msgs}=await sb.from('messages').select('*')
+    .eq('order_id',orderId)
+    .or(`sender_id.eq.${CU.id},receiver_id.eq.${CU.id}`)
+    .order('created_at');
+  renderMessages(msgs||[]);
+
+  // Подписка realtime
+  if(chatChannel) sb.removeChannel(chatChannel);
+  chatChannel=sb.channel('chat_'+orderId)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`order_id=eq.${orderId}`},
+      payload=>{
+        if(payload.new.sender_id!==CU.id)appendMessage(payload.new);
+      }
+    ).subscribe();
+
+  document.getElementById('chatInput').focus();
+}
+
+function renderMessages(msgs){
+  const el=document.getElementById('chatMessages');
+  if(!msgs.length){
+    el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--t3)">Начните диалог — напишите первое сообщение</div>';
+    return;
+  }
+  el.innerHTML=msgs.map(m=>`
+    <div class="cm ${m.sender_id===CU.id?'mine':'theirs'}">
+      ${m.content}
+      <div class="cm-time">${new Date(m.created_at).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+  `).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+function appendMessage(msg){
+  const el=document.getElementById('chatMessages');
+  const div=document.createElement('div');
+  div.className='cm '+(msg.sender_id===CU.id?'mine':'theirs');
+  div.innerHTML=`${msg.content}<div class="cm-time">${new Date(msg.created_at).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}</div>`;
+  el.appendChild(div);
+  el.scrollTop=el.scrollHeight;
+}
+
+async function sendMsg(){
+  const input=document.getElementById('chatInput');
+  const content=input.value.trim();
+  if(!content||!chatOtherId)return;
+  input.value='';
+  const msg={order_id:chatOrderId,sender_id:CU.id,receiver_id:chatOtherId,content};
+  appendMessage({...msg,created_at:new Date().toISOString()});
+  const{error}=await sb.from('messages').insert(msg);
+  if(error)toast('Ошибка отправки',false);
+}
+
+function closeChat(){
+  document.getElementById('chatOverlay').classList.remove('open');
+  document.getElementById('chatDrawer').classList.remove('open');
+  if(chatChannel){sb.removeChannel(chatChannel);chatChannel=null;}
+}
+
+// ============ ВЕРИФИКАЦИЯ ============
+let _verifyEmail='';
+
+async function loadVerification(){
+  const{data:{user}}=await sb.auth.getUser();
+  const isPhoneAccount=CP.auth_email&&CP.auth_email.endsWith('@users.buduj.by');
+
+  // --- Email ---
+  const emailBadge=document.getElementById('emailVerifyBadge');
+  const emailDesc=document.getElementById('emailVerifyDesc');
+  const emailFlow=document.getElementById('emailVerifyFlow');
+  const emailConfirmed=!!user.email_confirmed_at;
+
+  if(isPhoneAccount){
+    emailDesc.textContent='Аккаунт зарегистрирован через телефон: '+(CP.phone||'—');
+    emailBadge.textContent='Не требуется';
+    emailBadge.className='verify-ok';
+    emailFlow.innerHTML='<p style="font-size:13px;color:var(--t3)">Для телефонных аккаунтов email-верификация не нужна</p>';
+  } else if(emailConfirmed){
+    emailDesc.textContent='Email: '+(CP.auth_email||user.email);
+    emailBadge.textContent='✅ Подтверждён';
+    emailBadge.className='verify-ok';
+    emailFlow.innerHTML='<p style="font-size:13px;color:var(--green)">✅ Ваш email подтверждён</p>';
+  } else {
+    emailDesc.textContent='Email: '+(CP.auth_email||user.email);
+  }
+
+  // --- Phone ---
+  const phoneBadge=document.getElementById('phoneVerifyBadge');
+  const phoneDesc=document.getElementById('phoneVerifyDesc');
+  const phoneConfirmed=!!user.phone_confirmed_at;
+  phoneDesc.textContent=CP.phone?'Телефон: '+CP.phone:'Телефон не указан в профиле';
+  if(phoneConfirmed){
+    phoneBadge.textContent='✅ Подтверждён';
+    phoneBadge.className='verify-ok';
+  }
+}
+
+async function sendVerifyEmail(){
+  const{data:{user}}=await sb.auth.getUser();
+  const isPhoneAccount=CP.auth_email&&CP.auth_email.endsWith('@users.buduj.by');
+  if(isPhoneAccount){toast('Для телефонных аккаунтов это не нужно',false);return}
+  _verifyEmail=user.email;
+  const btn=document.getElementById('sendEmailCodeBtn');
+  btn.disabled=true;btn.textContent='Отправляем…';
+  const{error}=await sb.auth.signInWithOtp({email:_verifyEmail,options:{shouldCreateUser:false}});
+  btn.disabled=false;btn.textContent='Отправить код на email →';
+  if(error){toast('Ошибка: '+error.message,false);return}
+  document.getElementById('emailCodeWrap').style.display='block';
+  btn.style.display='none';
+  toast('Код отправлен на '+_verifyEmail);
+}
+
+async function checkEmailCode(){
+  const token=document.getElementById('emailCodeInput').value.trim();
+  if(token.length<6){toast('Введите 6-значный код',false);return}
+  const{error}=await sb.auth.verifyOtp({email:_verifyEmail,token,type:'email'});
+  if(error){toast('Неверный код',false);return}
+  toast('✅ Email успешно подтверждён!');
+  loadVerification();
+}
+
+init();
+</script>
+</body>
+</html>
