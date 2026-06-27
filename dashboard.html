@@ -1206,10 +1206,50 @@ function selPlan(el,plan){
   document.querySelectorAll('.plan-item').forEach(p=>p.classList.remove('sel'));
   el.classList.add('sel');
 }
-function goToPay(){
-  const prices={basic:'20–30 BYN',pro:'50–70 BYN',biz:'100–150 BYN'};
-  toast(`Для оплаты тарифа «${selectedPlan}» (${prices[selectedPlan]}/мес) напишите нам: +375 29 000-00-00`);
+async function goToPay(){
+  const btn=event?.target||document.querySelector('[onclick*="goToPay"]');
+  const origText=btn?.textContent||'';
+  if(btn){btn.disabled=true;btn.textContent='Создаём платёж...';}
+
+  try{
+    const{data:{session}}=await sb.auth.getSession();
+    if(!session){toast('Войдите в аккаунт');if(btn){btn.disabled=false;btn.textContent=origText;}return;}
+
+    const resp=await fetch(
+      'https://inhlhqzavjtghechstzb.supabase.co/functions/v1/create-payment',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer '+session.access_token
+        },
+        body:JSON.stringify({plan:selectedPlan})
+      }
+    );
+    const data=await resp.json();
+    if(data.url){
+      window.location.href=data.url;
+    }else{
+      toast('Ошибка создания платежа. Попробуйте позже.',false);
+      if(btn){btn.disabled=false;btn.textContent=origText;}
+    }
+  }catch(e){
+    toast('Ошибка сети.',false);
+    if(btn){btn.disabled=false;btn.textContent=origText;}
+  }
 }
+
+// Обработка возврата после оплаты
+(function(){
+  const p=new URLSearchParams(location.search);
+  if(p.get('payment')==='success'){
+    history.replaceState({},'',location.pathname);
+    setTimeout(()=>toast('🎉 Оплата прошла! Подписка активирована.'),800);
+  }else if(p.get('payment')==='fail'){
+    history.replaceState({},'',location.pathname);
+    setTimeout(()=>toast('❌ Оплата не прошла. Попробуйте ещё раз.',false),800);
+  }
+})()
 
 // ============ ТЕНЕВОЙ БАН ============
 // Мастера без активной подписки скрыты из публичного поиска.

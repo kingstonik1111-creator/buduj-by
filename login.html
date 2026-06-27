@@ -230,7 +230,7 @@ function goStep(n) {
 
 function showMsg(id, text, type) {
   const el = document.getElementById(id);
-  el.textContent = text;
+  el.innerHTML = text;
   el.className = 'msg ' + type + ' show';
 }
 function clearMsg(id) { document.getElementById(id).className = 'msg'; }
@@ -254,14 +254,23 @@ function phoneToEmail(phone) {
 
 async function forgotPassword() {
   clearMsg('mainMsg');
+  // Телефонные аккаунты — у них нет реального email, сброс через почту не работает
+  if (method === 'phone') {
+    showMsg('mainMsg',
+      '📱 Для восстановления доступа напишите нам в Telegram: <a href="https://t.me/budujby_bot" target="_blank" style="color:var(--gold)">@budujby_bot</a> — поможем в течение часа.',
+      'info');
+    return;
+  }
   const email = document.getElementById('emailInput')?.value.trim() || '';
-  const input = prompt('Введите email для сброса пароля:', email);
-  if (!input) return;
-  const {error} = await sb.auth.resetPasswordForEmail(input.trim(), {
+  if (!email) {
+    showMsg('mainMsg', 'Введите email в поле выше', 'error');
+    return;
+  }
+  const {error} = await sb.auth.resetPasswordForEmail(email, {
     redirectTo: location.origin + '/login.html'
   });
   if (error) showMsg('mainMsg', 'Ошибка: ' + error.message, 'error');
-  else showMsg('mainMsg', '✅ Письмо отправлено на ' + input.trim() + '. Проверьте почту.', 'success');
+  else showMsg('mainMsg', '✅ Письмо отправлено на ' + email + '. Проверьте почту.', 'success');
 }
 
 async function submitCreds() {
