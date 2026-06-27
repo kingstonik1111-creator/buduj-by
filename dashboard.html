@@ -551,6 +551,22 @@ input,select,textarea{font-family:'Inter',sans-serif}
         </div>
       </div>
 
+      <!-- Telegram -->
+      <div class="profile-section" id="tgSection" style="margin-bottom:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:2px">Telegram-уведомления</div>
+            <div id="tgStatus" style="font-size:13px;color:var(--t3)">Не подключено — вы будете пропускать заказы</div>
+          </div>
+          <a id="tgLinkBtn" href="#" target="_blank"
+            style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;background:#2AABEE;border:none;border-radius:8px;font-size:13px;font-weight:700;color:#fff;text-decoration:none;flex-shrink:0;transition:.2s"
+            onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.9 8.2l-2 9.4c-.1.6-.5.8-1 .5l-2.8-2.1-1.3 1.3c-.1.1-.3.2-.6.2l.2-2.9 5.1-4.6c.2-.2 0-.3-.3-.1L6.4 14.5 3.7 13.7c-.6-.2-.6-.6.1-.8l11.6-4.5c.5-.2 1 .1.5.8z"/></svg>
+            Подключить Telegram
+          </a>
+        </div>
+      </div>
+
       <!-- Подписка -->
       <div class="sub-card">
         <div class="sub-plan">Текущий тариф</div>
@@ -1144,6 +1160,26 @@ function loadMasterProfile(){
   document.getElementById('epSpec').value=CP.spec||'';
   document.getElementById('epBio').value=CP.bio||'';
   document.getElementById('epCity').value=CP.city||'Минск';
+  // Telegram статус
+  updateTgBlock();
+}
+
+function updateTgBlock(){
+  const btn=document.getElementById('tgLinkBtn');
+  const status=document.getElementById('tgStatus');
+  if(!btn||!status)return;
+  // BOT_USERNAME — замените на имя вашего бота (без @)
+  const BOT='budujby_bot';
+  btn.href=`https://t.me/${BOT}?start=${CU.id}`;
+  if(CP.telegram_chat_id){
+    status.textContent='✅ Подключено — вы будете получать заказы в Telegram';
+    status.style.color='var(--green)';
+    btn.innerHTML='Переподключить';
+    btn.style.background='var(--t3)';
+  }else{
+    status.textContent='Не подключено — вы будете пропускать заказы';
+    status.style.color='var(--t3)';
+  }
 }
 
 function toggleProfileEdit(){
