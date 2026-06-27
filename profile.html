@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Профиль мастера — BUDUJ.BY</title>
+<title id="pageTitle">Профиль мастера — BUDUJ.BY</title>
+<meta name="robots" content="index, follow">
+<link rel="canonical" id="pageCanonical" href="https://buduj.by/profile.html">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -198,8 +202,8 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
           <div class="profile-meta-row">
             <div class="meta-item"><span class="icon">📍</span><span id="masterCity">Минск</span></div>
             <div class="meta-item rating-big"><span class="star">★</span><span id="masterRating">4.9</span><span class="rev" id="masterReviews">(47 отзывов)</span></div>
-            <div class="meta-item"><span class="icon">💼</span>5+ лет опыта</div>
-            <div class="meta-item"><span class="icon">✅</span><span id="masterDone">89</span> работ выполнено</div>
+            <div class="meta-item" id="metaExp" style="display:none"><span class="icon">💼</span><span id="masterExp">5+</span> лет опыта</div>
+            <div class="meta-item" id="metaDone" style="display:none"><span class="icon">✅</span><span id="masterDone">0</span> работ выполнено</div>
           </div>
         </div>
       </div>
@@ -303,29 +307,12 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
 </div>
 
 <script>
-function toggleMobMenu(){document.getElementById('mobMenu').classList.toggle('open')}
+const sb=supabase.createClient(
+  'https://inhlhqzavjtghechstzb.supabase.co',
+  'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9'
+);
 
-const PHOTOS={
-  bath1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210637_14835eca-406e-44af-8930-ca6a258a7409.png',
-  bath2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210637_fdf06cbc-8377-403c-b8dc-788678091f9f.png',
-  bath3:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210637_1c990024-32db-4627-ae2d-21806483df3e.png',
-  lam1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210650_58f8ca8f-c086-4d4c-90cf-cdf49a5d7bf5.png',
-  lam2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210650_c291fd44-d2d6-4b6c-821c-f329a95309cb.png',
-  elec1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210703_f80ce41f-4cf6-442d-a05b-d9ed25fded1f.png',
-  elec2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210703_aba7d621-ee55-4012-9e5f-f560406ea397.png',
-  paint1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210717_d6a3191c-33fd-4c85-854b-cc6493be49c3.png',
-  paint2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210717_2540e608-45a5-4dc8-96d5-e63727e8d153.png',
-};
-const ALL_MASTERS=[
-  {id:1,name:'Андрей Павлов',init:'АП',spec:'Электрика',city:'Минск',rating:4.9,reviews:47,price:30,verified:true,mainPhoto:PHOTOS.elec1,thumbs:[PHOTOS.elec1,PHOTOS.elec2,PHOTOS.bath1,PHOTOS.lam1,PHOTOS.paint1,PHOTOS.elec2],about:'Опытный специалист с 6-летним стажем. Работаю аккуратно, по договору, даю гарантию на все виды работ. Всегда привожу в порядок рабочее место после завершения. Выезжаю по всему Минску и области.',services:['Монтаж проводки','Установка розеток / выключателей','Подключение бытовой техники','Электрощиток под ключ','Замена счётчика','Монтаж тёплого пола','Аварийный вызов']},
-  {id:2,name:'Сергей Климович',init:'СК',spec:'Плитка',city:'Брест',rating:5.0,reviews:31,price:25,verified:true,mainPhoto:PHOTOS.bath1,thumbs:[PHOTOS.bath1,PHOTOS.bath2,PHOTOS.bath3,PHOTOS.lam1,PHOTOS.lam2,PHOTOS.paint1],about:'Профессиональный плиточник с 8-летним опытом. Работаю с керамикой, керамогранитом, мозаикой. Делаю любые узоры, декоративные вставки. Качество гарантирую договором.',services:['Укладка плитки в ванной','Укладка плитки на кухне','Укладка керамогранита','Мозаика и декор','Демонтаж старой плитки','Затирка швов','Гидроизоляция']},
-  {id:3,name:'Дмитрий Василевский',init:'ДВ',spec:'Укладка полов',city:'Гродно',rating:4.8,reviews:22,price:20,verified:true,mainPhoto:PHOTOS.lam1,thumbs:[PHOTOS.lam1,PHOTOS.lam2,PHOTOS.bath1,PHOTOS.paint1,PHOTOS.elec1,PHOTOS.bath3],about:'Специализируюсь на укладке ламината, паркетной доски и ПВХ-плитки. 5 лет опыта. Работаю чисто, с порожками и плинтусами. Подбираю материалы под любой бюджет.',services:['Укладка ламината','Укладка паркетной доски','ПВХ-плитка','Монтаж плинтусов','Выравнивание пола','Демонтаж покрытий']},
-  {id:4,name:'Игорь Романов',init:'ИР',spec:'Маляр-штукатур',city:'Минск',rating:4.7,reviews:38,price:18,verified:false,mainPhoto:PHOTOS.paint1,thumbs:[PHOTOS.paint1,PHOTOS.paint2,PHOTOS.lam1,PHOTOS.bath1,PHOTOS.elec1,PHOTOS.lam2],about:'Маляр-штукатур с опытом 7 лет. Работаю со всеми видами покрытий: декоративная штукатурка, венецианка, покраска. Консультирую по выбору материала.',services:['Штукатурка стен','Шпаклёвка и покраска','Декоративная штукатурка','Венецианская штукатурка','Поклейка обоев','Выравнивание потолка']},
-  {id:5,name:'Алексей Петров',init:'АП',spec:'Сантехника',city:'Витебск',rating:4.9,reviews:55,price:35,verified:true,mainPhoto:PHOTOS.elec2,thumbs:[PHOTOS.elec2,PHOTOS.bath1,PHOTOS.lam2,PHOTOS.paint2,PHOTOS.bath2,PHOTOS.elec1],about:'Сантехник с 10-летним опытом. Ремонт и замена труб, установка сантехники любой сложности. Работаю в выходные и вечером. Аварийный выезд за 1 час.',services:['Замена труб','Установка унитаза / ванны','Установка смесителей','Аварийный вызов','Тёплый пол водяной','Счётчики воды']},
-  {id:6,name:'Николай Зайцев',init:'НЗ',spec:'Кровельщик',city:'Гомель',rating:4.6,reviews:19,price:28,verified:true,mainPhoto:PHOTOS.bath2,thumbs:[PHOTOS.bath2,PHOTOS.paint2,PHOTOS.elec1,PHOTOS.lam1,PHOTOS.bath1,PHOTOS.paint1],about:'Кровельные работы любой сложности. Металлочерепица, профнастил, мягкая кровля. Даю гарантию 5 лет. Работаю по всей Гомельской области.',services:['Монтаж металлочерепицы','Мягкая кровля','Ремонт кровли','Водосточные системы','Утепление мансарды','Снегозадержатели']},
-  {id:7,name:'Павел Кузнецов',init:'ПК',spec:'Ремонт квартир',city:'Минск',rating:4.8,reviews:63,price:22,verified:true,mainPhoto:PHOTOS.paint2,thumbs:[PHOTOS.paint2,PHOTOS.bath3,PHOTOS.lam2,PHOTOS.elec2,PHOTOS.bath1,PHOTOS.lam1],about:'Делаю ремонт квартир под ключ в Минске. Работаю в команде 3 человека. Соблюдаем сроки, фиксируем смету договором. Портфолио более 60 квартир.',services:['Ремонт под ключ','Черновой ремонт','Косметический ремонт','Разработка дизайн-проекта','Авторский надзор','Послеремонтная уборка']},
-  {id:8,name:'Виктор Соколов',init:'ВС',spec:'Электрика',city:'Могилёв',rating:4.5,reviews:14,price:27,verified:false,mainPhoto:PHOTOS.elec2,thumbs:[PHOTOS.elec2,PHOTOS.elec1,PHOTOS.paint1,PHOTOS.bath2,PHOTOS.lam1,PHOTOS.paint2],about:'Электрик с опытом 4 года. Работаю в Могилёве и области. Монтаж проводки в домах и квартирах. Все работы согласно нормам ПУЭ.',services:['Монтаж проводки','Замена розеток','Освещение','Заземление','Диагностика электрики']},
-];
+function toggleMobMenu(){document.getElementById('mobMenu').classList.toggle('open')}
 
 let currentPhotos=[];let currentLbIdx=0;
 function lbNav(dir){currentLbIdx=(currentLbIdx+dir+currentPhotos.length)%currentPhotos.length;document.getElementById('lbImg').src=currentPhotos[currentLbIdx]}
@@ -352,34 +339,159 @@ function submitContact(){
   }).catch(()=>alert('Ошибка сети. Попробуйте ещё раз.'));
 }
 
-const params=new URLSearchParams(location.search);
-const id=parseInt(params.get('id'))||1;
-const master=ALL_MASTERS.find(m=>m.id===id)||ALL_MASTERS[0];
+function showError(msg){
+  document.querySelector('.page-wrap').innerHTML=`<div style="text-align:center;padding:80px 20px;color:var(--t2)"><div style="font-size:48px;margin-bottom:16px">😞</div><div style="font-size:22px;font-weight:700;margin-bottom:8px">${msg}</div><a href="masters.html" style="color:var(--gold)">← Вернуться к мастерам</a></div>`;
+}
 
-document.getElementById('breadName').textContent=master.name;
-document.getElementById('avatarInitials').textContent=master.init;
-document.getElementById('masterName').textContent=master.name;
-document.getElementById('masterSpec').textContent=master.spec;
-document.getElementById('masterCity').textContent=master.city;
-document.getElementById('masterRating').textContent=master.rating;
-document.getElementById('masterReviews').textContent=`(${master.reviews} отзывов)`;
-document.getElementById('masterPrice').textContent=master.price;
-document.getElementById('masterAbout').textContent=master.about;
-document.getElementById('statRating').textContent=master.rating;
-document.getElementById('statReviews').textContent=master.reviews;
-document.getElementById('workArea').textContent=`Работает: ${master.city} и область`;
-if(master.verified)document.getElementById('verifiedBadge').style.display='inline-flex';
-document.getElementById('heroImg').src=master.mainPhoto;
+async function loadProfile(){
+  const params=new URLSearchParams(location.search);
+  const masterId=params.get('id');
+  if(!masterId){showError('Профиль не найден');return;}
 
-document.getElementById('servicesList').innerHTML=master.services.map(s=>`<span class="service-chip">${s}</span>`).join('');
+  // Skeleton state
+  document.getElementById('masterName').textContent='Загрузка...';
+  document.getElementById('masterSpec').textContent='';
 
-currentPhotos=master.thumbs;
-const gallery=document.getElementById('galleryGrid');
-gallery.innerHTML=master.thumbs.map((p,i)=>`
-  <div class="gallery-item" onclick="openLb(${i})">
-    <img src="${p}" alt="Работа" onerror="this.parentNode.style.background='var(--bg4)'">
-  </div>
-`).join('');
+  const{data:m,error}=await sb.from('profiles')
+    .select('*')
+    .eq('id',masterId)
+    .eq('role','master')
+    .single();
+
+  if(error||!m){showError('Мастер не найден');return;}
+
+  // Name & initials
+  const name=m.name||[m.first_name,m.last_name].filter(Boolean).join(' ')||'Мастер';
+  const initials=name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()||'М';
+  const spec=m.specialty||m.category||m.spec||'';
+  const city=m.city||'Беларусь';
+  const rating=m.rating?parseFloat(m.rating).toFixed(1):null;
+  const reviews=m.reviews_count||m.reviews||0;
+
+  // Update page title & canonical
+  document.getElementById('pageTitle').textContent=`${name}${spec?' — '+spec:''} в ${city} — BUDUJ.BY`;
+  document.getElementById('pageCanonical').href=`https://buduj.by/profile.html?id=${masterId}`;
+
+  // Breadcrumb
+  document.getElementById('breadName').textContent=name;
+
+  // Avatar
+  const avatarEl=document.getElementById('avatarInitials');
+  if(m.avatar_url){
+    avatarEl.innerHTML=`<img src="${m.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt="${name}" onerror="this.parentNode.textContent='${initials}'">`;
+  }else{
+    avatarEl.textContent=initials;
+  }
+
+  // Hero image
+  if(m.avatar_url){
+    document.getElementById('heroImg').src=m.avatar_url;
+    document.getElementById('heroImg').alt=name;
+  }
+
+  // Identity
+  document.getElementById('masterName').textContent=name;
+  document.getElementById('masterSpec').textContent=spec;
+  document.getElementById('masterCity').textContent=city;
+  if(m.is_verified)document.getElementById('verifiedBadge').style.display='inline-flex';
+
+  // Rating row
+  if(rating){
+    document.getElementById('masterRating').textContent=rating;
+    document.getElementById('masterReviews').textContent=reviews?`(${reviews} отзывов)`:'';
+  }else{
+    document.querySelector('.rating-big').style.display='none';
+  }
+
+  // Experience & jobs done
+  if(m.experience_years){
+    document.getElementById('masterExp').textContent=m.experience_years+'+';
+    document.getElementById('metaExp').style.display='flex';
+  }
+  if(m.jobs_done||m.completed_jobs){
+    document.getElementById('masterDone').textContent=m.jobs_done||m.completed_jobs;
+    document.getElementById('metaDone').style.display='flex';
+  }
+
+  // About
+  document.getElementById('masterAbout').textContent=m.bio||'Информация о мастере появится в ближайшее время.';
+
+  // Services
+  const svcEl=document.getElementById('servicesList');
+  if(m.services&&Array.isArray(m.services)&&m.services.length){
+    svcEl.innerHTML=m.services.map(s=>`<span class="service-chip">${s}</span>`).join('');
+  }else if(spec){
+    svcEl.innerHTML=`<span class="service-chip">${spec}</span>`;
+  }else{
+    svcEl.closest('.section-box').style.display='none';
+  }
+
+  // Price
+  if(m.price_from){
+    document.getElementById('masterPrice').textContent=m.price_from;
+  }else{
+    document.querySelector('.price-display').innerHTML=
+      '<div class="price-label">Стоимость работ</div>'+
+      '<div class="price-num" style="font-size:17px;color:var(--t2);padding:4px 0">По договорённости</div>';
+  }
+
+  // Work area
+  document.getElementById('workArea').textContent=`Работает: ${city} и область`;
+
+  // Stats
+  document.getElementById('statRating').textContent=rating||'—';
+  document.getElementById('statReviews').textContent=reviews||'0';
+
+  // Phone in floating button & contact card
+  if(m.phone){
+    document.querySelector('.cf-phone').href=`tel:${m.phone}`;
+    document.querySelector('.cf-phone span').textContent=m.phone;
+    document.querySelectorAll('.contact-row').forEach(row=>{
+      if(row.textContent.includes('Телефон')){
+        row.innerHTML=`<div class="contact-icon">📱</div><a href="tel:${m.phone}" style="color:var(--gold)">${m.phone}</a>`;
+      }
+    });
+  }
+
+  // Gallery — placeholder (portfolio feature coming soon)
+  const galleryEl=document.getElementById('galleryGrid');
+  if(m.portfolio_urls&&Array.isArray(m.portfolio_urls)&&m.portfolio_urls.length){
+    currentPhotos=m.portfolio_urls;
+    galleryEl.innerHTML=m.portfolio_urls.map((p,i)=>`
+      <div class="gallery-item" onclick="openLb(${i})">
+        <img src="${p}" alt="Работа ${name}" loading="lazy" onerror="this.parentNode.style.background='var(--bg4)'">
+      </div>
+    `).join('');
+  }else{
+    galleryEl.style.gridColumn='span 3';
+    galleryEl.innerHTML='<div style="text-align:center;padding:36px 0;color:var(--t3);font-size:14px">📷 Мастер скоро добавит фото работ</div>';
+  }
+
+  // Reviews — fetch from reviews table if it exists, else placeholder
+  const{data:revs}=await sb.from('reviews')
+    .select('*')
+    .eq('master_id',masterId)
+    .order('created_at',{ascending:false})
+    .limit(10);
+
+  const revList=document.querySelector('.reviews-list');
+  if(revs&&revs.length){
+    revList.innerHTML=revs.map(r=>{
+      const stars='★'.repeat(Math.round(r.rating||5))+'☆'.repeat(5-Math.round(r.rating||5));
+      const date=new Date(r.created_at).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+      return`<div class="review-card">
+        <div class="review-header"><span class="reviewer">${r.reviewer_name||'Клиент'}</span><span class="review-date">${date}</span></div>
+        <div class="review-stars">${stars}</div>
+        <div class="review-text">${r.text||''}</div>
+        ${r.service?`<div class="review-service">${r.service}</div>`:''}
+      </div>`;
+    }).join('');
+  }else{
+    revList.innerHTML='<div style="text-align:center;padding:32px 0;color:var(--t3);font-size:14px">Отзывов пока нет — будьте первым!</div>';
+  }
+}
+
+loadProfile();
 </script>
 <!-- FLOATING CONTACTS -->
 <div class="contact-float">
