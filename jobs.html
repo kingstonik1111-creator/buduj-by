@@ -355,7 +355,8 @@ async function submitResponse(){
   });
 
   if(!error){
-    await sb.from('orders').update({responses_count:sb.raw('responses_count + 1')}).eq('id',currentOrderId);
+    const{data:ord}=await sb.from('orders').select('responses_count').eq('id',currentOrderId).single();
+    if(ord) await sb.from('orders').update({responses_count:(ord.responses_count||0)+1}).eq('id',currentOrderId);
 
     // Notify via Formspree
     fetch('https://formspree.io/f/xjgqwdny',{
