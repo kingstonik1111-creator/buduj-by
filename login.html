@@ -247,7 +247,7 @@ function normalizePhone(p) {
 }
 
 function phoneToEmail(phone) {
-  return phone.replace('+', 'p') + '@users.buduj.by';
+  return 'u' + phone.replace(/\D/g,'') + '@budujauth.com';
 }
 
 async function forgotPassword() {

@@ -1208,7 +1208,7 @@ let _verifyEmail='';
 
 async function loadVerification(){
   const{data:{user}}=await sb.auth.getUser();
-  const isPhoneAccount=CP.auth_email&&CP.auth_email.endsWith('@users.buduj.by');
+  const isPhoneAccount=CP.auth_email&&CP.auth_email.endsWith('@budujauth.com');
 
   // --- Email ---
   const emailBadge=document.getElementById('emailVerifyBadge');
@@ -1243,7 +1243,7 @@ async function loadVerification(){
 
 async function sendVerifyEmail(){
   const{data:{user}}=await sb.auth.getUser();
-  const isPhoneAccount=CP.auth_email&&CP.auth_email.endsWith('@users.buduj.by');
+  const isPhoneAccount=CP.auth_email&&CP.auth_email.endsWith('@budujauth.com');
   if(isPhoneAccount){toast('Для телефонных аккаунтов это не нужно',false);return}
   _verifyEmail=user.email;
   const btn=document.getElementById('sendEmailCodeBtn');
