@@ -119,6 +119,25 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
 .mob-menu a{display:block;padding:16px 4px;font-size:17px;font-weight:600;color:var(--white);border-bottom:1px solid var(--border)}
 .mob-cta{margin-top:24px;padding:15px;background:var(--gold);border:none;border-radius:10px;font-size:16px;font-weight:700;color:#1C1512;width:100%;cursor:pointer}
 
+/* Review modal */
+.review-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;align-items:center;justify-content:center;padding:20px}
+.review-modal-overlay.open{display:flex}
+.review-modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:480px;width:100%;position:relative;max-height:90vh;overflow-y:auto}
+.review-modal h3{font-size:20px;margin-bottom:20px}
+.rv-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--t2);font-size:22px;cursor:pointer}
+.rv-label{font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block}
+.rv-input,.rv-textarea,.rv-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:.2s;margin-bottom:14px}
+.rv-input:focus,.rv-textarea:focus,.rv-select:focus{border-color:var(--gold)}
+.rv-input::placeholder,.rv-textarea::placeholder{color:var(--t3)}
+.rv-textarea{resize:vertical;min-height:90px}
+.rv-select option{background:var(--bg3)}
+.star-picker{display:flex;gap:6px;margin-bottom:16px}
+.star-picker span{font-size:28px;cursor:pointer;color:var(--t3);transition:.15s;line-height:1}
+.star-picker span.active{color:var(--gold)}
+.rv-submit{width:100%;padding:13px;background:var(--gold);border:none;border-radius:10px;font-size:15px;font-weight:700;color:#1C1512;cursor:pointer;transition:.2s}
+.rv-submit:hover{background:#e09415}
+.rv-submit:disabled{opacity:.6;cursor:not-allowed}
+
 @media(max-width:900px){
   .profile-layout{grid-template-columns:1fr}
   .contact-card{position:static}
@@ -236,27 +255,11 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
 
       <!-- Reviews -->
       <div class="section-box">
-        <h2>Отзывы клиентов</h2>
-        <div class="reviews-list">
-          <div class="review-card">
-            <div class="review-header"><span class="reviewer">Ирина К.</span><span class="review-date">14 июня 2026</span></div>
-            <div class="review-stars">★★★★★</div>
-            <div class="review-text">Приехал точно по времени, всё сделал чисто и аккуратно. Розетки не греются, провода спрятаны. Однозначно рекомендую!</div>
-            <div class="review-service">Монтаж розеток</div>
-          </div>
-          <div class="review-card">
-            <div class="review-header"><span class="reviewer">Денис Ш.</span><span class="review-date">2 мая 2026</span></div>
-            <div class="review-stars">★★★★★</div>
-            <div class="review-text">Делал электрощиток под ключ в новой квартире. Всё по схеме, с маркировкой, есть договор и гарантия 2 года. Цена адекватная.</div>
-            <div class="review-service">Электрощиток под ключ</div>
-          </div>
-          <div class="review-card">
-            <div class="review-header"><span class="reviewer">Марина Л.</span><span class="review-date">18 апреля 2026</span></div>
-            <div class="review-stars">★★★★☆</div>
-            <div class="review-text">Хороший мастер, работает быстро. Небольшой минус — немного опоздал на 20 минут, но предупредил. Работой довольна.</div>
-            <div class="review-service">Замена проводки в комнате</div>
-          </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <h2 style="margin-bottom:0">Отзывы клиентов</h2>
+          <button onclick="openReviewModal()" style="padding:8px 16px;background:var(--gold);border:none;border-radius:8px;font-size:13px;font-weight:700;color:#1C1512;cursor:pointer">✍️ Оставить отзыв</button>
         </div>
+        <div class="reviews-list" id="reviewsList"></div>
       </div>
     </div>
 
@@ -491,8 +494,90 @@ async function loadProfile(){
   }
 }
 
-loadProfile();
+let reviewRating=5;
+let reviewMasterId=null;
+
+function openReviewModal(){
+  document.getElementById('reviewModal').classList.add('open');
+  setRating(5);
+}
+function closeReviewModal(){
+  document.getElementById('reviewModal').classList.remove('open');
+}
+document.getElementById('reviewModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('reviewModal'))closeReviewModal();
+});
+
+function setRating(n){
+  reviewRating=n;
+  document.querySelectorAll('#starPicker span').forEach((s,i)=>{
+    s.classList.toggle('active',i<n);
+  });
+}
+
+async function submitReview(){
+  const name=document.getElementById('rvName').value.trim();
+  const service=document.getElementById('rvService').value.trim();
+  const text=document.getElementById('rvText').value.trim();
+  if(!name){alert('Введите ваше имя');return}
+  if(!text){alert('Напишите отзыв');return}
+  if(!reviewMasterId){alert('Мастер не найден');return}
+
+  const btn=document.getElementById('rvSubmit');
+  btn.disabled=true;btn.textContent='Публикуем...';
+
+  const{error}=await sb.from('reviews').insert({
+    master_id:reviewMasterId,
+    reviewer_name:name,
+    rating:reviewRating,
+    text,
+    service:service||null
+  });
+
+  if(error){
+    alert('Ошибка: '+error.message);
+    btn.disabled=false;btn.textContent='Опубликовать отзыв →';
+    return;
+  }
+
+  closeReviewModal();
+  btn.disabled=false;btn.textContent='Опубликовать отзыв →';
+  document.getElementById('rvName').value='';
+  document.getElementById('rvService').value='';
+  document.getElementById('rvText').value='';
+  // Перезагружаем отзывы и рейтинг
+  loadProfile();
+}
+
+loadProfile().then(()=>{
+  // Сохраняем master_id для формы отзыва
+  const params=new URLSearchParams(location.search);
+  reviewMasterId=params.get('id');
+});
 </script>
+<!-- Review Modal -->
+<div class="review-modal-overlay" id="reviewModal">
+  <div class="review-modal">
+    <button class="rv-close" onclick="closeReviewModal()">✕</button>
+    <h3>Оставить отзыв</h3>
+    <label class="rv-label">Ваша оценка</label>
+    <div class="star-picker" id="starPicker">
+      <span onclick="setRating(1)">★</span>
+      <span onclick="setRating(2)">★</span>
+      <span onclick="setRating(3)">★</span>
+      <span onclick="setRating(4)">★</span>
+      <span onclick="setRating(5)">★</span>
+    </div>
+    <label class="rv-label">Ваше имя</label>
+    <input class="rv-input" id="rvName" placeholder="Имя и фамилия">
+    <label class="rv-label">Вид работы</label>
+    <input class="rv-input" id="rvService" placeholder="Например: укладка плитки, монтаж проводки…">
+    <label class="rv-label">Ваш отзыв</label>
+    <textarea class="rv-textarea" id="rvText" placeholder="Расскажите о качестве работы, сроках, общении с мастером…"></textarea>
+    <button class="rv-submit" id="rvSubmit" onclick="submitReview()">Опубликовать отзыв →</button>
+  </div>
+</div>
+
 <!-- FLOATING CONTACTS -->
 <div class="contact-float">
   <a class="cf-btn cf-phone" href="tel:+375XXXXXXXXX" title="Позвонить">
