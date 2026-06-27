@@ -9,10 +9,10 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#1C1512;--bg2:#241B14;--bg3:#2E2219;--bg4:#3A2B1F;
-  --gold:#F5A623;--green:#3ECF8E;--red:#E05252;--amber:#FF8C42;
-  --white:#FFFFFF;--t2:#C4A882;--t3:#7A6358;
-  --border:rgba(245,166,35,0.15);--border2:rgba(245,166,35,0.3);
+  --bg:#F8F6F2;--bg2:#FFFFFF;--bg3:#F0EDE7;--bg4:#E8E3DC;
+  --gold:#C28B1A;--green:#2A9D6F;--red:#D45050;--amber:#D4700A;
+  --white:#2C2118;--t2:#6B5242;--t3:#A89080;
+  --border:rgba(0,0,0,0.07);--border2:rgba(194,139,26,0.30);
   --r:12px
 }
 body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
@@ -29,7 +29,7 @@ input,select,textarea{font-family:'Inter',sans-serif}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* HEADER */
-.dash-header{position:sticky;top:0;z-index:200;background:rgba(28,21,18,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:64px;gap:16px}
+.dash-header{position:sticky;top:0;z-index:200;background:rgba(245,242,238,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;height:64px;gap:16px}
 .dash-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:var(--gold);flex-shrink:0}
 .dash-logo span{color:var(--white);opacity:.4}
 .dash-user{display:flex;align-items:center;gap:10px;margin-left:auto}
@@ -115,13 +115,14 @@ input,select,textarea{font-family:'Inter',sans-serif}
 .btn-reveal:hover{background:rgba(62,207,142,.2)}
 
 /* CHAT DRAWER */
-.chat-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none}
+.chat-overlay{position:fixed;inset:0;background:rgba(28,21,18,.7);z-index:400;display:none}
 .chat-overlay.open{display:block}
 .chat-drawer{position:fixed;top:0;right:-100%;width:100%;max-width:420px;height:100vh;background:var(--bg2);border-left:1px solid var(--border2);z-index:401;display:flex;flex-direction:column;transition:right .3s ease}
 .chat-drawer.open{right:0}
 .chat-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0}
 .chat-head-info h4{font-size:14px;font-weight:700}
 .chat-head-info p{font-size:12px;color:var(--t3);margin-top:2px}
+.chat-head-info .chat-online-status{font-size:11px;margin-top:3px}
 .chat-close{margin-left:auto;background:none;border:none;color:var(--t2);font-size:22px;cursor:pointer;line-height:1}
 .chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
 .cm{max-width:80%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;word-break:break-word}
@@ -183,7 +184,7 @@ input,select,textarea{font-family:'Inter',sans-serif}
 .sub-banner button{padding:6px 16px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;background:var(--gold);color:#1C1512;margin-left:auto;flex-shrink:0}
 
 /* UPGRADE MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay{position:fixed;inset:0;background:rgba(28,21,18,.75);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
 .modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:36px;max-width:460px;width:100%;animation:fadeIn .3s ease}
 .modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;margin-bottom:8px}
@@ -205,6 +206,46 @@ input,select,textarea{font-family:'Inter',sans-serif}
 /* ORDER FORM in dashboard */
 .order-form-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:28px;max-width:600px}
 
+/* WIZARD STEPS */
+.wizard-progress{display:flex;align-items:flex-start;margin-bottom:28px;gap:0}
+.wz-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;position:relative}
+.wz-step:not(:last-child)::after{content:'';position:absolute;top:13px;left:56%;width:88%;height:2px;background:var(--border2);z-index:0}
+.wz-step.done:not(:last-child)::after{background:var(--gold)}
+.wz-dot{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--t3);z-index:1;transition:.3s}
+.wz-step.active .wz-dot{border-color:var(--gold);color:var(--gold);background:rgba(245,166,35,.1)}
+.wz-step.done .wz-dot{background:var(--gold);border-color:var(--gold);color:#1C1512}
+.wz-label{font-size:10px;color:var(--t3);text-align:center;line-height:1.3;margin-top:2px}
+.wz-step.active .wz-label{color:var(--gold)}
+.wz-content{display:none}
+.wz-content.active{display:block}
+.wz-nav{display:flex;gap:10px;margin-top:20px;align-items:center}
+.cat-pick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+.cat-pick-item{background:var(--bg3);border:2px solid var(--border);border-radius:10px;padding:12px 10px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--t2)}
+.cat-pick-item:hover,.cat-pick-item.sel{border-color:var(--gold);color:var(--gold);background:rgba(245,166,35,.06)}
+.cat-pick-icon{font-size:18px;flex-shrink:0}
+.photo-upload-area{border:2px dashed var(--border2);border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:.2s;margin-top:4px}
+.photo-upload-area:hover{border-color:var(--gold)}
+.photo-upload-area input{display:none}
+
+/* FAVORITES / МОИ МАСТЕРА */
+.fav-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.fav-avatar{width:52px;height:52px;border-radius:50%;background:rgba(245,166,35,.15);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:18px;color:var(--gold);flex-shrink:0;overflow:hidden}
+.fav-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.fav-info{flex:1;min-width:0}
+.fav-name{font-size:15px;font-weight:700;margin-bottom:2px}
+.fav-spec{font-size:12px;color:var(--t3)}
+.fav-rating{font-size:12px;color:var(--gold);margin-top:3px}
+.btn-fav-chat{padding:8px 14px;background:var(--gold);border:none;border-radius:8px;color:#1C1512;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;flex-shrink:0}
+.btn-fav-chat:hover{background:#e09415}
+.btn-fav-remove{padding:6px 12px;border:1px solid var(--border2);border-radius:8px;background:transparent;color:var(--t3);font-size:12px;cursor:pointer;transition:.2s;flex-shrink:0}
+.btn-fav-remove:hover{border-color:var(--red);color:var(--red)}
+
+/* VERIFY DOC */
+.verify-pending{padding:4px 12px;border-radius:100px;background:rgba(255,140,66,.12);border:1px solid rgba(255,140,66,.4);color:#FF8C42;font-size:11px;font-weight:700}
+.doc-upload-area{border:2px dashed var(--border2);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:.2s}
+.doc-upload-area:hover{border-color:var(--gold)}
+.doc-upload-area input{display:none}
+
 @media(max-width:900px){
   .dash-sidebar{display:none}
   .mobile-nav{display:flex}
@@ -214,6 +255,33 @@ input,select,textarea{font-family:'Inter',sans-serif}
   .budget-grid{grid-template-columns:1fr 1fr}
   .chat-drawer{max-width:100%}
 }
+
+/* READ RECEIPTS */
+.cm-status{font-size:10px;margin-left:6px;opacity:.5}
+.cm-status.read{color:var(--gold);opacity:1;font-weight:700}
+
+/* TYPING INDICATOR */
+.typing-indicator{display:none;padding:6px 16px;align-items:center;gap:6px}
+.typing-indicator.show{display:flex}
+.typing-dots{display:flex;gap:3px;align-items:center}
+.typing-dots span{width:6px;height:6px;background:var(--t3);border-radius:50%;animation:typingBounce 1.2s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.typing-name{font-size:12px;color:var(--t3)}
+
+/* ONLINE STATUS */
+.online-dot{width:8px;height:8px;border-radius:50%;background:var(--t3);display:inline-block;margin-right:5px;flex-shrink:0}
+.online-dot.is-online{background:var(--green)}
+.chat-online-status{font-size:11px;color:var(--t3);display:flex;align-items:center;gap:4px}
+
+/* RESPONSE READ BADGE */
+.resp-read{font-size:11px;padding:2px 8px;border-radius:100px;font-weight:700}
+.resp-read.seen{background:rgba(26,140,85,.1);color:var(--green)}
+.resp-read.unseen{background:var(--bg3);color:var(--t3)}
+
+/* UNREAD BADGE */
+.unread-badge{background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:1px 6px;border-radius:100px;margin-left:auto}
 </style>
 </head>
 <body>
@@ -254,50 +322,98 @@ input,select,textarea{font-family:'Inter',sans-serif}
       <div id="myOrdersList"></div>
     </div>
 
-    <!-- Клиент: Новый заказ -->
+    <!-- Клиент: Новый заказ (wizard) -->
     <div class="panel" id="p-new-order">
       <h2 class="panel-title">Разместить заказ</h2>
       <p class="panel-sub">Мастера сами найдут вас и предложат цену</p>
       <div class="order-form-wrap">
-        <div class="form-group">
-          <label class="form-label">Тип работы</label>
-          <select class="form-select" id="noCat">
-            <option value="">Выберите категорию…</option>
-            <option>Электрика</option><option>Сантехника</option>
-            <option>Ремонт квартир под ключ</option><option>Укладка плитки</option>
-            <option>Укладка ламината / полов</option><option>Покраска и штукатурка</option>
-            <option>Кровельные работы</option><option>Сварочные работы</option>
-            <option>Натяжные потолки</option><option>Установка дверей и окон</option>
-            <option>Другое</option>
-          </select>
+        <!-- Прогресс -->
+        <div class="wizard-progress" id="wzProgress">
+          <div class="wz-step active" data-step="1"><div class="wz-dot">1</div><div class="wz-label">Вид работ</div></div>
+          <div class="wz-step" data-step="2"><div class="wz-dot">2</div><div class="wz-label">Описание</div></div>
+          <div class="wz-step" data-step="3"><div class="wz-dot">3</div><div class="wz-label">Фото</div></div>
+          <div class="wz-step" data-step="4"><div class="wz-dot">4</div><div class="wz-label">Город</div></div>
+          <div class="wz-step" data-step="5"><div class="wz-dot">5</div><div class="wz-label">Бюджет</div></div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Опишите задачу</label>
-          <textarea class="form-textarea" id="noTitle" placeholder="Подробно опишите что нужно сделать…"></textarea>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Город</label>
-            <select class="form-select" id="noCity">
-              <option value="">Выберите город…</option>
-              <option>Минск</option><option>Брест</option><option>Гродно</option>
-              <option>Витебск</option><option>Гомель</option><option>Могилёв</option>
-            </select>
+
+        <!-- Шаг 1: Категория -->
+        <div class="wz-content active" id="wzStep1">
+          <div class="form-label">Выберите вид работ</div>
+          <div class="cat-pick-grid">
+            <div class="cat-pick-item" onclick="selectCat(this,'Электрика')"><span class="cat-pick-icon">⚡</span>Электрика</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Сантехника')"><span class="cat-pick-icon">🔧</span>Сантехника</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Укладка плитки')"><span class="cat-pick-icon">🪣</span>Плитка</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Укладка полов')"><span class="cat-pick-icon">🪵</span>Полы</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Ремонт квартир под ключ')"><span class="cat-pick-icon">🏠</span>Ремонт под ключ</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Покраска и штукатурка')"><span class="cat-pick-icon">🖌️</span>Покраска</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Натяжные потолки')"><span class="cat-pick-icon">⬜</span>Потолки</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Установка дверей и окон')"><span class="cat-pick-icon">🚪</span>Двери/Окна</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Кровельные работы')"><span class="cat-pick-icon">🏗️</span>Кровля</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Другое')"><span class="cat-pick-icon">🔩</span>Другое</div>
           </div>
+          <div class="wz-nav"><button class="btn btn-gold" style="margin-left:auto" onclick="wzNext(1)">Далее →</button></div>
+        </div>
+
+        <!-- Шаг 2: Описание -->
+        <div class="wz-content" id="wzStep2">
           <div class="form-group">
-            <label class="form-label">Когда нужно</label>
-            <select class="form-select" id="noTiming">
-              <option value="">Выберите срок…</option>
-              <option>Срочно (сегодня-завтра)</option>
-              <option>На этой неделе</option>
-              <option>В этом месяце</option>
-              <option>Не спешу</option>
-            </select>
+            <label class="form-label">Опишите задачу подробно</label>
+            <textarea class="form-textarea" id="noTitle" rows="5" placeholder="Что нужно сделать? Площадь, материалы, особые пожелания…"></textarea>
+          </div>
+          <div class="wz-nav">
+            <button class="btn btn-ghost" onclick="wzGo(1)">← Назад</button>
+            <button class="btn btn-gold" style="margin-left:auto" onclick="wzNext(2)">Далее →</button>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Примерный бюджет</label>
-          <div class="budget-grid" id="noBudgetGrid">
+
+        <!-- Шаг 3: Фото -->
+        <div class="wz-content" id="wzStep3">
+          <div class="form-label">Фото объекта (необязательно)</div>
+          <div class="photo-upload-area" onclick="document.getElementById('orderPhotos').click()">
+            <input type="file" id="orderPhotos" accept="image/*" multiple onchange="previewOrderPhotos(this)">
+            <div style="font-size:36px;margin-bottom:8px">📷</div>
+            <div style="font-size:14px;font-weight:600;color:var(--t2)">Нажмите чтобы добавить фото</div>
+            <div style="font-size:12px;color:var(--t3);margin-top:4px">Фото помогают мастерам точнее оценить работу</div>
+            <div id="orderPhotosPreview" style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center"></div>
+          </div>
+          <div class="wz-nav">
+            <button class="btn btn-ghost" onclick="wzGo(2)">← Назад</button>
+            <button class="btn btn-gold" style="margin-left:auto" onclick="wzGo(4)">Далее →</button>
+          </div>
+        </div>
+
+        <!-- Шаг 4: Город + Срок -->
+        <div class="wz-content" id="wzStep4">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Город</label>
+              <select class="form-select" id="noCity">
+                <option value="">Выберите…</option>
+                <option>Минск</option><option>Брест</option><option>Гродно</option>
+                <option>Витебск</option><option>Гомель</option><option>Могилёв</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Когда нужно</label>
+              <select class="form-select" id="noTiming">
+                <option value="">Выберите…</option>
+                <option>Срочно (сегодня-завтра)</option>
+                <option>На этой неделе</option>
+                <option>В этом месяце</option>
+                <option>Не спешу</option>
+              </select>
+            </div>
+          </div>
+          <div class="wz-nav">
+            <button class="btn btn-ghost" onclick="wzGo(3)">← Назад</button>
+            <button class="btn btn-gold" style="margin-left:auto" onclick="wzNext(4)">Далее →</button>
+          </div>
+        </div>
+
+        <!-- Шаг 5: Бюджет + Отправить -->
+        <div class="wz-content" id="wzStep5">
+          <div class="form-label">Примерный бюджет</div>
+          <div class="budget-grid" id="noBudgetGrid" style="margin-top:8px">
             <div class="budget-chip" onclick="selBudget(this,'до 100 BYN')">до 100 BYN</div>
             <div class="budget-chip" onclick="selBudget(this,'100–300 BYN')">100–300 BYN</div>
             <div class="budget-chip" onclick="selBudget(this,'300–700 BYN')">300–700 BYN</div>
@@ -305,8 +421,11 @@ input,select,textarea{font-family:'Inter',sans-serif}
             <div class="budget-chip" onclick="selBudget(this,'1500+ BYN')">1500+ BYN</div>
             <div class="budget-chip" onclick="selBudget(this,'Нужна смета')">Нужна смета</div>
           </div>
+          <div class="wz-nav" style="margin-top:24px">
+            <button class="btn btn-ghost" onclick="wzGo(4)">← Назад</button>
+            <button class="btn btn-gold" style="flex:1" onclick="submitNewOrder()">✓ Разместить заказ бесплатно</button>
+          </div>
         </div>
-        <button class="btn btn-gold btn-full" onclick="submitNewOrder()">Разместить заказ бесплатно →</button>
       </div>
     </div>
 
@@ -481,6 +600,13 @@ input,select,textarea{font-family:'Inter',sans-serif}
       <div id="chatList"></div>
     </div>
 
+    <!-- Клиент: Мои мастера -->
+    <div class="panel" id="p-my-masters">
+      <h2 class="panel-title">Мои мастера</h2>
+      <p class="panel-sub">Сохранённые специалисты — быстрый доступ к чату</p>
+      <div id="myMastersList"></div>
+    </div>
+
     <!-- Верификация -->
     <div class="panel" id="p-verification">
       <h2 class="panel-title">Верификация</h2>
@@ -503,6 +629,26 @@ input,select,textarea{font-family:'Inter',sans-serif}
                 onkeydown="if(event.key==='Enter')checkEmailCode()">
               <button class="btn btn-gold" onclick="checkEmailCode()">Подтвердить</button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Документ (только для мастеров) — значок ✓ Проверен на карточке -->
+      <div class="verify-item" id="docVerifyBlock" style="display:none">
+        <div class="verify-status">
+          <span class="verify-icon">🪪</span>
+          <span class="verify-label">Документ (паспорт / ИП)</span>
+          <span id="docVerifyBadge" class="verify-no">Не загружен</span>
+        </div>
+        <div id="docVerifyBody">
+          <p style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.6">
+            Загрузите скан паспорта или свидетельства ИП. После проверки на вашей карточке появится значок <strong style="color:var(--gold)">✓ Проверен</strong>.
+          </p>
+          <div class="doc-upload-area" id="docUploadArea" onclick="document.getElementById('docFileInput').click()">
+            <input type="file" id="docFileInput" accept="image/*,.pdf" onchange="uploadVerifDoc(this)">
+            <div style="font-size:32px;margin-bottom:8px">📄</div>
+            <div style="font-size:14px;font-weight:600;color:var(--t2)">Нажмите чтобы загрузить документ</div>
+            <div style="font-size:12px;color:var(--t3);margin-top:4px">JPG, PNG или PDF · не более 10 МБ</div>
           </div>
         </div>
       </div>
@@ -541,6 +687,10 @@ input,select,textarea{font-family:'Inter',sans-serif}
     <button class="chat-close" onclick="closeChat()">✕</button>
   </div>
   <div class="chat-messages" id="chatMessages"></div>
+  <div class="typing-indicator" id="typingIndicator">
+    <div class="typing-dots"><span></span><span></span><span></span></div>
+    <span class="typing-name" id="typingName">печатает...</span>
+  </div>
   <div class="chat-input-row">
     <textarea class="chat-input" id="chatInput" placeholder="Написать сообщение…" rows="1"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
@@ -626,6 +776,13 @@ async function init(){
     loadMyOrders();
     showPanel('p-my-orders');
   }
+
+  // Heartbeat — обновляем last_seen_at каждые 60 сек
+  async function heartbeat(){
+    await sb.from('profiles').update({last_seen_at:new Date().toISOString()}).eq('id',CU.id);
+  }
+  heartbeat();
+  setInterval(heartbeat,60000);
 }
 
 function buildNav(){
@@ -639,6 +796,7 @@ function buildNav(){
   ]:[
     {id:'p-my-orders',icon:'📋',label:'Мои заказы'},
     {id:'p-new-order',icon:'➕',label:'Новый заказ'},
+    {id:'p-my-masters',icon:'❤️',label:'Мои мастера'},
     {id:'p-messages',icon:'💬',label:'Сообщения'},
     {id:'p-client-profile',icon:'👤',label:'Мой профиль'},
     {id:'p-verification',icon:'🔐',label:'Верификация'},
@@ -681,6 +839,8 @@ function showPanel(id,fromNav){
     if(id==='p-my-orders')loadMyOrders();
     if(id==='p-verification')loadVerification();
     if(id==='p-client-profile')loadClientProfile();
+    if(id==='p-my-masters')loadMyMasters();
+    if(id==='p-new-order')resetWizard();
   }
 }
 
@@ -867,6 +1027,66 @@ async function revealPhone(responseId,masterUserId,orderId,phone,btn){
   toast('Номер открыт! Можете звонить напрямую.');
 }
 
+// ============ WIZARD — ШАГОВОЕ СОЗДАНИЕ ЗАКАЗА ============
+let selectedCat='';
+let currentWzStep=1;
+
+function resetWizard(){
+  selectedCat='';currentWzStep=1;
+  document.querySelectorAll('.cat-pick-item').forEach(i=>i.classList.remove('sel'));
+  document.querySelectorAll('.budget-chip').forEach(c=>c.classList.remove('sel'));
+  selectedBudget='';
+  const tt=document.getElementById('noTitle');if(tt)tt.value='';
+  const nc=document.getElementById('noCity');if(nc)nc.selectedIndex=0;
+  const nt=document.getElementById('noTiming');if(nt)nt.selectedIndex=0;
+  const pp=document.getElementById('orderPhotosPreview');if(pp)pp.innerHTML='';
+  wzGo(1);
+}
+
+function wzGo(step){
+  currentWzStep=step;
+  document.querySelectorAll('.wz-content').forEach(c=>c.classList.remove('active'));
+  const el=document.getElementById('wzStep'+step);
+  if(el)el.classList.add('active');
+  document.querySelectorAll('.wz-step').forEach(s=>{
+    const n=parseInt(s.dataset.step);
+    s.classList.toggle('active',n===step);
+    s.classList.toggle('done',n<step);
+  });
+}
+
+function wzNext(step){
+  if(step===1){
+    if(!selectedCat){toast('Выберите вид работ');return;}
+    wzGo(2);
+  } else if(step===2){
+    const t=document.getElementById('noTitle').value.trim();
+    if(!t){toast('Опишите задачу');return;}
+    wzGo(3);
+  } else if(step===4){
+    if(!document.getElementById('noCity').value){toast('Выберите город');return;}
+    wzGo(5);
+  }
+}
+
+function selectCat(el,cat){
+  document.querySelectorAll('.cat-pick-item').forEach(i=>i.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedCat=cat;
+}
+
+function previewOrderPhotos(input){
+  const prev=document.getElementById('orderPhotosPreview');
+  prev.innerHTML='';
+  Array.from(input.files).slice(0,5).forEach(f=>{
+    const url=URL.createObjectURL(f);
+    const img=document.createElement('img');
+    img.src=url;
+    img.style.cssText='width:72px;height:72px;border-radius:8px;object-fit:cover;border:1px solid var(--border2)';
+    prev.appendChild(img);
+  });
+}
+
 // НОВЫЙ ЗАКАЗ ИЗ КАБИНЕТА
 function selBudget(el,val){
   document.querySelectorAll('.budget-chip').forEach(c=>c.classList.remove('sel'));
@@ -875,7 +1095,7 @@ function selBudget(el,val){
 async function submitNewOrder(){
   const title=document.getElementById('noTitle').value.trim();
   const city=document.getElementById('noCity').value;
-  const category=document.getElementById('noCat').value;
+  const category=selectedCat||document.getElementById('noCat')?.value||'';
   if(!title){toast('Опишите задачу',false);return}
   if(!city){toast('Выберите город',false);return}
   const{error}=await sb.from('orders').insert({
@@ -888,9 +1108,7 @@ async function submitNewOrder(){
   });
   if(error){toast('Ошибка: '+error.message,false);return}
   toast('Заказ размещён! Мастера увидят его и свяжутся с вами.');
-  document.getElementById('noTitle').value='';
-  selectedBudget='';
-  document.querySelectorAll('.budget-chip').forEach(c=>c.classList.remove('sel'));
+  resetWizard();
   loadMyOrders();
   showPanel('p-my-orders');
 }
@@ -1012,6 +1230,9 @@ async function loadMyResponses(){
   }
   el.innerHTML=resps.map(r=>{
     const o=r.order||{};
+    const readBadge=r.is_read
+      ?'<span class="resp-read seen">✓ Заказчик просмотрел</span>'
+      :'<span class="resp-read unseen">⏳ Не прочитан</span>';
     return `
     <div class="card">
       <div class="card-header">
@@ -1023,7 +1244,10 @@ async function loadMyResponses(){
         <span>🏷️ ${o.category||'—'}</span>
         <span>${timeAgo(r.created_at)}</span>
       </div>
-      <div style="font-size:13px;color:var(--t2);margin-bottom:12px">💰 Ваша цена: <strong style="color:var(--gold)">${r.price||'—'}</strong></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:13px;color:var(--t2)">💰 Ваша цена: <strong style="color:var(--gold)">${r.price||'—'}</strong></span>
+        ${readBadge}
+      </div>
       <div class="btn-row">
         ${o.owner_id?`<button class="btn btn-gold btn-sm" onclick="openChat('${o.id}','${o.owner_id}','Клиент','${(o.title||'').replace(/'/g,'').substring(0,40)}')">💬 Написать клиенту</button>`:''}
       </div>
@@ -1039,6 +1263,7 @@ async function loadChatList(){
     .select('*')
     .or(`sender_id.eq.${CU.id},receiver_id.eq.${CU.id}`)
     .order('created_at',{ascending:false});
+
   if(!msgs||!msgs.length){
     el.innerHTML='<div class="empty"><div class="empty-icon">💬</div><h3>Сообщений пока нет</h3><p>Начните общение с мастером или клиентом</p></div>';
     return;
@@ -1058,33 +1283,61 @@ async function loadChatList(){
     const{data:ps}=await sb.from('profiles').select('id,name').in('id',ids);
     if(ps)ps.forEach(p=>{names[p.id]=p.name});
   }
-  // Загружаем заголовки заказов
+  // Загружаем заголовки заказов + last_seen_at собеседников
   const orderIds=[...new Set(unique.map(u=>u.order_id))].filter(Boolean);
   let orderTitles={};
   if(orderIds.length){
     const{data:os}=await sb.from('orders').select('id,title').in('id',orderIds);
     if(os)os.forEach(o=>{orderTitles[o.id]=o.title});
   }
-  el.innerHTML=unique.map(u=>`
-    <div class="card card-clickable" onclick="openChat('${u.order_id}','${u.otherId}','${names[u.otherId]||'Пользователь'}','${(orderTitles[u.order_id]||'Заказ').substring(0,40)}')">
+  let lastSeen={};
+  if(ids.length){
+    const{data:ls}=await sb.from('profiles').select('id,last_seen_at').in('id',ids);
+    if(ls)ls.forEach(p=>{lastSeen[p.id]=p.last_seen_at});
+  }
+  // Считаем непрочитанные
+  const unreadCounts={};
+  msgs.forEach(m=>{
+    if(m.receiver_id===CU.id&&!m.is_read){
+      const key=`${m.order_id}_${m.sender_id}`;
+      unreadCounts[key]=(unreadCounts[key]||0)+1;
+    }
+  });
+  el.innerHTML=unique.map(u=>{
+    const online=isOnline(lastSeen[u.otherId]);
+    const unread=unreadCounts[`${u.order_id}_${u.otherId}`]||0;
+    return`<div class="card card-clickable" onclick="openChat('${u.order_id}','${u.otherId}','${names[u.otherId]||'Пользователь'}','${(orderTitles[u.order_id]||'Заказ').substring(0,40)}')">
       <div class="card-header">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="user-avatar" style="width:36px;height:36px;font-size:12px">${initials(names[u.otherId])}</div>
+          <div style="position:relative">
+            <div class="user-avatar" style="width:36px;height:36px;font-size:12px">${initials(names[u.otherId])}</div>
+            <span style="position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:${online?'var(--green)':'#ccc'};border:2px solid var(--bg2)"></span>
+          </div>
           <div>
             <div style="font-size:14px;font-weight:700">${names[u.otherId]||'Пользователь'}</div>
-            <div style="font-size:12px;color:var(--t3)">${(orderTitles[u.order_id]||'').substring(0,40)}</div>
+            <div style="font-size:11px;color:${online?'var(--green)':'var(--t3)'}">${online?'Онлайн':'Офлайн'}</div>
           </div>
         </div>
-        <span style="font-size:11px;color:var(--t3)">${timeAgo(u.created_at)}</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <span style="font-size:11px;color:var(--t3)">${timeAgo(u.created_at)}</span>
+          ${unread?`<span class="unread-badge">${unread}</span>`:''}
+        </div>
       </div>
       <div style="font-size:13px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-        ${u.sender_id===CU.id?'Вы: ':''}${u.content}
+        ${u.sender_id===CU.id?'<span style="color:var(--t3)">Вы: </span>':''}${u.content}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // ============ ЧАТ ============
+let typingTimer=null;
+
+function isOnline(ts){
+  if(!ts)return false;
+  return (Date.now()-new Date(ts).getTime())<3*60*1000;
+}
+
 async function openChat(orderId,otherId,otherName,orderTitle,isMasterInit){
   if(!otherId||otherId===''){toast('Клиент не зарегистрирован. Отклик отправлен.',false);return}
   chatOrderId=orderId;chatOtherId=otherId;chatOtherName=otherName;
@@ -1092,8 +1345,20 @@ async function openChat(orderId,otherId,otherName,orderTitle,isMasterInit){
   document.getElementById('chatSubtitle').textContent=(orderTitle||'').substring(0,50);
   document.getElementById('chatAvatar').textContent=initials(otherName);
   document.getElementById('chatMessages').innerHTML='<div style="text-align:center;padding:20px;color:var(--t3)">Загружаем...</div>';
+  hideTyping();
 
-  // Показываем drawer
+  // Онлайн статус собеседника
+  const dot=document.getElementById('chatOnlineDot');
+  const txt=document.getElementById('chatOnlineText');
+  if(dot&&txt&&otherId){
+    const{data:op}=await sb.from('profiles').select('last_seen_at,name').eq('id',otherId).single();
+    if(op){
+      const online=isOnline(op.last_seen_at);
+      dot.className='online-dot'+(online?' is-online':'');
+      txt.textContent=online?'Онлайн':op.last_seen_at?'Был(-а) недавно':'—';
+    }
+  }
+
   document.getElementById('chatOverlay').classList.add('open');
   document.getElementById('chatDrawer').classList.add('open');
 
@@ -1104,16 +1369,57 @@ async function openChat(orderId,otherId,otherName,orderTitle,isMasterInit){
     .order('created_at');
   renderMessages(msgs||[]);
 
-  // Подписка realtime
+  // Пометить входящие как прочитанные
+  sb.from('messages').update({is_read:true})
+    .eq('order_id',orderId).eq('receiver_id',CU.id).eq('is_read',false).then(()=>{});
+
+  // Realtime: новые сообщения + обновление is_read + typing
   if(chatChannel) sb.removeChannel(chatChannel);
   chatChannel=sb.channel('chat_'+orderId)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`order_id=eq.${orderId}`},
       payload=>{
-        if(payload.new.sender_id!==CU.id)appendMessage(payload.new);
+        if(payload.new.sender_id!==CU.id){
+          appendMessage(payload.new);
+          // Сразу пометить прочитанным
+          sb.from('messages').update({is_read:true}).eq('id',payload.new.id).then(()=>{});
+        }
       }
-    ).subscribe();
+    )
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'messages',filter:`order_id=eq.${orderId}`},
+      payload=>{
+        // Обновить галочку прочтения у отправленного сообщения
+        const div=document.querySelector(`.cm[data-id="${payload.new.id}"] .cm-status`);
+        if(div&&payload.new.is_read){div.textContent='✓✓';div.classList.add('read');}
+      }
+    )
+    .on('broadcast',{event:'typing'},({payload})=>{
+      if(payload.uid!==CU.id) showTyping(payload.name);
+    })
+    .on('broadcast',{event:'stop_typing'},({payload})=>{
+      if(payload.uid!==CU.id) hideTyping();
+    })
+    .subscribe();
 
-  document.getElementById('chatInput').focus();
+  // Typing broadcast при вводе
+  const inp=document.getElementById('chatInput');
+  inp.oninput=()=>{
+    chatChannel.send({type:'broadcast',event:'typing',payload:{uid:CU.id,name:CP.name||''}});
+    clearTimeout(typingTimer);
+    typingTimer=setTimeout(()=>{
+      chatChannel.send({type:'broadcast',event:'stop_typing',payload:{uid:CU.id}});
+    },2000);
+  };
+  inp.focus();
+}
+
+function showTyping(name){
+  const el=document.getElementById('typingIndicator');
+  const nm=document.getElementById('typingName');
+  if(el){el.classList.add('show');if(nm)nm.textContent=name+' печатает...';}
+}
+function hideTyping(){
+  const el=document.getElementById('typingIndicator');
+  if(el) el.classList.remove('show');
 }
 
 function renderMessages(msgs){
@@ -1122,12 +1428,14 @@ function renderMessages(msgs){
     el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--t3)">Начните диалог — напишите первое сообщение</div>';
     return;
   }
-  el.innerHTML=msgs.map(m=>`
-    <div class="cm ${m.sender_id===CU.id?'mine':'theirs'}">
+  el.innerHTML=msgs.map(m=>{
+    const mine=m.sender_id===CU.id;
+    const status=mine?`<span class="cm-status${m.is_read?' read':''}">${m.is_read?'✓✓':'✓'}</span>`:'';
+    return`<div class="cm ${mine?'mine':'theirs'}" data-id="${m.id}">
       ${m.content}
-      <div class="cm-time">${new Date(m.created_at).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}</div>
-    </div>
-  `).join('');
+      <div class="cm-time">${new Date(m.created_at).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'})}${status}</div>
+    </div>`;
+  }).join('');
   el.scrollTop=el.scrollHeight;
 }
 
@@ -1230,6 +1538,22 @@ async function loadVerification(){
     emailDesc.textContent='Email: '+(CP.auth_email||user.email);
   }
 
+  // --- Документ (только для мастеров) ---
+  const docBlock=document.getElementById('docVerifyBlock');
+  if(CP.role==='master'&&docBlock){
+    docBlock.style.display='block';
+    const badge=document.getElementById('docVerifyBadge');
+    const body=document.getElementById('docVerifyBody');
+    if(CP.verified_status==='approved'||CP.is_verified){
+      badge.textContent='✅ Проверен';badge.className='verify-ok';
+      body.innerHTML='<p style="font-size:13px;color:var(--green)">✅ Ваши документы проверены. Значок «Проверен» отображается на карточке.</p>';
+    } else if(CP.verified_status==='pending'){
+      badge.textContent='⏳ На проверке';badge.className='verify-pending';
+      body.innerHTML='<p style="font-size:13px;color:#FF8C42">⏳ Документ получен — мы проверим в течение 24 часов и сообщим результат.</p>';
+    }
+    // else — показываем форму загрузки (уже в HTML)
+  }
+
   // --- Phone ---
   const phoneBadge=document.getElementById('phoneVerifyBadge');
   const phoneDesc=document.getElementById('phoneVerifyDesc');
@@ -1239,6 +1563,71 @@ async function loadVerification(){
     phoneBadge.textContent='✅ Подтверждён';
     phoneBadge.className='verify-ok';
   }
+}
+
+// ============ ЗАГРУЗКА ДОКУМЕНТА ДЛЯ ВЕРИФИКАЦИИ ============
+async function uploadVerifDoc(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>10*1024*1024){toast('Файл слишком большой (макс 10 МБ)',false);return}
+  const area=document.getElementById('docUploadArea');
+  area.innerHTML='<div style="font-size:13px;color:var(--t2)">⏳ Загружаем документ…</div>';
+  const ext=file.name.split('.').pop();
+  const path=`verify/${CU.id}_${Date.now()}.${ext}`;
+  const{error:upErr}=await sb.storage.from('avatars').upload(path,file,{upsert:true});
+  if(upErr){toast('Ошибка загрузки: '+upErr.message,false);return}
+  const{data:{publicUrl}}=sb.storage.from('avatars').getPublicUrl(path);
+  const{error:dbErr}=await sb.from('profiles').update({
+    verified_doc_url:publicUrl,
+    verified_status:'pending'
+  }).eq('id',CU.id);
+  if(dbErr){toast('Ошибка сохранения',false);return}
+  CP.verified_status='pending';
+  CP.verified_doc_url=publicUrl;
+  toast('Документ загружен! Проверим в течение 24 часов.');
+  loadVerification();
+}
+
+// ============ МОИ МАСТЕРА (ИЗБРАННЫЕ) ============
+async function loadMyMasters(){
+  const el=document.getElementById('myMastersList');
+  el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto"></div></div>';
+  const{data:favs,error}=await sb.from('favorites')
+    .select('*,master:profiles!master_id(id,name,spec,city,rating,reviews_count,avatar_url)')
+    .eq('client_id',CU.id).order('created_at',{ascending:false});
+  if(!favs||!favs.length){
+    el.innerHTML=`<div class="empty">
+      <div class="empty-icon">❤️</div>
+      <h3>Нет сохранённых мастеров</h3>
+      <p>Нажмите ❤️ на карточке мастера чтобы сохранить его</p>
+      <button class="btn btn-gold" onclick="location.href='masters.html'">Найти мастера →</button>
+    </div>`;
+    return;
+  }
+  el.innerHTML=favs.map(f=>{
+    const m=f.master||{};
+    const name=m.name||'Мастер';
+    const init=initials(name);
+    return `<div class="fav-card">
+      <div class="fav-avatar">${m.avatar_url?`<img src="${m.avatar_url}" alt="${name}">`:`<span>${init}</span>`}</div>
+      <div class="fav-info">
+        <div class="fav-name">${name}</div>
+        <div class="fav-spec">${m.spec||'Специалист'}${m.city?' · 📍'+m.city:''}</div>
+        <div class="fav-rating">${stars(m.rating||0)} ${m.rating?m.rating.toFixed(1):''} ${m.reviews_count?`(${m.reviews_count})`:''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+        <button class="btn-fav-chat" onclick="openChat(null,'${m.id}','${name}','Избранный мастер')">💬 Написать</button>
+        <button class="btn-fav-remove" onclick="removeFav('${f.id}',this.closest('.fav-card'))">✕ Убрать</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function removeFav(favId,card){
+  await sb.from('favorites').delete().eq('id',favId);
+  card.remove();
+  const el=document.getElementById('myMastersList');
+  if(!el.querySelector('.fav-card')) loadMyMasters();
 }
 
 async function sendVerifyEmail(){

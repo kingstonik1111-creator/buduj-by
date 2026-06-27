@@ -6,16 +6,23 @@
 <title>Мастера — BUDUJ.BY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb=window.supabase.createClient(
+  'https://inhlhqzavjtghechstzb.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluaGxocXphdmp0Z2hlY2hzdHpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5NTIxNDQsImV4cCI6MjA2NjUyODE0NH0.U3BqJiYNMiMiHjPiMEQLqzQFJNFVOVDh6k-BONiEcZk'
+);
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#1C1512;--bg2:#241B14;--bg3:#2E2219;--bg4:#3A2B1F;--gold:#F5A623;--gold2:#FDE8B8;--gold3:#C47D0E;--white:#FFFFFF;--t2:#C4A882;--t3:#7A6358;--border:rgba(245,166,35,0.15);--border2:rgba(245,166,35,0.3);--r:12px;--r2:8px}
+:root{--bg:#F8F6F2;--bg2:#FFFFFF;--bg3:#F0EDE7;--bg4:#E8E3DC;--gold:#C28B1A;--gold2:#7A5500;--gold3:#9A6800;--white:#2C2118;--t2:#6B5242;--t3:#A89080;--border:rgba(0,0,0,0.07);--border2:rgba(194,139,26,0.30);--r:12px;--r2:8px}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
 h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;line-height:1.2}
 a{color:inherit;text-decoration:none}
 button{font-family:'Inter',sans-serif;cursor:pointer}
 
-nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+nav{position:sticky;top:0;z-index:100;background:rgba(245,242,238,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
 .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:32px;height:68px}
 .logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;color:var(--gold);letter-spacing:-0.5px}
 .logo span{color:var(--white);opacity:0.5}
@@ -68,8 +75,8 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
 .sort-select{background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--t2);font-size:13px;padding:8px 14px;outline:none;cursor:pointer;font-family:'Inter',sans-serif}
 .sort-select:focus{border-color:var(--gold)}
 .masters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
-.master-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:.25s;display:flex;flex-direction:column}
-.master-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4)}
+.master-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:.25s;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.master-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.12)}
 .master-photo{height:180px;position:relative;overflow:hidden;background:var(--bg3)}
 .master-photo img{width:100%;height:100%;object-fit:cover;transition:.3s}
 .master-card:hover .master-photo img{transform:scale(1.04)}
@@ -92,6 +99,11 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
 .price strong{font-size:15px;font-weight:700;color:var(--white)}
 .btn-sm{padding:6px 14px;background:var(--gold);border:none;border-radius:7px;font-size:12px;font-weight:700;color:#1C1512;transition:.2s}
 .btn-sm:hover{background:#e09415}
+.btn-fav{width:32px;height:32px;border:1px solid var(--border2);border-radius:7px;background:transparent;color:var(--t3);font-size:15px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-fav:hover{border-color:var(--red);color:var(--red)}
+.btn-fav.saved{border-color:var(--red);color:var(--red);background:rgba(224,82,82,.1)}
+.masters-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;z-index:500;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
+.masters-toast.show{opacity:1}
 .no-results{text-align:center;padding:60px 20px;color:var(--t3)}
 .no-results h3{font-size:20px;color:var(--t2);margin-bottom:8px}
 .active-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
@@ -292,6 +304,18 @@ const ALL_MASTERS=[
 ];
 
 let verifiedOnly=false;
+let onlineIds=new Set();
+let favIds=new Set(JSON.parse(localStorage.getItem('buduj_favs')||'[]').map(String));
+
+// Загружаем онлайн-статусы из Supabase
+(async()=>{
+  try{
+    const cutoff=new Date(Date.now()-3*60*1000).toISOString();
+    const{data}=await sb.from('profiles').select('id').eq('role','master').gte('last_seen_at',cutoff);
+    if(data) data.forEach(p=>onlineIds.add(p.id));
+    applyFilters();
+  }catch(e){}
+})();
 function toggleVerified(){
   verifiedOnly=!verifiedOnly;
   document.getElementById('verifiedToggle').classList.toggle('on',verifiedOnly);
@@ -329,15 +353,20 @@ function applyFilters(){
     grid.innerHTML='<div class="no-results" style="grid-column:1/-1"><h3>Мастера не найдены</h3><p>Попробуйте изменить фильтры</p></div>';
     return;
   }
-  grid.innerHTML=filtered.map(m=>`
-    <div class="master-card" onclick="location.href='profile.html?id=${m.id}'">
+  grid.innerHTML=filtered.map(m=>{
+    const online=onlineIds.has(m.id);
+    return`<div class="master-card" onclick="location.href='profile.html?id=${m.id}'">
       <div class="master-photo">
         <img src="${m.mainPhoto}" alt="${m.spec}" onerror="this.style.display='none'">
         ${m.verified?'<div class="verified-badge">✓ Проверен</div>':''}
+        ${online?'<div style="position:absolute;bottom:10px;left:10px;background:var(--green);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px">● Онлайн</div>':''}
       </div>
       <div class="master-info">
         <div class="master-header">
-          <div class="avatar">${m.init}</div>
+          <div style="position:relative">
+            <div class="avatar">${m.init}</div>
+            ${online?`<span style="position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--bg2)"></span>`:''}
+          </div>
           <div class="master-meta"><h3>${m.name}</h3><span>${m.spec}</span></div>
           <div class="city-tag">📍${m.city}</div>
         </div>
@@ -348,11 +377,16 @@ function applyFilters(){
         <div class="work-thumbs">${m.thumbs.slice(0,3).map(p=>`<div class="thumb"><img src="${p}" onerror="this.parentNode.style.background='var(--bg4)'"></div>`).join('')}</div>
         <div class="master-footer">
           <div class="price">от <strong>${m.price} BYN</strong>/ч</div>
-          <button class="btn-sm">Написать</button>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="btn-fav${favIds.has(String(m.id))?` saved`:``}" id="fav-${m.id}"
+              onclick="event.stopPropagation();toggleFav(${m.id},'${m.name}','${m.spec}',${m.rating})"
+              title="${favIds.has(String(m.id))?'Убрать из избранного':'В избранное'}">❤</button>
+            <button class="btn-sm">Написать</button>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function resetFilters(){
@@ -378,8 +412,39 @@ if(params.get('city')){
   if(cb)cb.checked=true;
 }
 
+// ===== ИЗБРАННЫЕ МАСТЕРА =====
+function toggleFav(id,name,spec,rating){
+  const key=String(id);
+  const wasSaved=favIds.has(key);
+  if(wasSaved){
+    favIds.delete(key);
+  } else {
+    favIds.add(key);
+    // Если в localStorage ещё не сохранено — предложить войти
+    const lsData=JSON.parse(localStorage.getItem('buduj_fav_meta')||'{}');
+    lsData[key]={name,spec,rating};
+    localStorage.setItem('buduj_fav_meta',JSON.stringify(lsData));
+  }
+  localStorage.setItem('buduj_favs',JSON.stringify([...favIds]));
+  const btn=document.getElementById('fav-'+id);
+  if(btn){
+    btn.classList.toggle('saved',!wasSaved);
+    btn.title=!wasSaved?'Убрать из избранного':'В избранное';
+  }
+  mToast(wasSaved?'Убрано из избранного':'❤️ '+name+' сохранён в Мои мастера');
+}
+
+function mToast(msg){
+  const el=document.getElementById('mastersToast');
+  if(!el)return;
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(mToast._t);
+  mToast._t=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
 applyFilters();
 </script>
+<div class="masters-toast" id="mastersToast"></div>
 <!-- FLOATING CONTACTS -->
 <div class="contact-float">
   <a class="cf-btn cf-phone" href="tel:+375XXXXXXXXX" title="Позвонить">
