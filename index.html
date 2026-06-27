@@ -311,8 +311,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
     </div>
     <div class="nav-phone">📞 <strong>+375 29 000-00-00</strong></div>
     <div class="nav-btns">
-      <button class="btn-ghost" onclick="openLoginPopup()">Войти</button>
-      <button class="btn-gold" onclick="location.href='for-masters.html'">Стать мастером</button>
+      <button class="btn-ghost" onclick="location.href='login.html'">Войти в кабинет</button>
+      <button class="btn-gold" onclick="location.href='login.html'">Зарегистрироваться</button>
     </div>
     <button class="hamburger" onclick="toggleMobMenu()">☰</button>
   </div>
@@ -329,7 +329,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
   <a href="masters.html?cat=Сантехника" onclick="toggleMobMenu()">🔧 Сантехника</a>
   <a href="masters.html?cat=Ремонт квартир" onclick="toggleMobMenu()">🏠 Ремонт</a>
   <a href="for-masters.html" onclick="toggleMobMenu()">👷 Для мастеров</a>
-  <button class="mob-cta" onclick="toggleMobMenu();location.href='for-masters.html'">Зарегистрироваться бесплатно</button>
+  <button class="mob-cta" onclick="toggleMobMenu();location.href='login.html'">Войти / Зарегистрироваться</button>
 </div>
 
 <!-- HERO -->
@@ -337,6 +337,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
   <div class="hero-tag"><span class="dot"></span>47 мастеров онлайн прямо сейчас</div>
   <h1>Найдите мастера<br>с <span>фото работ</span> за 3 минуты</h1>
   <p class="hero-sub">Только проверенные специалисты по всей Беларуси.<br>Договор, гарантия, реальные отзывы — без посредников.</p>
+  <!-- Выбор роли -->
+  <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap">
+    <button onclick="location.href='login.html?role=client'" style="padding:13px 28px;background:var(--gold);border:none;border-radius:12px;font-size:15px;font-weight:700;color:#1C1512;cursor:pointer;font-family:'Inter',sans-serif">🏠 Я заказчик — найти мастера</button>
+    <button onclick="location.href='login.html?role=master'" style="padding:13px 28px;background:transparent;border:2px solid var(--gold);border-radius:12px;font-size:15px;font-weight:700;color:var(--gold);cursor:pointer;font-family:'Inter',sans-serif">🔨 Я мастер — получать заказы</button>
+  </div>
   <div class="search-box">
     <input type="text" id="searchMain" placeholder="Что нужно сделать? (электрика, плитка, ремонт…)" onkeydown="if(event.key==='Enter')doSearch()">
     <div class="search-divider"></div>

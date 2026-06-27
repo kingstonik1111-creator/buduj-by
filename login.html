@@ -165,6 +165,18 @@ let method = 'phone';
 let selectedRole = '';
 let pendingUser = null;
 
+// Предвыбор роли из URL (?role=master или ?role=client)
+(function(){
+  const role = new URLSearchParams(location.search).get('role');
+  if(role === 'master' || role === 'client'){
+    // Переключаем на регистрацию сразу
+    setTimeout(()=>{
+      setMode('register');
+      selectRole(role);
+    }, 50);
+  }
+})();
+
 // Уже залогинен?
 (async () => {
   const {data: {user}} = await sb.auth.getUser();
