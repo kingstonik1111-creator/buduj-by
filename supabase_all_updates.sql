@@ -83,6 +83,47 @@ SELECT cron.schedule(
   $$
 );
 
+-- 11. RLS для orders: разрешить анонимное размещение заказов клиентами
+ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "orders_insert" ON orders;
+CREATE POLICY "orders_insert" ON orders
+  FOR INSERT WITH CHECK (
+    (auth.uid() IS NULL AND owner_id IS NULL)
+    OR auth.uid() = owner_id
+  );
+
+DROP POLICY IF EXISTS "orders_select" ON orders;
+CREATE POLICY "orders_select" ON orders
+  FOR SELECT USING (
+    status = 'open'
+    OR auth.uid() = owner_id
+  );
+
+DROP POLICY IF EXISTS "orders_update" ON orders;
+CREATE POLICY "orders_update" ON orders
+  FOR UPDATE USING (auth.uid() = owner_id)
+  WITH CHECK (auth.uid() = owner_id);
+
+-- 12. RLS для responses: мастера могут откликаться (в т.ч. анонимно)
+ALTER TABLE responses ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "responses_insert" ON responses;
+CREATE POLICY "responses_insert" ON responses
+  FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "responses_select" ON responses;
+CREATE POLICY "responses_select" ON responses
+  FOR SELECT USING (
+    auth.uid() IN (
+      SELECT owner_id FROM orders WHERE id = order_id
+    )
+    OR auth.uid() = master_id
+  );
+
+-- 13. master_id в responses (если ещё нет)
+ALTER TABLE responses ADD COLUMN IF NOT EXISTS master_id uuid REFERENCES profiles(id);
+
 -- Проверить что всё добавлено:
 -- SELECT column_name FROM information_schema.columns WHERE table_name = 'profiles';
 -- SELECT column_name FROM information_schema.columns WHERE table_name = 'favorites';

@@ -263,6 +263,16 @@ let allOrders=[];
 let currentCity='';
 let currentOrderId=null;
 let currentOrderTitle='';
+let currentUser=null;
+let currentProfile=null;
+
+async function checkAuth(){
+  const{data:{user}}=await sb.auth.getUser();
+  if(!user)return;
+  currentUser=user;
+  const{data}=await sb.from('profiles').select('name,phone,spec,role').eq('id',user.id).single();
+  if(data&&data.role==='master')currentProfile=data;
+}
 
 function timeAgo(ts){
   const diff=(Date.now()-new Date(ts))/1000;
@@ -328,8 +338,14 @@ function openRespond(orderId,title){
   currentOrderId=orderId;
   currentOrderTitle=title;
   document.getElementById('respondOrderTitle').textContent=title+'...';
+  // Предзаполнить если мастер залогинен
+  if(currentProfile){
+    document.getElementById('rName').value=currentProfile.name||'';
+    document.getElementById('rPhone').value=currentProfile.phone||'';
+    document.getElementById('rSpec').value=currentProfile.spec||'';
+  }
   document.getElementById('respondModal').classList.add('open');
-  document.getElementById('rName').focus();
+  document.getElementById(currentProfile?'rPrice':'rName').focus();
 }
 function closeRespond(){document.getElementById('respondModal').classList.remove('open')}
 
@@ -346,13 +362,15 @@ async function submitResponse(){
   const btn=document.getElementById('respondBtn');
   btn.disabled=true;btn.textContent='Отправляем...';
 
-  const {error}=await sb.from('responses').insert({
+  const insertData={
     order_id:currentOrderId,
     master_name:name,
     master_phone:phone,
     master_spec:spec,
     message,price
-  });
+  };
+  if(currentUser)insertData.master_id=currentUser.id;
+  const {error}=await sb.from('responses').insert(insertData);
 
   if(!error){
     const{data:ord}=await sb.from('orders').select('responses_count').eq('id',currentOrderId).single();
@@ -383,8 +401,8 @@ document.getElementById('respondModal').addEventListener('click',e=>{
   if(e.target===document.getElementById('respondModal'))closeRespond();
 });
 
-loadOrders();
-setInterval(loadOrders,30000); // refresh every 30s
+checkAuth().then(()=>loadOrders());
+setInterval(loadOrders,30000);
 </script>
 <!-- FLOATING CONTACTS -->
 <div class="contact-float">
