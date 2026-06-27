@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мастера — BUDUJ.BY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1C1512;--bg2:#241B14;--bg3:#2E2219;--bg4:#3A2B1F;--gold:#F5A623;--gold2:#FDE8B8;--gold3:#C47D0E;--white:#FFFFFF;--t2:#C4A882;--t3:#7A6358;--border:rgba(245,166,35,0.15);--border2:rgba(245,166,35,0.3);--r:12px;--r2:8px}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;line-height:1.2}
+a{color:inherit;text-decoration:none}
+button{font-family:'Inter',sans-serif;cursor:pointer}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:32px;height:68px}
+.logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;color:var(--gold);letter-spacing:-0.5px}
+.logo span{color:var(--white);opacity:0.5}
+.nav-links{display:flex;gap:4px;flex:1}
+.nav-links a{padding:8px 16px;border-radius:var(--r2);color:var(--t2);font-size:14px;font-weight:500;transition:.2s}
+.nav-links a:hover,.nav-links a.active{color:var(--white);background:var(--bg3)}
+.nav-btns{display:flex;gap:8px}
+.btn-ghost{padding:8px 18px;border:1px solid var(--border2);border-radius:var(--r2);font-size:14px;font-weight:500;color:var(--t2);background:transparent;transition:.2s}
+.btn-ghost:hover{color:var(--white);border-color:var(--gold)}
+.btn-gold{padding:9px 20px;background:var(--gold);border:none;border-radius:var(--r2);font-size:14px;font-weight:700;color:#1C1512;transition:.2s}
+.btn-gold:hover{background:#e09415}
+
+.page-header{padding:40px 24px 32px;border-bottom:1px solid var(--border)}
+.page-header-inner{max-width:1200px;margin:0 auto}
+.breadcrumb{font-size:13px;color:var(--t3);margin-bottom:16px}
+.breadcrumb a{color:var(--t3)}
+.breadcrumb a:hover{color:var(--gold)}
+.page-header h1{font-size:32px;margin-bottom:8px}
+.page-header p{font-size:15px;color:var(--t2)}
+
+.main-layout{max-width:1200px;margin:0 auto;padding:32px 24px;display:grid;grid-template-columns:260px 1fr;gap:32px;align-items:start}
+
+/* FILTERS */
+.filters{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;position:sticky;top:90px}
+.filter-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.filter-reset{font-size:12px;color:var(--gold);font-weight:500;cursor:pointer;font-family:'Inter',sans-serif}
+.filter-group{margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:20px}
+.filter-group:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.filter-group h4{font-size:13px;font-weight:600;color:var(--t2);margin-bottom:10px;font-family:'Inter',sans-serif}
+.filter-options{display:flex;flex-direction:column;gap:6px}
+.filter-opt{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--t2);cursor:pointer;padding:4px 0;transition:.2s}
+.filter-opt:hover{color:var(--white)}
+.filter-opt input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:pointer}
+.filter-opt.active{color:var(--white)}
+.verified-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border-radius:8px;cursor:pointer}
+.verified-toggle span{font-size:13px;color:var(--t2)}
+.toggle-sw{width:36px;height:20px;background:var(--bg4);border-radius:100px;position:relative;transition:.3s}
+.toggle-sw::after{content:'';width:14px;height:14px;background:var(--t3);border-radius:50%;position:absolute;top:3px;left:3px;transition:.3s}
+.toggle-sw.on{background:var(--gold)}
+.toggle-sw.on::after{left:19px;background:#1C1512}
+.price-range{display:flex;gap:8px;align-items:center}
+.price-range input{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--white);font-size:13px;width:70px;outline:none;font-family:'Inter',sans-serif}
+.price-range input:focus{border-color:var(--gold)}
+.price-range span{font-size:13px;color:var(--t3)}
+
+/* CATALOG */
+.catalog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.results-count{font-size:14px;color:var(--t2)}
+.results-count strong{color:var(--white)}
+.sort-select{background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--t2);font-size:13px;padding:8px 14px;outline:none;cursor:pointer;font-family:'Inter',sans-serif}
+.sort-select:focus{border-color:var(--gold)}
+.masters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.master-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:.25s;display:flex;flex-direction:column}
+.master-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4)}
+.master-photo{height:180px;position:relative;overflow:hidden;background:var(--bg3)}
+.master-photo img{width:100%;height:100%;object-fit:cover;transition:.3s}
+.master-card:hover .master-photo img{transform:scale(1.04)}
+.verified-badge{position:absolute;top:10px;right:10px;background:rgba(28,21,18,0.9);border:1px solid var(--gold);border-radius:100px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--gold)}
+.master-info{padding:16px;flex:1;display:flex;flex-direction:column;gap:10px}
+.master-header{display:flex;align-items:center;gap:10px}
+.avatar{width:40px;height:40px;border-radius:50%;background:rgba(245,166,35,0.2);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:var(--gold);flex-shrink:0}
+.master-meta h3{font-size:14px;font-weight:700;margin-bottom:2px}
+.master-meta span{font-size:12px;color:var(--t3)}
+.city-tag{font-size:11px;color:var(--t2);background:var(--bg3);padding:2px 8px;border-radius:100px;margin-left:auto;white-space:nowrap}
+.master-stats{display:flex;gap:12px;align-items:center}
+.rating{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600}
+.star{color:var(--gold)}
+.reviews{font-size:12px;color:var(--t3)}
+.work-thumbs{display:flex;gap:4px}
+.thumb{height:50px;border-radius:5px;overflow:hidden;flex:1;background:var(--bg3)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.master-footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border)}
+.price{font-size:12px;color:var(--t2)}
+.price strong{font-size:15px;font-weight:700;color:var(--white)}
+.btn-sm{padding:6px 14px;background:var(--gold);border:none;border-radius:7px;font-size:12px;font-weight:700;color:#1C1512;transition:.2s}
+.btn-sm:hover{background:#e09415}
+.no-results{text-align:center;padding:60px 20px;color:var(--t3)}
+.no-results h3{font-size:20px;color:var(--t2);margin-bottom:8px}
+.active-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.af-chip{background:rgba(245,166,35,0.12);border:1px solid var(--border2);border-radius:100px;padding:5px 14px;font-size:12px;color:var(--gold);display:flex;align-items:center;gap:6px}
+.af-remove{cursor:pointer;opacity:0.7;font-size:14px}
+.af-remove:hover{opacity:1}
+
+/* Search bar */
+.search-bar{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;display:flex;gap:12px;align-items:center;margin-bottom:20px}
+.search-bar input{flex:1;background:transparent;border:none;outline:none;color:var(--white);font-size:14px;font-family:'Inter',sans-serif}
+.search-bar input::placeholder{color:var(--t3)}
+.search-bar button{background:var(--gold);border:none;border-radius:7px;padding:7px 18px;font-size:13px;font-weight:700;color:#1C1512}
+
+@media(max-width:900px){
+  .main-layout{grid-template-columns:1fr}
+  .filters{position:static;display:none}
+  .filters.open{display:block}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">BUDUJ<span>.BY</span></a>
+    <div class="nav-links">
+      <a href="masters.html" class="active">Мастера</a>
+      <a href="masters.html">Категории</a>
+      <a href="for-masters.html">Для мастеров</a>
+    </div>
+    <div class="nav-btns">
+      <button class="btn-ghost">Войти</button>
+      <button class="btn-gold" onclick="location.href='for-masters.html'">Стать мастером</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb"><a href="index.html">Главная</a> / Мастера</div>
+    <h1>Мастера по строительству и ремонту</h1>
+    <p>Найдите проверенного специалиста в вашем городе</p>
+  </div>
+</div>
+
+<div class="main-layout">
+
+  <aside class="filters" id="filtersPanel">
+    <div class="filter-title">
+      Фильтры
+      <span class="filter-reset" onclick="resetFilters()">Сбросить</span>
+    </div>
+
+    <div class="filter-group">
+      <h4>Только проверенные</h4>
+      <div class="verified-toggle" onclick="toggleVerified()">
+        <span>Значок «Проверен»</span>
+        <div class="toggle-sw" id="verifiedToggle"></div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <h4>Категория</h4>
+      <div class="filter-options" id="catFilters">
+        <label class="filter-opt"><input type="checkbox" value="Электрика" onchange="applyFilters()"> Электрика</label>
+        <label class="filter-opt"><input type="checkbox" value="Сантехника" onchange="applyFilters()"> Сантехника</label>
+        <label class="filter-opt"><input type="checkbox" value="Ремонт квартир" onchange="applyFilters()"> Ремонт квартир</label>
+        <label class="filter-opt"><input type="checkbox" value="Плитка" onchange="applyFilters()"> Плитка</label>
+        <label class="filter-opt"><input type="checkbox" value="Укладка полов" onchange="applyFilters()"> Укладка полов</label>
+        <label class="filter-opt"><input type="checkbox" value="Маляр-штукатур" onchange="applyFilters()"> Покраска</label>
+        <label class="filter-opt"><input type="checkbox" value="Кровельщик" onchange="applyFilters()"> Кровля</label>
+        <label class="filter-opt"><input type="checkbox" value="Сварщик" onchange="applyFilters()"> Сварка</label>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <h4>Город</h4>
+      <div class="filter-options" id="cityFilters">
+        <label class="filter-opt"><input type="checkbox" value="Минск" onchange="applyFilters()"> Минск</label>
+        <label class="filter-opt"><input type="checkbox" value="Брест" onchange="applyFilters()"> Брест</label>
+        <label class="filter-opt"><input type="checkbox" value="Гродно" onchange="applyFilters()"> Гродно</label>
+        <label class="filter-opt"><input type="checkbox" value="Витебск" onchange="applyFilters()"> Витебск</label>
+        <label class="filter-opt"><input type="checkbox" value="Гомель" onchange="applyFilters()"> Гомель</label>
+        <label class="filter-opt"><input type="checkbox" value="Могилёв" onchange="applyFilters()"> Могилёв</label>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <h4>Цена (BYN/ч)</h4>
+      <div class="price-range">
+        <input type="number" id="priceMin" placeholder="от" min="0" onchange="applyFilters()">
+        <span>—</span>
+        <input type="number" id="priceMax" placeholder="до" min="0" onchange="applyFilters()">
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <h4>Рейтинг от</h4>
+      <div class="filter-options">
+        <label class="filter-opt"><input type="radio" name="rating" value="0" checked onchange="applyFilters()"> Любой</label>
+        <label class="filter-opt"><input type="radio" name="rating" value="4" onchange="applyFilters()"> ★ от 4.0</label>
+        <label class="filter-opt"><input type="radio" name="rating" value="4.5" onchange="applyFilters()"> ★ от 4.5</label>
+        <label class="filter-opt"><input type="radio" name="rating" value="4.8" onchange="applyFilters()"> ★ от 4.8</label>
+      </div>
+    </div>
+  </aside>
+
+  <div>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Поиск по имени или специальности…" oninput="applyFilters()">
+      <button onclick="applyFilters()">Найти</button>
+    </div>
+    <div class="catalog-header">
+      <div class="results-count">Найдено: <strong id="resCount">0</strong> мастеров</div>
+      <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+        <option value="rating">По рейтингу</option>
+        <option value="reviews">По отзывам</option>
+        <option value="price_asc">Цена: дешевле</option>
+        <option value="price_desc">Цена: дороже</option>
+      </select>
+    </div>
+    <div id="activeFilters" class="active-filters"></div>
+    <div class="masters-grid" id="mastersGrid"></div>
+  </div>
+</div>
+
+<script>
+const PHOTOS={
+  bath1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210637_14835eca-406e-44af-8930-ca6a258a7409.png',
+  bath2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210637_fdf06cbc-8377-403c-b8dc-788678091f9f.png',
+  bath3:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210637_1c990024-32db-4627-ae2d-21806483df3e.png',
+  lam1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210650_58f8ca8f-c086-4d4c-90cf-cdf49a5d7bf5.png',
+  lam2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210650_c291fd44-d2d6-4b6c-821c-f329a95309cb.png',
+  elec1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210703_f80ce41f-4cf6-442d-a05b-d9ed25fded1f.png',
+  elec2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210703_aba7d621-ee55-4012-9e5f-f560406ea397.png',
+  paint1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210717_d6a3191c-33fd-4c85-854b-cc6493be49c3.png',
+  paint2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210717_2540e608-45a5-4dc8-96d5-e63727e8d153.png',
+};
+const ALL_MASTERS=[
+  {id:1,name:'Андрей Павлов',init:'АП',spec:'Электрика',city:'Минск',rating:4.9,reviews:47,price:30,verified:true,mainPhoto:PHOTOS.elec1,thumbs:[PHOTOS.elec1,PHOTOS.elec2,PHOTOS.bath1]},
+  {id:2,name:'Сергей Климович',init:'СК',spec:'Плитка',city:'Брест',rating:5.0,reviews:31,price:25,verified:true,mainPhoto:PHOTOS.bath1,thumbs:[PHOTOS.bath1,PHOTOS.bath2,PHOTOS.bath3]},
+  {id:3,name:'Дмитрий Василевский',init:'ДВ',spec:'Укладка полов',city:'Гродно',rating:4.8,reviews:22,price:20,verified:true,mainPhoto:PHOTOS.lam1,thumbs:[PHOTOS.lam1,PHOTOS.lam2,PHOTOS.bath1]},
+  {id:4,name:'Игорь Романов',init:'ИР',spec:'Маляр-штукатур',city:'Минск',rating:4.7,reviews:38,price:18,verified:false,mainPhoto:PHOTOS.paint1,thumbs:[PHOTOS.paint1,PHOTOS.paint2,PHOTOS.lam1]},
+  {id:5,name:'Алексей Петров',init:'АП',spec:'Сантехника',city:'Витебск',rating:4.9,reviews:55,price:35,verified:true,mainPhoto:PHOTOS.elec2,thumbs:[PHOTOS.elec2,PHOTOS.bath1,PHOTOS.lam2]},
+  {id:6,name:'Николай Зайцев',init:'НЗ',spec:'Кровельщик',city:'Гомель',rating:4.6,reviews:19,price:28,verified:true,mainPhoto:PHOTOS.bath2,thumbs:[PHOTOS.bath2,PHOTOS.paint2,PHOTOS.elec1]},
+  {id:7,name:'Павел Кузнецов',init:'ПК',spec:'Ремонт квартир',city:'Минск',rating:4.8,reviews:63,price:22,verified:true,mainPhoto:PHOTOS.paint2,thumbs:[PHOTOS.paint2,PHOTOS.bath3,PHOTOS.lam2]},
+  {id:8,name:'Виктор Соколов',init:'ВС',spec:'Электрика',city:'Могилёв',rating:4.5,reviews:14,price:27,verified:false,mainPhoto:PHOTOS.elec2,thumbs:[PHOTOS.elec2,PHOTOS.elec1,PHOTOS.paint1]},
+  {id:9,name:'Максим Борисов',init:'МБ',spec:'Плитка',city:'Минск',rating:4.9,reviews:29,price:30,verified:true,mainPhoto:PHOTOS.bath3,thumbs:[PHOTOS.bath3,PHOTOS.bath1,PHOTOS.bath2]},
+  {id:10,name:'Олег Сидоров',init:'ОС',spec:'Сварщик',city:'Брест',rating:4.7,reviews:17,price:32,verified:true,mainPhoto:PHOTOS.lam2,thumbs:[PHOTOS.lam2,PHOTOS.lam1,PHOTOS.elec1]},
+  {id:11,name:'Роман Лебедев',init:'РЛ',spec:'Укладка полов',city:'Гродно',rating:4.6,reviews:25,price:19,verified:false,mainPhoto:PHOTOS.lam1,thumbs:[PHOTOS.lam1,PHOTOS.lam2,PHOTOS.paint1]},
+  {id:12,name:'Антон Смирнов',init:'АС',spec:'Маляр-штукатур',city:'Минск',rating:4.8,reviews:41,price:16,verified:true,mainPhoto:PHOTOS.paint1,thumbs:[PHOTOS.paint1,PHOTOS.paint2,PHOTOS.bath1]},
+];
+
+let verifiedOnly=false;
+function toggleVerified(){
+  verifiedOnly=!verifiedOnly;
+  document.getElementById('verifiedToggle').classList.toggle('on',verifiedOnly);
+  applyFilters();
+}
+
+function applyFilters(){
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  const catChecked=[...document.querySelectorAll('#catFilters input:checked')].map(i=>i.value);
+  const cityChecked=[...document.querySelectorAll('#cityFilters input:checked')].map(i=>i.value);
+  const priceMin=parseFloat(document.getElementById('priceMin').value)||0;
+  const priceMax=parseFloat(document.getElementById('priceMax').value)||Infinity;
+  const minRating=parseFloat(document.querySelector('input[name=rating]:checked').value)||0;
+  const sort=document.getElementById('sortSelect').value;
+
+  let filtered=ALL_MASTERS.filter(m=>{
+    if(search&&!m.name.toLowerCase().includes(search)&&!m.spec.toLowerCase().includes(search))return false;
+    if(catChecked.length&&!catChecked.includes(m.spec))return false;
+    if(cityChecked.length&&!cityChecked.includes(m.city))return false;
+    if(m.price<priceMin||m.price>priceMax)return false;
+    if(m.rating<minRating)return false;
+    if(verifiedOnly&&!m.verified)return false;
+    return true;
+  });
+
+  if(sort==='rating')filtered.sort((a,b)=>b.rating-a.rating);
+  else if(sort==='reviews')filtered.sort((a,b)=>b.reviews-a.reviews);
+  else if(sort==='price_asc')filtered.sort((a,b)=>a.price-b.price);
+  else if(sort==='price_desc')filtered.sort((a,b)=>b.price-a.price);
+
+  document.getElementById('resCount').textContent=filtered.length;
+
+  const grid=document.getElementById('mastersGrid');
+  if(!filtered.length){
+    grid.innerHTML='<div class="no-results" style="grid-column:1/-1"><h3>Мастера не найдены</h3><p>Попробуйте изменить фильтры</p></div>';
+    return;
+  }
+  grid.innerHTML=filtered.map(m=>`
+    <div class="master-card" onclick="location.href='profile.html?id=${m.id}'">
+      <div class="master-photo">
+        <img src="${m.mainPhoto}" alt="${m.spec}" onerror="this.style.display='none'">
+        ${m.verified?'<div class="verified-badge">✓ Проверен</div>':''}
+      </div>
+      <div class="master-info">
+        <div class="master-header">
+          <div class="avatar">${m.init}</div>
+          <div class="master-meta"><h3>${m.name}</h3><span>${m.spec}</span></div>
+          <div class="city-tag">📍${m.city}</div>
+        </div>
+        <div class="master-stats">
+          <div class="rating"><span class="star">★</span>${m.rating}</div>
+          <span class="reviews">${m.reviews} отзывов</span>
+        </div>
+        <div class="work-thumbs">${m.thumbs.slice(0,3).map(p=>`<div class="thumb"><img src="${p}" onerror="this.parentNode.style.background='var(--bg4)'"></div>`).join('')}</div>
+        <div class="master-footer">
+          <div class="price">от <strong>${m.price} BYN</strong>/ч</div>
+          <button class="btn-sm">Написать</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function resetFilters(){
+  document.querySelectorAll('#catFilters input,#cityFilters input').forEach(i=>i.checked=false);
+  document.querySelector('input[name=rating][value="0"]').checked=true;
+  document.getElementById('priceMin').value='';
+  document.getElementById('priceMax').value='';
+  document.getElementById('searchInput').value='';
+  verifiedOnly=false;
+  document.getElementById('verifiedToggle').classList.remove('on');
+  applyFilters();
+}
+
+// Parse URL params
+const params=new URLSearchParams(location.search);
+if(params.get('cat')){
+  const cb=document.querySelector(`#catFilters input[value="${params.get('cat')}"]`);
+  if(cb)cb.checked=true;
+}
+if(params.get('q')) document.getElementById('searchInput').value=params.get('q');
+if(params.get('city')){
+  const cb=document.querySelector(`#cityFilters input[value="${params.get('city')}"]`);
+  if(cb)cb.checked=true;
+}
+
+applyFilters();
+</script>
+</body>
+</html>

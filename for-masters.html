@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Для мастеров — BUDUJ.BY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1C1512;--bg2:#241B14;--bg3:#2E2219;--bg4:#3A2B1F;--gold:#F5A623;--gold2:#FDE8B8;--gold3:#C47D0E;--white:#FFFFFF;--t2:#C4A882;--t3:#7A6358;--border:rgba(245,166,35,0.15);--border2:rgba(245,166,35,0.3);--r:12px;--r2:8px}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;line-height:1.2}
+a{color:inherit;text-decoration:none}
+button{font-family:'Inter',sans-serif;cursor:pointer}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:32px;height:68px}
+.logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;color:var(--gold);letter-spacing:-0.5px}
+.logo span{color:var(--white);opacity:0.5}
+.nav-links{display:flex;gap:4px;flex:1}
+.nav-links a{padding:8px 16px;border-radius:var(--r2);color:var(--t2);font-size:14px;font-weight:500;transition:.2s}
+.nav-links a:hover,.nav-links a.active{color:var(--white);background:var(--bg3)}
+.nav-btns{display:flex;gap:8px}
+.btn-ghost{padding:8px 18px;border:1px solid var(--border2);border-radius:var(--r2);font-size:14px;font-weight:500;color:var(--t2);background:transparent;transition:.2s}
+.btn-ghost:hover{color:var(--white);border-color:var(--gold)}
+.btn-gold{padding:9px 20px;background:var(--gold);border:none;border-radius:var(--r2);font-size:14px;font-weight:700;color:#1C1512;transition:.2s}
+.btn-gold:hover{background:#e09415}
+
+/* HERO */
+.hero{padding:80px 24px 70px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at 50% 0%,rgba(245,166,35,0.08),transparent)}
+.hero-tag{display:inline-block;background:rgba(245,166,35,0.1);border:1px solid var(--border2);border-radius:100px;padding:6px 18px;font-size:13px;font-weight:600;color:var(--gold);margin-bottom:24px}
+.hero h1{font-size:54px;max-width:740px;margin:0 auto 20px;letter-spacing:-1.5px}
+.hero h1 span{color:var(--gold)}
+.hero p{font-size:18px;color:var(--t2);max-width:520px;margin:0 auto 36px}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-hero{padding:14px 36px;background:var(--gold);border:none;border-radius:10px;font-size:16px;font-weight:700;color:#1C1512;transition:.2s}
+.btn-hero:hover{background:#e09415;transform:translateY(-1px)}
+.btn-hero-ghost{padding:13px 30px;border:1px solid var(--border2);border-radius:10px;font-size:15px;font-weight:500;color:var(--t2);background:transparent;transition:.2s}
+.btn-hero-ghost:hover{color:var(--white);border-color:var(--gold)}
+.hero-stats{display:flex;justify-content:center;gap:48px;margin-top:52px;padding-top:40px;border-top:1px solid var(--border)}
+.hstat .val{font-size:36px;font-weight:800;color:var(--gold);font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-1px}
+.hstat .lbl{font-size:13px;color:var(--t3);margin-top:4px}
+
+/* WHY */
+.section{max-width:1100px;margin:0 auto;padding:64px 24px}
+.section-label{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.section-title{font-size:38px;margin-bottom:16px;letter-spacing:-0.5px}
+.section-sub{font-size:17px;color:var(--t2);max-width:540px;margin-bottom:44px}
+.benefits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.benefit-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:26px 24px;transition:.25s}
+.benefit-card:hover{border-color:var(--border2);transform:translateY(-3px)}
+.benefit-icon{width:48px;height:48px;background:rgba(245,166,35,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+.benefit-card h3{font-size:17px;margin-bottom:8px}
+.benefit-card p{font-size:14px;color:var(--t2);line-height:1.6}
+
+/* HOW IT WORKS */
+.how-section{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.how-inner{max-width:1100px;margin:0 auto;padding:64px 24px}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative}
+.steps-grid::before{content:'';position:absolute;top:28px;left:12%;right:12%;height:2px;background:linear-gradient(to right,var(--gold),transparent);opacity:0.3}
+.step-card{text-align:center;padding:24px 16px}
+.step-num{width:56px;height:56px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:var(--gold);margin:0 auto 16px;background:var(--bg)}
+.step-card h4{font-size:15px;margin-bottom:8px}
+.step-card p{font-size:13px;color:var(--t2)}
+
+/* PRICING */
+.pricing-section{max-width:1100px;margin:0 auto;padding:64px 24px}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
+.plan-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px 24px;position:relative;transition:.25s}
+.plan-card.featured{border-color:var(--gold);background:linear-gradient(145deg,#2E2219,#241B14)}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#1C1512;font-size:12px;font-weight:800;padding:4px 16px;border-radius:100px;white-space:nowrap}
+.plan-name{font-size:13px;font-weight:700;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.plan-price{font-size:42px;font-weight:800;color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-1px;margin-bottom:4px}
+.plan-price span{font-size:16px;font-weight:400;color:var(--t2)}
+.plan-desc{font-size:13px;color:var(--t3);margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid var(--border)}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:26px}
+.plan-features li{font-size:14px;color:var(--t2);display:flex;gap:10px;align-items:flex-start}
+.plan-features li.yes::before{content:'✓';color:var(--gold);font-weight:700;flex-shrink:0}
+.plan-features li.no{opacity:0.4}
+.plan-features li.no::before{content:'—';color:var(--t3);font-weight:700;flex-shrink:0}
+.btn-plan{width:100%;padding:12px;background:transparent;border:1px solid var(--border2);border-radius:10px;font-size:14px;font-weight:700;color:var(--t2);transition:.2s}
+.btn-plan:hover{color:var(--white);border-color:var(--gold)}
+.plan-card.featured .btn-plan{background:var(--gold);border-color:var(--gold);color:#1C1512}
+.plan-card.featured .btn-plan:hover{background:#e09415}
+
+/* FAQ */
+.faq-section{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.faq-inner{max-width:780px;margin:0 auto;padding:64px 24px}
+.faq-list{display:flex;flex-direction:column;gap:4px;margin-top:40px}
+.faq-item{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.faq-q{padding:18px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:15px;font-weight:600;transition:.2s}
+.faq-q:hover{color:var(--gold)}
+.faq-arrow{color:var(--gold);font-size:18px;transition:.3s;flex-shrink:0}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;font-size:14px;color:var(--t2);padding:0 20px;line-height:1.7}
+.faq-item.open .faq-a{max-height:200px;padding:0 20px 18px}
+.faq-item.open .faq-arrow{transform:rotate(45deg)}
+.faq-item.open{border-color:var(--border2)}
+
+/* Final CTA */
+.final-cta{text-align:center;padding:80px 24px;position:relative;overflow:hidden}
+.final-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 500px 300px at 50% 100%,rgba(245,166,35,0.07),transparent)}
+.final-cta h2{font-size:42px;letter-spacing:-1px;margin-bottom:16px}
+.final-cta p{font-size:17px;color:var(--t2);margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto}
+.reg-form{display:flex;gap:12px;justify-content:center;max-width:480px;margin:0 auto;flex-wrap:wrap}
+.reg-input{flex:1;min-width:200px;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:13px 18px;color:var(--white);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:.2s}
+.reg-input:focus{border-color:var(--gold)}
+.reg-input::placeholder{color:var(--t3)}
+.btn-reg{padding:13px 28px;background:var(--gold);border:none;border-radius:10px;font-size:15px;font-weight:700;color:#1C1512;white-space:nowrap;transition:.2s}
+.btn-reg:hover{background:#e09415}
+.reg-note{font-size:12px;color:var(--t3);margin-top:12px}
+
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24px}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:var(--gold)}
+.footer-logo span{opacity:0.5;color:var(--white)}
+.footer-copy{font-size:13px;color:var(--t3)}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:13px;color:var(--t3);transition:.2s}
+.footer-links a:hover{color:var(--gold)}
+
+@media(max-width:900px){
+  .hero h1{font-size:36px}
+  .benefits-grid,.steps-grid,.pricing-grid{grid-template-columns:1fr}
+  .hero-stats{gap:24px}
+  .steps-grid::before{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">BUDUJ<span>.BY</span></a>
+    <div class="nav-links">
+      <a href="masters.html">Мастера</a>
+      <a href="masters.html">Категории</a>
+      <a href="for-masters.html" class="active">Для мастеров</a>
+    </div>
+    <div class="nav-btns">
+      <button class="btn-ghost">Войти</button>
+      <button class="btn-gold" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Стать мастером</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">Для мастеров и бригад</div>
+  <h1>Получай заказы на ремонт<br><span>без посредников</span></h1>
+  <p>Разместите профиль с фото работ и получайте 3–15 новых заказов в месяц от проверенных клиентов</p>
+  <div class="hero-btns">
+    <button class="btn-hero" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Зарегистрироваться бесплатно</button>
+    <button class="btn-hero-ghost" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Посмотреть тарифы</button>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><div class="val">50+</div><div class="lbl">мастеров уже на платформе</div></div>
+    <div class="hstat"><div class="val">6</div><div class="lbl">городов Беларуси</div></div>
+    <div class="hstat"><div class="val">0 BYN</div><div class="lbl">старт бесплатно</div></div>
+    <div class="hstat"><div class="val">98%</div><div class="lbl">мастеров получили заказ</div></div>
+  </div>
+</section>
+
+<!-- WHY BUDUJ -->
+<section class="section">
+  <div class="section-label">Почему BUDUJ.BY</div>
+  <h2 class="section-title">Всё что нужно для роста<br>вашего бизнеса</h2>
+  <p class="section-sub">Мы единственная площадка в Беларуси с реальными фотографиями работ мастеров</p>
+  <div class="benefits-grid">
+    <div class="benefit-card">
+      <div class="benefit-icon">📸</div>
+      <h3>Портфолио как в Instagram</h3>
+      <p>Загрузите фото своих работ — клиент выбирает вас по результату, не по объявлению. Работает намного лучше текста.</p>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">✅</div>
+      <h3>Значок «Проверен»</h3>
+      <p>Пройдите верификацию — и клиенты увидят, что вы надёжный мастер с подтверждёнными документами.</p>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📍</div>
+      <h3>Заказы рядом с домом</h3>
+      <p>Мы показываем вас клиентам в вашем городе. Не нужно ехать через весь Минск на маленький заказ.</p>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">💬</div>
+      <h3>Telegram-уведомления</h3>
+      <p>Новый заказ в вашей категории — вы узнаёте первым. Откликайтесь быстрее конкурентов.</p>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">⭐</div>
+      <h3>Рейтинг на основе отзывов</h3>
+      <p>Только реальные отзывы после выполнения работ. Никакой накрутки — клиенты доверяют вашей оценке.</p>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">📋</div>
+      <h3>Калькулятор сметы</h3>
+      <p>Клиент приходит к вам уже с примерным бюджетом — меньше пустых переговоров, больше закрытых сделок.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="how-inner">
+    <div style="text-align:center;margin-bottom:44px">
+      <div class="section-label" style="justify-content:center;display:flex">Как это работает</div>
+      <h2 class="section-title" style="font-size:32px">Четыре шага до первого заказа</h2>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h4>Создайте профиль</h4>
+        <p>Имя, специальность, город. Занимает 5 минут</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h4>Загрузите фото работ</h4>
+        <p>Минимум 3 фото — это ваше главное преимущество</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h4>Пройдите верификацию</h4>
+        <p>Загрузите паспорт или ИП — получите значок доверия</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h4>Получайте заказы</h4>
+        <p>Клиенты пишут напрямую в Telegram или по телефону</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div style="text-align:center">
+    <div class="section-label" style="justify-content:center;display:flex">Тарифы</div>
+    <h2 class="section-title" style="font-size:36px">Прозрачные цены без скрытых платежей</h2>
+    <p style="font-size:16px;color:var(--t2);max-width:500px;margin:0 auto">Первые 3 месяца — бесплатно для всех. Затем выберите план.</p>
+  </div>
+  <div class="pricing-grid">
+    <!-- БАЗОВЫЙ -->
+    <div class="plan-card">
+      <div class="plan-name">Базовый</div>
+      <div class="plan-price">20–30 <span>BYN/мес</span></div>
+      <div class="plan-desc">Для начинающих мастеров</div>
+      <ul class="plan-features">
+        <li class="yes">Профиль с фото работ (до 5 фото)</li>
+        <li class="yes">3 отклика на заказы в месяц</li>
+        <li class="yes">Отзывы от клиентов</li>
+        <li class="yes">Базовый рейтинг в каталоге</li>
+        <li class="no">Значок «Проверен»</li>
+        <li class="no">Приоритет в поиске</li>
+        <li class="no">Статистика просмотров</li>
+      </ul>
+      <button class="btn-plan" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Начать бесплатно</button>
+    </div>
+
+    <!-- ПРОФИ -->
+    <div class="plan-card featured">
+      <div class="plan-badge">Самый популярный</div>
+      <div class="plan-name">Профи</div>
+      <div class="plan-price">50–70 <span>BYN/мес</span></div>
+      <div class="plan-desc">Для активных мастеров с портфолио</div>
+      <ul class="plan-features">
+        <li class="yes">Портфолио до 20 фото работ</li>
+        <li class="yes">Неограниченные отклики</li>
+        <li class="yes">Значок «Проверен BUDUJ»</li>
+        <li class="yes">Приоритет в поиске по городу</li>
+        <li class="yes">Статистика просмотров профиля</li>
+        <li class="yes">Telegram-уведомления о заказах</li>
+        <li class="no">Топ выдачи по категории</li>
+      </ul>
+      <button class="btn-plan" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Выбрать Профи</button>
+    </div>
+
+    <!-- БИЗНЕС -->
+    <div class="plan-card">
+      <div class="plan-name">Бизнес</div>
+      <div class="plan-price">100–150 <span>BYN/мес</span></div>
+      <div class="plan-desc">Для бригад и строительных компаний</div>
+      <ul class="plan-features">
+        <li class="yes">До 5 мастеров в одном профиле</li>
+        <li class="yes">Видео-портфолио работ</li>
+        <li class="yes">Топ выдачи по категории</li>
+        <li class="yes">Баннер в категории услуг</li>
+        <li class="yes">Менеджер по подключению</li>
+        <li class="yes">Всё из тарифа Профи</li>
+        <li class="yes">Брендированная страница компании</li>
+      </ul>
+      <button class="btn-plan" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Начать бесплатно</button>
+    </div>
+  </div>
+  <p style="text-align:center;font-size:13px;color:var(--t3);margin-top:24px">Все тарифы включают 3 бесплатных месяца при регистрации до 1 сентября 2026</p>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="faq-inner">
+    <div style="text-align:center;margin-bottom:0">
+      <div class="section-label" style="justify-content:center;display:flex">FAQ</div>
+      <h2 class="section-title" style="font-size:32px">Частые вопросы</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Сколько стоит регистрация?</span><span class="faq-arrow">+</span></div>
+        <div class="faq-a">Регистрация полностью бесплатна. Первые 3 месяца вы работаете без оплаты и проверяете, подходит ли вам платформа. Платная подписка начинается только когда вы сами захотите расширить возможности.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Как проходит верификация?</span><span class="faq-arrow">+</span></div>
+        <div class="faq-a">Вы загружаете фото паспорта или документа ИП. Мы проверяем и вручную ставим значок «Проверен». Это занимает 1–2 рабочих дня. Данные документов хранятся в зашифрованном виде и не передаются клиентам.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Как клиенты меня находят?</span><span class="faq-arrow">+</span></div>
+        <div class="faq-a">Клиент заходит на сайт, выбирает город и категорию услуги — и видит ваш профиль с фото работ. Чем больше качественных фото и отзывов, тем выше вы в выдаче. Тариф «Профи» даёт приоритет в результатах поиска.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Берёт ли платформа комиссию с заказов?</span><span class="faq-arrow">+</span></div>
+        <div class="faq-a">Нет. Все деньги за работу клиент платит напрямую вам. Мы зарабатываем только на подписке мастера. Никаких скрытых процентов и комиссий с заказов не берём.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Могу ли я зарегистрировать бригаду?</span><span class="faq-arrow">+</span></div>
+        <div class="faq-a">Да, тариф «Бизнес» позволяет добавить до 5 мастеров под одним профилем компании. Клиенты видят вашу бригаду как единую команду с общим рейтингом и портфолио.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)"><span>Работает ли платформа в моём городе?</span><span class="faq-arrow">+</span></div>
+        <div class="faq-a">BUDUJ.BY работает во всех областных городах Беларуси: Минск, Брест, Гродно, Витебск, Гомель, Могилёв. Если ваш город небольшой — регистрируйтесь, мы постепенно охватываем все города РБ.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta" id="signup">
+  <h2>Готов получать больше заказов?</h2>
+  <p>Регистрируйтесь сейчас и работайте бесплатно первые 3 месяца</p>
+  <div class="reg-form">
+    <input class="reg-input" type="tel" placeholder="+375 __ ___ __ __">
+    <button class="btn-reg" onclick="handleReg()">Зарегистрироваться</button>
+  </div>
+  <div class="reg-note">Нажимая кнопку, вы соглашаетесь с условиями использования. Без спама.</div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">BUDUJ<span>.BY</span></div>
+    <div class="footer-links">
+      <a href="index.html">Главная</a>
+      <a href="masters.html">Мастера</a>
+      <a href="for-masters.html">Для мастеров</a>
+    </div>
+    <div class="footer-copy">© 2026 BUDUJ.BY</div>
+  </div>
+</footer>
+
+<script>
+function toggleFaq(el){
+  const item=el.parentElement;
+  const wasOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+  if(!wasOpen)item.classList.add('open');
+}
+function handleReg(){
+  const phone=document.querySelector('.reg-input').value.trim();
+  if(!phone||phone.length<6){alert('Введите номер телефона');return}
+  fetch('https://formspree.io/f/xjgqwdny',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({type:'Регистрация мастера',phone})
+  }).then(r=>{
+    if(r.ok){alert('Заявка принята! Мы свяжемся с вами в течение 1 рабочего дня и поможем создать профиль.')}
+    else{alert('Ошибка отправки. Позвоните нам напрямую.')}
+  }).catch(()=>alert('Ошибка сети. Попробуйте ещё раз.'));
+  document.querySelector('.reg-input').value='';
+}
+</script>
+</body>
+</html>

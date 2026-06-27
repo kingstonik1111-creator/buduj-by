@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Профиль мастера — BUDUJ.BY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1C1512;--bg2:#241B14;--bg3:#2E2219;--bg4:#3A2B1F;--gold:#F5A623;--gold2:#FDE8B8;--gold3:#C47D0E;--white:#FFFFFF;--t2:#C4A882;--t3:#7A6358;--border:rgba(245,166,35,0.15);--border2:rgba(245,166,35,0.3);--r:12px;--r2:8px}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;line-height:1.2}
+a{color:inherit;text-decoration:none}
+button{font-family:'Inter',sans-serif;cursor:pointer}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:32px;height:68px}
+.logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;color:var(--gold);letter-spacing:-0.5px}
+.logo span{color:var(--white);opacity:0.5}
+.nav-links{display:flex;gap:4px;flex:1}
+.nav-links a{padding:8px 16px;border-radius:var(--r2);color:var(--t2);font-size:14px;font-weight:500;transition:.2s}
+.nav-links a:hover{color:var(--white);background:var(--bg3)}
+.nav-btns{display:flex;gap:8px}
+.btn-ghost{padding:8px 18px;border:1px solid var(--border2);border-radius:var(--r2);font-size:14px;font-weight:500;color:var(--t2);background:transparent;transition:.2s}
+.btn-ghost:hover{color:var(--white);border-color:var(--gold)}
+.btn-gold{padding:9px 20px;background:var(--gold);border:none;border-radius:var(--r2);font-size:14px;font-weight:700;color:#1C1512;transition:.2s}
+.btn-gold:hover{background:#e09415}
+
+.page-wrap{max-width:1100px;margin:0 auto;padding:36px 24px}
+.breadcrumb{font-size:13px;color:var(--t3);margin-bottom:20px}
+.breadcrumb a{color:var(--t3)}
+.breadcrumb a:hover{color:var(--gold)}
+
+.profile-layout{display:grid;grid-template-columns:1fr 320px;gap:28px;align-items:start}
+
+/* LEFT COLUMN */
+.profile-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:24px}
+.profile-hero{position:relative;height:220px;background:var(--bg3)}
+.profile-hero img{width:100%;height:100%;object-fit:cover}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(28,21,18,0.92))}
+.profile-main{padding:20px 24px 24px}
+.profile-identity{display:flex;gap:16px;align-items:flex-end;margin-bottom:16px}
+.avatar-lg{width:72px;height:72px;border-radius:50%;background:rgba(245,166,35,0.2);border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:24px;color:var(--gold);flex-shrink:0}
+.profile-name-block h1{font-size:24px;margin-bottom:4px}
+.profile-name-block .spec-tag{font-size:14px;color:var(--t2)}
+.verified-flag{display:inline-flex;align-items:center;gap:6px;background:rgba(245,166,35,0.1);border:1px solid var(--border2);border-radius:100px;padding:4px 12px;font-size:12px;font-weight:700;color:var(--gold);margin-top:6px}
+.profile-meta-row{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px}
+.meta-item{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--t2)}
+.meta-item .icon{font-size:16px}
+.meta-item strong{color:var(--white)}
+.rating-big{display:flex;align-items:center;gap:6px;font-size:20px;font-weight:800;color:var(--gold)}
+.rating-big .star{font-size:18px}
+.rating-big .rev{font-size:13px;font-weight:400;color:var(--t3)}
+
+.section-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px 24px;margin-bottom:20px}
+.section-box h2{font-size:18px;margin-bottom:14px;color:var(--white)}
+.about-text{font-size:14px;color:var(--t2);line-height:1.7}
+.services-list{display:flex;flex-wrap:wrap;gap:8px}
+.service-chip{background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:6px 14px;font-size:13px;color:var(--t2)}
+
+/* Portfolio gallery */
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gallery-item{aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--bg3);cursor:pointer;position:relative}
+.gallery-item img{width:100%;height:100%;object-fit:cover;transition:.3s}
+.gallery-item:hover img{transform:scale(1.05)}
+.gallery-item:nth-child(1){grid-column:span 2;aspect-ratio:2/1}
+
+/* Reviews */
+.reviews-list{display:flex;flex-direction:column;gap:16px}
+.review-card{padding:16px;background:var(--bg3);border-radius:var(--r2);border:1px solid var(--border)}
+.review-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.reviewer{font-size:14px;font-weight:600}
+.review-date{font-size:12px;color:var(--t3)}
+.review-stars{color:var(--gold);font-size:13px;margin-bottom:6px}
+.review-text{font-size:13px;color:var(--t2);line-height:1.6}
+.review-service{font-size:11px;color:var(--t3);margin-top:6px;background:var(--bg4);display:inline-block;padding:2px 8px;border-radius:100px}
+
+/* RIGHT COLUMN */
+.contact-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;position:sticky;top:90px}
+.contact-card h3{font-size:17px;margin-bottom:16px}
+.price-display{background:var(--bg3);border-radius:8px;padding:14px 18px;margin-bottom:16px;text-align:center}
+.price-label{font-size:12px;color:var(--t3);margin-bottom:4px}
+.price-num{font-size:28px;font-weight:800;color:var(--gold);font-family:'Plus Jakarta Sans',sans-serif}
+.price-num span{font-size:15px;font-weight:500;color:var(--t2)}
+.btn-contact{width:100%;padding:14px;background:var(--gold);border:none;border-radius:10px;font-size:16px;font-weight:700;color:#1C1512;margin-bottom:10px;transition:.2s}
+.btn-contact:hover{background:#e09415}
+.btn-request{width:100%;padding:13px;background:transparent;border:1px solid var(--border2);border-radius:10px;font-size:15px;font-weight:600;color:var(--t2);transition:.2s}
+.btn-request:hover{color:var(--white);border-color:var(--gold)}
+.contact-info{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.contact-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--t2)}
+.contact-icon{width:32px;height:32px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.stats-mini{margin-top:18px;padding-top:18px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-mini{background:var(--bg3);border-radius:8px;padding:10px 12px;text-align:center}
+.stat-mini .sv{font-size:18px;font-weight:800;color:var(--white);font-family:'Plus Jakarta Sans',sans-serif}
+.stat-mini .sl{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* Lightbox */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:1000;align-items:center;justify-content:center}
+.lightbox.open{display:flex}
+.lightbox img{max-width:90vw;max-height:90vh;border-radius:8px}
+.lb-close{position:absolute;top:20px;right:24px;font-size:28px;color:var(--t2);cursor:pointer;background:none;border:none}
+.lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);font-size:32px;color:var(--t2);cursor:pointer;background:rgba(255,255,255,0.07);border:none;border-radius:8px;padding:12px 16px;transition:.2s}
+.lb-prev:hover,.lb-next:hover{color:var(--white);background:rgba(255,255,255,0.15)}
+.lb-prev{left:16px}
+.lb-next{right:16px}
+
+@media(max-width:900px){
+  .profile-layout{grid-template-columns:1fr}
+  .contact-card{position:static}
+  .gallery-grid{grid-template-columns:repeat(2,1fr)}
+  .gallery-item:nth-child(1){grid-column:span 2}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">BUDUJ<span>.BY</span></a>
+    <div class="nav-links">
+      <a href="masters.html">Мастера</a>
+      <a href="masters.html">Категории</a>
+      <a href="for-masters.html">Для мастеров</a>
+    </div>
+    <div class="nav-btns">
+      <button class="btn-ghost">Войти</button>
+      <button class="btn-gold" onclick="location.href='for-masters.html'">Стать мастером</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="breadcrumb"><a href="index.html">Главная</a> / <a href="masters.html">Мастера</a> / <span id="breadName">Профиль</span></div>
+
+  <div class="profile-layout">
+
+    <!-- LEFT -->
+    <div>
+      <!-- Hero & Identity -->
+      <div class="profile-card">
+        <div class="profile-hero">
+          <img id="heroImg" src="" alt="Работа мастера" onerror="this.style.display='none'">
+          <div class="hero-overlay"></div>
+        </div>
+        <div class="profile-main">
+          <div class="profile-identity">
+            <div class="avatar-lg" id="avatarInitials">АП</div>
+            <div class="profile-name-block">
+              <h1 id="masterName">Андрей Павлов</h1>
+              <div class="spec-tag" id="masterSpec">Электрик</div>
+              <div class="verified-flag" id="verifiedBadge" style="display:none">✓ Проверен BUDUJ</div>
+            </div>
+          </div>
+          <div class="profile-meta-row">
+            <div class="meta-item"><span class="icon">📍</span><span id="masterCity">Минск</span></div>
+            <div class="meta-item rating-big"><span class="star">★</span><span id="masterRating">4.9</span><span class="rev" id="masterReviews">(47 отзывов)</span></div>
+            <div class="meta-item"><span class="icon">💼</span>5+ лет опыта</div>
+            <div class="meta-item"><span class="icon">✅</span><span id="masterDone">89</span> работ выполнено</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="section-box">
+        <h2>О мастере</h2>
+        <p class="about-text" id="masterAbout">Опытный специалист с 6-летним стажем. Работаю аккуратно, по договору, даю гарантию на все виды работ. Всегда привожу в порядок рабочее место после завершения. Выезжаю по всему Минску и области.</p>
+      </div>
+
+      <!-- Services -->
+      <div class="section-box">
+        <h2>Виды работ</h2>
+        <div class="services-list" id="servicesList">
+          <span class="service-chip">Монтаж проводки</span>
+          <span class="service-chip">Установка розеток / выключателей</span>
+          <span class="service-chip">Подключение бытовой техники</span>
+          <span class="service-chip">Электрощиток под ключ</span>
+          <span class="service-chip">Замена счётчика</span>
+          <span class="service-chip">Монтаж тёплого пола</span>
+          <span class="service-chip">Аварийный вызов</span>
+        </div>
+      </div>
+
+      <!-- Portfolio -->
+      <div class="section-box">
+        <h2>Портфолио работ</h2>
+        <div class="gallery-grid" id="galleryGrid"></div>
+      </div>
+
+      <!-- Reviews -->
+      <div class="section-box">
+        <h2>Отзывы клиентов</h2>
+        <div class="reviews-list">
+          <div class="review-card">
+            <div class="review-header"><span class="reviewer">Ирина К.</span><span class="review-date">14 июня 2026</span></div>
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">Приехал точно по времени, всё сделал чисто и аккуратно. Розетки не греются, провода спрятаны. Однозначно рекомендую!</div>
+            <div class="review-service">Монтаж розеток</div>
+          </div>
+          <div class="review-card">
+            <div class="review-header"><span class="reviewer">Денис Ш.</span><span class="review-date">2 мая 2026</span></div>
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">Делал электрощиток под ключ в новой квартире. Всё по схеме, с маркировкой, есть договор и гарантия 2 года. Цена адекватная.</div>
+            <div class="review-service">Электрощиток под ключ</div>
+          </div>
+          <div class="review-card">
+            <div class="review-header"><span class="reviewer">Марина Л.</span><span class="review-date">18 апреля 2026</span></div>
+            <div class="review-stars">★★★★☆</div>
+            <div class="review-text">Хороший мастер, работает быстро. Небольшой минус — немного опоздал на 20 минут, но предупредил. Работой довольна.</div>
+            <div class="review-service">Замена проводки в комнате</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Contact -->
+    <aside>
+      <div class="contact-card">
+        <h3>Связаться с мастером</h3>
+        <div class="price-display">
+          <div class="price-label">Стоимость работ</div>
+          <div class="price-num">от <span id="masterPrice">30</span> BYN<span>/час</span></div>
+        </div>
+        <button class="btn-contact" onclick="showContact()">💬 Написать мастеру</button>
+        <button class="btn-request" onclick="showOrder()">📋 Запросить смету</button>
+        <div class="contact-info">
+          <div class="contact-row"><div class="contact-icon">📱</div>Телефон после подтверждения</div>
+          <div class="contact-row"><div class="contact-icon">⏱</div>Обычно отвечает за 1–2 часа</div>
+          <div class="contact-row"><div class="contact-icon">📍</div><span id="workArea">Работает по Минску и области</span></div>
+        </div>
+        <div class="stats-mini">
+          <div class="stat-mini"><div class="sv" id="statRating">4.9</div><div class="sl">Рейтинг</div></div>
+          <div class="stat-mini"><div class="sv" id="statReviews">47</div><div class="sl">Отзывов</div></div>
+          <div class="stat-mini"><div class="sv">6</div><div class="sl">Лет опыта</div></div>
+          <div class="stat-mini"><div class="sv">98%</div><div class="sl">Повторных</div></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLb(event)">
+  <button class="lb-close" onclick="closeLb()">✕</button>
+  <button class="lb-prev" onclick="lbNav(-1)">‹</button>
+  <img id="lbImg" src="" alt="">
+  <button class="lb-next" onclick="lbNav(1)">›</button>
+</div>
+
+<!-- Contact Modal -->
+<div id="contactModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:440px;width:90%;position:relative">
+    <button onclick="document.getElementById('contactModal').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--t2);font-size:20px;cursor:pointer">✕</button>
+    <h3 style="font-size:20px;margin-bottom:16px">Написать мастеру</h3>
+    <p style="font-size:14px;color:var(--t2);margin-bottom:16px">Опишите задачу — мастер свяжется с вами в течение 1–2 часов</p>
+    <textarea id="contactTask" placeholder="Опишите что нужно сделать, укажите адрес…" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;resize:vertical;min-height:100px;outline:none;margin-bottom:12px"></textarea>
+    <input id="contactPhone" type="tel" placeholder="Ваш номер телефона" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;outline:none;margin-bottom:16px">
+    <button style="width:100%;padding:14px;background:var(--gold);border:none;border-radius:10px;font-size:15px;font-weight:700;color:#1C1512;cursor:pointer" onclick="submitContact()">Отправить заявку</button>
+  </div>
+</div>
+
+<script>
+const PHOTOS={
+  bath1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210637_14835eca-406e-44af-8930-ca6a258a7409.png',
+  bath2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210637_fdf06cbc-8377-403c-b8dc-788678091f9f.png',
+  bath3:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210637_1c990024-32db-4627-ae2d-21806483df3e.png',
+  lam1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210650_58f8ca8f-c086-4d4c-90cf-cdf49a5d7bf5.png',
+  lam2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210650_c291fd44-d2d6-4b6c-821c-f329a95309cb.png',
+  elec1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210703_f80ce41f-4cf6-442d-a05b-d9ed25fded1f.png',
+  elec2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210703_aba7d621-ee55-4012-9e5f-f560406ea397.png',
+  paint1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210717_d6a3191c-33fd-4c85-854b-cc6493be49c3.png',
+  paint2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210717_2540e608-45a5-4dc8-96d5-e63727e8d153.png',
+};
+const ALL_MASTERS=[
+  {id:1,name:'Андрей Павлов',init:'АП',spec:'Электрика',city:'Минск',rating:4.9,reviews:47,price:30,verified:true,mainPhoto:PHOTOS.elec1,thumbs:[PHOTOS.elec1,PHOTOS.elec2,PHOTOS.bath1,PHOTOS.lam1,PHOTOS.paint1,PHOTOS.elec2],about:'Опытный специалист с 6-летним стажем. Работаю аккуратно, по договору, даю гарантию на все виды работ. Всегда привожу в порядок рабочее место после завершения. Выезжаю по всему Минску и области.',services:['Монтаж проводки','Установка розеток / выключателей','Подключение бытовой техники','Электрощиток под ключ','Замена счётчика','Монтаж тёплого пола','Аварийный вызов']},
+  {id:2,name:'Сергей Климович',init:'СК',spec:'Плитка',city:'Брест',rating:5.0,reviews:31,price:25,verified:true,mainPhoto:PHOTOS.bath1,thumbs:[PHOTOS.bath1,PHOTOS.bath2,PHOTOS.bath3,PHOTOS.lam1,PHOTOS.lam2,PHOTOS.paint1],about:'Профессиональный плиточник с 8-летним опытом. Работаю с керамикой, керамогранитом, мозаикой. Делаю любые узоры, декоративные вставки. Качество гарантирую договором.',services:['Укладка плитки в ванной','Укладка плитки на кухне','Укладка керамогранита','Мозаика и декор','Демонтаж старой плитки','Затирка швов','Гидроизоляция']},
+  {id:3,name:'Дмитрий Василевский',init:'ДВ',spec:'Укладка полов',city:'Гродно',rating:4.8,reviews:22,price:20,verified:true,mainPhoto:PHOTOS.lam1,thumbs:[PHOTOS.lam1,PHOTOS.lam2,PHOTOS.bath1,PHOTOS.paint1,PHOTOS.elec1,PHOTOS.bath3],about:'Специализируюсь на укладке ламината, паркетной доски и ПВХ-плитки. 5 лет опыта. Работаю чисто, с порожками и плинтусами. Подбираю материалы под любой бюджет.',services:['Укладка ламината','Укладка паркетной доски','ПВХ-плитка','Монтаж плинтусов','Выравнивание пола','Демонтаж покрытий']},
+  {id:4,name:'Игорь Романов',init:'ИР',spec:'Маляр-штукатур',city:'Минск',rating:4.7,reviews:38,price:18,verified:false,mainPhoto:PHOTOS.paint1,thumbs:[PHOTOS.paint1,PHOTOS.paint2,PHOTOS.lam1,PHOTOS.bath1,PHOTOS.elec1,PHOTOS.lam2],about:'Маляр-штукатур с опытом 7 лет. Работаю со всеми видами покрытий: декоративная штукатурка, венецианка, покраска. Консультирую по выбору материала.',services:['Штукатурка стен','Шпаклёвка и покраска','Декоративная штукатурка','Венецианская штукатурка','Поклейка обоев','Выравнивание потолка']},
+  {id:5,name:'Алексей Петров',init:'АП',spec:'Сантехника',city:'Витебск',rating:4.9,reviews:55,price:35,verified:true,mainPhoto:PHOTOS.elec2,thumbs:[PHOTOS.elec2,PHOTOS.bath1,PHOTOS.lam2,PHOTOS.paint2,PHOTOS.bath2,PHOTOS.elec1],about:'Сантехник с 10-летним опытом. Ремонт и замена труб, установка сантехники любой сложности. Работаю в выходные и вечером. Аварийный выезд за 1 час.',services:['Замена труб','Установка унитаза / ванны','Установка смесителей','Аварийный вызов','Тёплый пол водяной','Счётчики воды']},
+  {id:6,name:'Николай Зайцев',init:'НЗ',spec:'Кровельщик',city:'Гомель',rating:4.6,reviews:19,price:28,verified:true,mainPhoto:PHOTOS.bath2,thumbs:[PHOTOS.bath2,PHOTOS.paint2,PHOTOS.elec1,PHOTOS.lam1,PHOTOS.bath1,PHOTOS.paint1],about:'Кровельные работы любой сложности. Металлочерепица, профнастил, мягкая кровля. Даю гарантию 5 лет. Работаю по всей Гомельской области.',services:['Монтаж металлочерепицы','Мягкая кровля','Ремонт кровли','Водосточные системы','Утепление мансарды','Снегозадержатели']},
+  {id:7,name:'Павел Кузнецов',init:'ПК',spec:'Ремонт квартир',city:'Минск',rating:4.8,reviews:63,price:22,verified:true,mainPhoto:PHOTOS.paint2,thumbs:[PHOTOS.paint2,PHOTOS.bath3,PHOTOS.lam2,PHOTOS.elec2,PHOTOS.bath1,PHOTOS.lam1],about:'Делаю ремонт квартир под ключ в Минске. Работаю в команде 3 человека. Соблюдаем сроки, фиксируем смету договором. Портфолио более 60 квартир.',services:['Ремонт под ключ','Черновой ремонт','Косметический ремонт','Разработка дизайн-проекта','Авторский надзор','Послеремонтная уборка']},
+  {id:8,name:'Виктор Соколов',init:'ВС',spec:'Электрика',city:'Могилёв',rating:4.5,reviews:14,price:27,verified:false,mainPhoto:PHOTOS.elec2,thumbs:[PHOTOS.elec2,PHOTOS.elec1,PHOTOS.paint1,PHOTOS.bath2,PHOTOS.lam1,PHOTOS.paint2],about:'Электрик с опытом 4 года. Работаю в Могилёве и области. Монтаж проводки в домах и квартирах. Все работы согласно нормам ПУЭ.',services:['Монтаж проводки','Замена розеток','Освещение','Заземление','Диагностика электрики']},
+];
+
+let currentPhotos=[];let currentLbIdx=0;
+function lbNav(dir){currentLbIdx=(currentLbIdx+dir+currentPhotos.length)%currentPhotos.length;document.getElementById('lbImg').src=currentPhotos[currentLbIdx]}
+function openLb(idx){currentLbIdx=idx;document.getElementById('lbImg').src=currentPhotos[idx];document.getElementById('lightbox').classList.add('open')}
+function closeLb(e){if(!e||e.target===document.getElementById('lightbox')||e.target.classList.contains('lb-close'))document.getElementById('lightbox').classList.remove('open')}
+function showContact(){document.getElementById('contactModal').style.display='flex'}
+function showOrder(){document.getElementById('contactModal').style.display='flex'}
+function submitContact(){
+  const task=document.getElementById('contactTask').value.trim();
+  const phone=document.getElementById('contactPhone').value.trim();
+  if(!phone&&!task){alert('Заполните хотя бы одно поле');return}
+  const master=document.getElementById('masterName')?document.getElementById('masterName').textContent:'';
+  fetch('https://formspree.io/f/xjgqwdny',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({type:'Заявка клиента',master,task,phone})
+  }).then(r=>{
+    if(r.ok){
+      alert('Заявка отправлена! Мастер свяжется с вами.');
+      document.getElementById('contactModal').style.display='none';
+      document.getElementById('contactTask').value='';
+      document.getElementById('contactPhone').value='';
+    }else{alert('Ошибка отправки. Попробуйте ещё раз.')}
+  }).catch(()=>alert('Ошибка сети. Попробуйте ещё раз.'));
+}
+
+const params=new URLSearchParams(location.search);
+const id=parseInt(params.get('id'))||1;
+const master=ALL_MASTERS.find(m=>m.id===id)||ALL_MASTERS[0];
+
+document.getElementById('breadName').textContent=master.name;
+document.getElementById('avatarInitials').textContent=master.init;
+document.getElementById('masterName').textContent=master.name;
+document.getElementById('masterSpec').textContent=master.spec;
+document.getElementById('masterCity').textContent=master.city;
+document.getElementById('masterRating').textContent=master.rating;
+document.getElementById('masterReviews').textContent=`(${master.reviews} отзывов)`;
+document.getElementById('masterPrice').textContent=master.price;
+document.getElementById('masterAbout').textContent=master.about;
+document.getElementById('statRating').textContent=master.rating;
+document.getElementById('statReviews').textContent=master.reviews;
+document.getElementById('workArea').textContent=`Работает: ${master.city} и область`;
+if(master.verified)document.getElementById('verifiedBadge').style.display='inline-flex';
+document.getElementById('heroImg').src=master.mainPhoto;
+
+document.getElementById('servicesList').innerHTML=master.services.map(s=>`<span class="service-chip">${s}</span>`).join('');
+
+currentPhotos=master.thumbs;
+const gallery=document.getElementById('galleryGrid');
+gallery.innerHTML=master.thumbs.map((p,i)=>`
+  <div class="gallery-item" onclick="openLb(${i})">
+    <img src="${p}" alt="Работа" onerror="this.parentNode.style.background='var(--bg4)'">
+  </div>
+`).join('');
+</script>
+</body>
+</html>
