@@ -73,7 +73,7 @@ SELECT cron.schedule(
   '0 9 * * *',
   $$
   SELECT net.http_post(
-    url     := 'https://your-project-ref.supabase.co/functions/v1/notify-subscriptions',
+    url     := 'https://inhlhqzavjtghechstzb.supabase.co/functions/v1/notify-subscriptions',
     headers := jsonb_build_object(
       'Authorization', 'Bearer ' || current_setting('app.anon_key'),
       'Content-Type',  'application/json'
