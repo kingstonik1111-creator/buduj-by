@@ -120,10 +120,26 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
 .cta-banner p{color:var(--t2);font-size:14px}
 .cta-banner-btn{padding:12px 24px;background:var(--gold);border:none;border-radius:10px;font-weight:700;color:#1C1512;cursor:pointer;white-space:nowrap}
 
+.hamburger{display:none;background:none;border:none;color:var(--gold);font-size:26px;cursor:pointer;padding:4px 8px;line-height:1;margin-left:auto;flex-shrink:0}
+.mob-menu{display:none;position:fixed;inset:0;background:var(--bg);z-index:999;flex-direction:column;padding:72px 24px 32px}
+.mob-menu.open{display:flex}
+.mob-close{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--t2);font-size:28px;cursor:pointer;line-height:1}
+.mob-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:var(--gold);position:absolute;top:20px;left:24px}
+.mob-logo span{color:var(--t2)}
+.mob-menu a{display:block;padding:16px 4px;font-size:17px;font-weight:600;color:var(--white);border-bottom:1px solid var(--border)}
+.mob-cta{margin-top:24px;padding:15px;background:var(--green);border:none;border-radius:10px;font-size:16px;font-weight:700;color:#fff;width:100%;cursor:pointer}
+
+@media(max-width:900px){
+  nav .nav-links,.nav-right{display:none}
+  .hamburger{display:block}
+  .page-header{padding:24px 16px 16px}
+  .page-header h1{font-size:24px}
+}
 @media(max-width:600px){
   .modal-row{grid-template-columns:1fr}
-  .jobs-grid{grid-template-columns:1fr}
-  .cta-banner{flex-direction:column}
+  .jobs-grid{grid-template-columns:1fr;padding:0 16px 60px}
+  .cta-banner{flex-direction:column;margin:0 16px 16px}
+  .filters{padding:0 16px 16px}
 }
 </style>
 </head>
@@ -138,11 +154,22 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
       <a href="for-masters.html">Для мастеров</a>
     </div>
     <div class="nav-right">
-      <button class="btn-login">Войти</button>
+      <button class="btn-login" onclick="location.href='index.html'">Войти</button>
       <button class="btn-post" onclick="location.href='orders.html'">+ Разместить заказ</button>
     </div>
+    <button class="hamburger" onclick="toggleMobMenu()">☰</button>
   </div>
 </nav>
+
+<div class="mob-menu" id="mobMenu">
+  <span class="mob-logo">BUDUJ<span>.BY</span></span>
+  <button class="mob-close" onclick="toggleMobMenu()">✕</button>
+  <a href="index.html" onclick="toggleMobMenu()">🏠 Главная</a>
+  <a href="masters.html" onclick="toggleMobMenu()">🔨 Мастера</a>
+  <a href="jobs.html" onclick="toggleMobMenu()">📋 Заказы</a>
+  <a href="for-masters.html" onclick="toggleMobMenu()">👷 Для мастеров</a>
+  <button class="mob-cta" onclick="toggleMobMenu();location.href='orders.html'">+ Разместить заказ</button>
+</div>
 
 <div class="page-header">
   <h1>Открытые заказы <span class="jobs-count" id="jobsCount">...</span></h1>
@@ -207,6 +234,8 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
 <div class="toast" id="toast"></div>
 
 <script>
+function toggleMobMenu(){document.getElementById('mobMenu').classList.toggle('open')}
+
 const SUPABASE_URL='https://inhlhqzavjtghechstzb.supabase.co';
 const SUPABASE_KEY='sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);

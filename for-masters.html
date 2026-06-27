@@ -121,11 +121,32 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
 .footer-links a{font-size:13px;color:var(--t3);transition:.2s}
 .footer-links a:hover{color:var(--gold)}
 
+/* MOBILE MENU */
+.hamburger{display:none;background:none;border:none;color:var(--gold);font-size:26px;cursor:pointer;padding:4px 8px;line-height:1;margin-left:auto;flex-shrink:0}
+.mob-menu{display:none;position:fixed;inset:0;background:var(--bg);z-index:999;flex-direction:column;padding:72px 24px 32px;gap:0;overflow-y:auto}
+.mob-menu.open{display:flex}
+.mob-close{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--t2);font-size:28px;cursor:pointer;line-height:1}
+.mob-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:var(--gold);position:absolute;top:20px;left:24px}
+.mob-logo span{color:var(--white);opacity:.5}
+.mob-menu a{display:block;padding:16px 4px;font-size:17px;font-weight:600;color:var(--white);border-bottom:1px solid var(--border)}
+.mob-cta{margin-top:24px;padding:15px;background:var(--gold);border:none;border-radius:10px;font-size:16px;font-weight:700;color:#1C1512;width:100%;cursor:pointer}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:999;pointer-events:none;width:90%;max-width:360px}
+.toast-msg{background:#1e3a2e;border:1px solid var(--green);border-radius:12px;padding:14px 18px;color:var(--white);font-size:14px;font-weight:600;text-align:center;animation:fadeIn .3s ease;display:none}
+.toast-msg.visible{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
 @media(max-width:900px){
-  .hero h1{font-size:36px}
+  .hero h1{font-size:32px;letter-spacing:-1px}
+  .hero{padding:48px 16px 40px}
   .benefits-grid,.steps-grid,.pricing-grid{grid-template-columns:1fr}
-  .hero-stats{gap:24px}
+  .hero-stats{gap:20px;flex-wrap:wrap}
   .steps-grid::before{display:none}
+  nav .nav-links,.nav-btns{display:none}
+  .hamburger{display:block}
+  .reg-form{flex-direction:column}
+  .reg-input,.btn-reg{width:100%}
 }
 </style>
 </head>
@@ -141,11 +162,27 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
       <a href="for-masters.html" class="active">Для мастеров</a>
     </div>
     <div class="nav-btns">
-      <button class="btn-ghost">Войти</button>
+      <button class="btn-ghost" onclick="location.href='index.html'">Войти</button>
       <button class="btn-gold" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Стать мастером</button>
     </div>
+    <button class="hamburger" onclick="toggleMobMenu()">☰</button>
   </div>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mobMenu">
+  <span class="mob-logo">BUDUJ<span>.BY</span></span>
+  <button class="mob-close" onclick="toggleMobMenu()">✕</button>
+  <a href="index.html" onclick="toggleMobMenu()">🏠 Главная</a>
+  <a href="masters.html" onclick="toggleMobMenu()">🔨 Мастера</a>
+  <a href="jobs.html" onclick="toggleMobMenu()">📋 Заказы</a>
+  <a href="orders.html" onclick="toggleMobMenu()" style="color:var(--green)">➕ Разместить заказ</a>
+  <a href="for-masters.html" onclick="toggleMobMenu()">👷 Для мастеров</a>
+  <button class="mob-cta" onclick="toggleMobMenu();document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Зарегистрироваться бесплатно</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap"><div class="toast-msg" id="regToast"></div></div>
 
 <!-- HERO -->
 <section class="hero">
@@ -359,23 +396,34 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
 </footer>
 
 <script>
+function toggleMobMenu(){
+  document.getElementById('mobMenu').classList.toggle('open');
+}
 function toggleFaq(el){
   const item=el.parentElement;
   const wasOpen=item.classList.contains('open');
   document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
   if(!wasOpen)item.classList.add('open');
 }
+function showToast(msg,ok){
+  const t=document.getElementById('regToast');
+  t.textContent=msg;
+  t.style.background=ok?'#1e3a2e':'#3a1e1e';
+  t.style.borderColor=ok?'var(--green)':'#e05252';
+  t.classList.add('visible');
+  setTimeout(()=>t.classList.remove('visible'),4000);
+}
 function handleReg(){
   const phone=document.querySelector('.reg-input').value.trim();
-  if(!phone||phone.length<6){alert('Введите номер телефона');return}
+  if(!phone||phone.length<6){showToast('⚠️ Введите номер телефона',false);return}
   fetch('https://formspree.io/f/xjgqwdny',{
     method:'POST',
     headers:{'Content-Type':'application/json','Accept':'application/json'},
     body:JSON.stringify({type:'Регистрация мастера',phone})
   }).then(r=>{
-    if(r.ok){alert('Заявка принята! Мы свяжемся с вами в течение 1 рабочего дня и поможем создать профиль.')}
-    else{alert('Ошибка отправки. Позвоните нам напрямую.')}
-  }).catch(()=>alert('Ошибка сети. Попробуйте ещё раз.'));
+    if(r.ok){showToast('✅ Заявка принята! Мы свяжемся в течение 1 рабочего дня.',true)}
+    else{showToast('❌ Ошибка отправки. Попробуйте снова.',false)}
+  }).catch(()=>showToast('❌ Нет соединения. Проверьте интернет.',false));
   document.querySelector('.reg-input').value='';
 }
 </script>

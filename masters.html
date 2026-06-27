@@ -105,10 +105,23 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
 .search-bar input::placeholder{color:var(--t3)}
 .search-bar button{background:var(--gold);border:none;border-radius:7px;padding:7px 18px;font-size:13px;font-weight:700;color:#1C1512}
 
+.hamburger{display:none;background:none;border:none;color:var(--gold);font-size:26px;cursor:pointer;padding:4px 8px;line-height:1;margin-left:auto;flex-shrink:0}
+.mob-menu{display:none;position:fixed;inset:0;background:var(--bg);z-index:999;flex-direction:column;padding:72px 24px 32px}
+.mob-menu.open{display:flex}
+.mob-close{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--t2);font-size:28px;cursor:pointer;line-height:1}
+.mob-logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:var(--gold);position:absolute;top:20px;left:24px}
+.mob-logo span{color:var(--white);opacity:.5}
+.mob-menu a{display:block;padding:16px 4px;font-size:17px;font-weight:600;color:var(--white);border-bottom:1px solid var(--border)}
+.mob-cta{margin-top:24px;padding:15px;background:var(--gold);border:none;border-radius:10px;font-size:16px;font-weight:700;color:#1C1512;width:100%;cursor:pointer}
+
 @media(max-width:900px){
   .main-layout{grid-template-columns:1fr}
   .filters{position:static;display:none}
   .filters.open{display:block}
+  nav .nav-links,.nav-btns{display:none}
+  .hamburger{display:block}
+  .page-header{padding:24px 16px}
+  .page-header h1{font-size:24px}
 }
 </style>
 </head>
@@ -123,11 +136,23 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
       <a href="for-masters.html">Для мастеров</a>
     </div>
     <div class="nav-btns">
-      <button class="btn-ghost">Войти</button>
+      <button class="btn-ghost" onclick="location.href='index.html'">Войти</button>
       <button class="btn-gold" onclick="location.href='for-masters.html'">Стать мастером</button>
     </div>
+    <button class="hamburger" onclick="toggleMobMenu()">☰</button>
   </div>
 </nav>
+
+<div class="mob-menu" id="mobMenu">
+  <span class="mob-logo">BUDUJ<span>.BY</span></span>
+  <button class="mob-close" onclick="toggleMobMenu()">✕</button>
+  <a href="index.html" onclick="toggleMobMenu()">🏠 Главная</a>
+  <a href="masters.html" onclick="toggleMobMenu()">🔨 Мастера</a>
+  <a href="jobs.html" onclick="toggleMobMenu()">📋 Заказы</a>
+  <a href="orders.html" onclick="toggleMobMenu()" style="color:var(--green)">➕ Разместить заказ</a>
+  <a href="for-masters.html" onclick="toggleMobMenu()">👷 Для мастеров</a>
+  <button class="mob-cta" onclick="toggleMobMenu();location.href='for-masters.html'">Зарегистрироваться бесплатно</button>
+</div>
 
 <div class="page-header">
   <div class="page-header-inner">
@@ -219,6 +244,8 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
 </div>
 
 <script>
+function toggleMobMenu(){document.getElementById('mobMenu').classList.toggle('open')}
+
 const PHOTOS={
   bath1:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210637_14835eca-406e-44af-8930-ca6a258a7409.png',
   bath2:'https://d8j0ntlcm91z4.cloudfront.net/user_3FHOqF3l3pa9By2dL4nuUkynBOq/hf_20260626_210637_fdf06cbc-8377-403c-b8dc-788678091f9f.png',
