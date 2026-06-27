@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Заказы — BUDUJ.BY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#1C1512;--bg2:#241B14;--bg3:#2E2219;--bg4:#3A2B1F;
+  --gold:#F5A623;--gold2:#FDE8B8;--gold3:#C47D0E;
+  --green:#3ECF8E;--green2:rgba(62,207,142,0.12);
+  --red:#E05252;--amber:#FF8C42;
+  --white:#FFFFFF;--t2:#C4A882;--t3:#7A6358;
+  --border:rgba(245,166,35,0.15);--border2:rgba(245,166,35,0.3);
+  --r:12px;--r2:8px
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;font-size:16px;line-height:1.6}
+h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
+a{color:inherit;text-decoration:none}
+button{font-family:'Inter',sans-serif;cursor:pointer}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:32px;height:68px}
+.logo{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:var(--gold);letter-spacing:-0.5px}
+.logo span{color:var(--t2)}
+.nav-links{display:flex;gap:4px;margin-left:8px}
+.nav-links a{padding:8px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--t2);transition:.2s}
+.nav-links a:hover,.nav-links a.active{color:var(--white);background:var(--bg3)}
+.nav-right{margin-left:auto;display:flex;gap:12px;align-items:center}
+.btn-login{padding:8px 18px;border:1px solid var(--border2);border-radius:8px;font-size:14px;font-weight:600;color:var(--t2);background:none;cursor:pointer;transition:.2s}
+.btn-post{padding:8px 18px;background:var(--green);border:none;border-radius:8px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;transition:.2s}
+
+/* PAGE */
+.page-header{padding:40px 24px 24px;max-width:1200px;margin:0 auto}
+.page-header h1{font-size:32px;margin-bottom:8px}
+.page-header p{color:var(--t2)}
+.jobs-count{display:inline-block;background:var(--green2);border:1px solid rgba(62,207,142,0.3);color:var(--green);padding:3px 12px;border-radius:20px;font-size:13px;font-weight:600;margin-left:12px}
+
+/* FILTERS */
+.filters{padding:0 24px 20px;max-width:1200px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap}
+.filter-btn{padding:8px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--t2);cursor:pointer;transition:.2s}
+.filter-btn:hover,.filter-btn.active{border-color:var(--gold);color:var(--gold)}
+.filter-select{padding:8px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--t2);cursor:pointer;outline:none;appearance:none}
+
+/* GRID */
+.jobs-grid{max-width:1200px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+
+/* JOB CARD */
+.job-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;cursor:pointer;transition:.2s;position:relative}
+.job-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.job-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.job-cat{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--t2)}
+.job-time{font-size:12px;color:var(--t3)}
+.job-title{font-size:16px;font-weight:600;margin-bottom:8px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.job-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.job-meta-item{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--t2)}
+.job-meta-item span{font-size:15px}
+.job-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:14px}
+.job-budget{font-size:15px;font-weight:700;color:var(--gold)}
+.respond-btn{padding:8px 18px;background:var(--gold);border:none;border-radius:8px;font-size:13px;font-weight:700;color:#1C1512;transition:.2s}
+.respond-btn:hover{background:var(--gold3)}
+.responses-badge{font-size:12px;color:var(--t3)}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:80px 24px;grid-column:1/-1}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty-state h3{font-size:22px;margin-bottom:8px}
+.empty-state p{color:var(--t2);margin-bottom:24px}
+.empty-btn{display:inline-block;padding:14px 28px;background:var(--gold);border-radius:10px;font-weight:700;color:#1C1512}
+
+/* LOADING */
+.loading{text-align:center;padding:60px;grid-column:1/-1;color:var(--t3)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--t2);font-size:22px;cursor:pointer}
+.modal h2{font-size:22px;margin-bottom:6px}
+.modal-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.modal-meta-item{font-size:13px;color:var(--t2);background:var(--bg3);padding:4px 12px;border-radius:6px}
+.modal-desc{font-size:15px;color:var(--t2);margin-bottom:24px;line-height:1.6}
+.modal-section{margin-bottom:16px}
+.modal-label{font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.modal-input,.modal-textarea,.modal-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--white);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:.2s}
+.modal-input:focus,.modal-textarea:focus{border-color:var(--gold)}
+.modal-input::placeholder,.modal-textarea::placeholder{color:var(--t3)}
+.modal-textarea{resize:vertical;min-height:80px}
+.modal-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-submit{width:100%;padding:14px;background:var(--gold);border:none;border-radius:10px;font-size:15px;font-weight:700;color:#1C1512;cursor:pointer;transition:.2s;margin-top:8px}
+.modal-submit:hover{background:var(--gold3)}
+.modal-submit:disabled{opacity:0.6;cursor:not-allowed}
+.modal-hint{font-size:12px;color:var(--t3);text-align:center;margin-top:8px}
+
+/* VIEW MODAL */
+.view-modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+.responses-list{margin-top:20px}
+.response-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.rc-header{display:flex;justify-content:space-between;margin-bottom:8px}
+.rc-name{font-weight:700}
+.rc-price{color:var(--gold);font-weight:700}
+.rc-spec{font-size:12px;color:var(--t3);margin-bottom:8px}
+.rc-msg{font-size:14px;color:var(--t2)}
+.rc-phone{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:14px;color:var(--green)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--green);color:var(--white);padding:12px 24px;border-radius:10px;font-size:14px;z-index:300;opacity:0;transition:.3s;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* BANNER */
+.cta-banner{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border2);border-radius:16px;padding:24px 32px;max-width:1200px;margin:0 auto 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.cta-banner h3{font-size:18px}
+.cta-banner p{color:var(--t2);font-size:14px}
+.cta-banner-btn{padding:12px 24px;background:var(--gold);border:none;border-radius:10px;font-weight:700;color:#1C1512;cursor:pointer;white-space:nowrap}
+
+@media(max-width:600px){
+  .modal-row{grid-template-columns:1fr}
+  .jobs-grid{grid-template-columns:1fr}
+  .cta-banner{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">BUDUJ<span>.BY</span></a>
+    <div class="nav-links">
+      <a href="masters.html">Мастера</a>
+      <a href="jobs.html" class="active">Заказы</a>
+      <a href="for-masters.html">Для мастеров</a>
+    </div>
+    <div class="nav-right">
+      <button class="btn-login">Войти</button>
+      <button class="btn-post" onclick="location.href='orders.html'">+ Разместить заказ</button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>Открытые заказы <span class="jobs-count" id="jobsCount">...</span></h1>
+  <p>Выберите заказ и предложите свои услуги клиенту напрямую</p>
+</div>
+
+<div class="cta-banner" style="padding-left:24px;padding-right:24px">
+  <div>
+    <h3>Вы клиент? Разместите заказ бесплатно</h3>
+    <p>Мастера сами найдут вас и предложат цену</p>
+  </div>
+  <button class="cta-banner-btn" onclick="location.href='orders.html'">Разместить заказ →</button>
+</div>
+
+<div class="filters" id="filtersBar">
+  <button class="filter-btn active" onclick="filterCity('',this)">Все города</button>
+  <button class="filter-btn" onclick="filterCity('Минск',this)">Минск</button>
+  <button class="filter-btn" onclick="filterCity('Брест',this)">Брест</button>
+  <button class="filter-btn" onclick="filterCity('Гродно',this)">Гродно</button>
+  <button class="filter-btn" onclick="filterCity('Витебск',this)">Витебск</button>
+  <button class="filter-btn" onclick="filterCity('Гомель',this)">Гомель</button>
+  <button class="filter-btn" onclick="filterCity('Могилёв',this)">Могилёв</button>
+</div>
+
+<div class="jobs-grid" id="jobsGrid">
+  <div class="loading"><div class="spinner"></div>Загружаем заказы...</div>
+</div>
+
+<!-- Respond Modal -->
+<div class="modal-overlay" id="respondModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeRespond()">✕</button>
+    <h2>Откликнуться на заказ</h2>
+    <p style="color:var(--t2);font-size:14px;margin-bottom:20px" id="respondOrderTitle"></p>
+    <div class="modal-section">
+      <div class="modal-label">Ваше имя</div>
+      <input class="modal-input" id="rName" placeholder="Имя и фамилия">
+    </div>
+    <div class="modal-row">
+      <div class="modal-section">
+        <div class="modal-label">Телефон</div>
+        <input class="modal-input" id="rPhone" type="tel" placeholder="+375...">
+      </div>
+      <div class="modal-section">
+        <div class="modal-label">Ваша специализация</div>
+        <input class="modal-input" id="rSpec" placeholder="Электрик, сантехник...">
+      </div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-label">Ваше предложение / цена</div>
+      <input class="modal-input" id="rPrice" placeholder="Например: 250 BYN за всю работу">
+    </div>
+    <div class="modal-section">
+      <div class="modal-label">Сообщение клиенту</div>
+      <textarea class="modal-textarea" id="rMessage" placeholder="Расскажите почему стоит выбрать именно вас..."></textarea>
+    </div>
+    <button class="modal-submit" id="respondBtn" onclick="submitResponse()">Отправить предложение →</button>
+    <div class="modal-hint">Клиент увидит ваш телефон и свяжется с вами напрямую</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://inhlhqzavjtghechstzb.supabase.co';
+const SUPABASE_KEY='sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let allOrders=[];
+let currentCity='';
+let currentOrderId=null;
+let currentOrderTitle='';
+
+function timeAgo(ts){
+  const diff=(Date.now()-new Date(ts))/1000;
+  if(diff<3600)return Math.floor(diff/60)+' мин назад';
+  if(diff<86400)return Math.floor(diff/3600)+' ч назад';
+  return Math.floor(diff/86400)+' дн назад';
+}
+
+function renderOrders(orders){
+  const grid=document.getElementById('jobsGrid');
+  if(!orders.length){
+    grid.innerHTML=`<div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3>Пока нет заказов</h3>
+      <p>Станьте первым — разместите заказ и получите предложения от мастеров</p>
+      <a href="orders.html" class="empty-btn">Разместить заказ →</a>
+    </div>`;
+    return;
+  }
+  grid.innerHTML=orders.map(o=>`
+    <div class="job-card" onclick="openRespond('${o.id}','${(o.title||'').replace(/'/g,'').substring(0,60)}')">
+      <div class="job-top">
+        <span class="job-cat">${o.category||'Другое'}</span>
+        <span class="job-time">${timeAgo(o.created_at)}</span>
+      </div>
+      <div class="job-title">${o.title||'Без описания'}</div>
+      <div class="job-meta">
+        <div class="job-meta-item"><span>📍</span>${o.city||'—'}</div>
+        ${o.status==='open'?'<div class="job-meta-item"><span style="color:var(--green)">●</span> Открыт</div>':''}
+      </div>
+      <div class="job-footer">
+        <div>
+          <div class="job-budget">${o.budget||'Нужна смета'}</div>
+          <div class="responses-badge">${o.responses_count||0} откликов</div>
+        </div>
+        <button class="respond-btn" onclick="event.stopPropagation();openRespond('${o.id}','${(o.title||'').replace(/'/g,'').replace(/"/g,'').substring(0,60)}')">Откликнуться</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadOrders(){
+  let query=sb.from('orders').select('*').eq('status','open').order('created_at',{ascending:false});
+  if(currentCity)query=query.eq('city',currentCity);
+  const {data,error}=await query;
+  if(error){
+    document.getElementById('jobsGrid').innerHTML='<div class="loading">Ошибка загрузки. Обновите страницу.</div>';
+    return;
+  }
+  allOrders=data||[];
+  document.getElementById('jobsCount').textContent=allOrders.length;
+  renderOrders(allOrders);
+}
+
+function filterCity(city,btn){
+  currentCity=city;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadOrders();
+}
+
+function openRespond(orderId,title){
+  currentOrderId=orderId;
+  currentOrderTitle=title;
+  document.getElementById('respondOrderTitle').textContent=title+'...';
+  document.getElementById('respondModal').classList.add('open');
+  document.getElementById('rName').focus();
+}
+function closeRespond(){document.getElementById('respondModal').classList.remove('open')}
+
+async function submitResponse(){
+  const name=document.getElementById('rName').value.trim();
+  const phone=document.getElementById('rPhone').value.trim();
+  const spec=document.getElementById('rSpec').value.trim();
+  const price=document.getElementById('rPrice').value.trim();
+  const message=document.getElementById('rMessage').value.trim();
+
+  if(!name){alert('Введите имя');return}
+  if(!phone){alert('Введите телефон');return}
+
+  const btn=document.getElementById('respondBtn');
+  btn.disabled=true;btn.textContent='Отправляем...';
+
+  const {error}=await sb.from('responses').insert({
+    order_id:currentOrderId,
+    master_name:name,
+    master_phone:phone,
+    master_spec:spec,
+    message,price
+  });
+
+  if(!error){
+    await sb.from('orders').update({responses_count:sb.raw('responses_count + 1')}).eq('id',currentOrderId);
+
+    // Notify via Formspree
+    fetch('https://formspree.io/f/xjgqwdny',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({type:'Отклик на заказ',order:currentOrderTitle,master_name:name,master_phone:phone,price})
+    });
+  }
+
+  closeRespond();
+  showToast('✅ Предложение отправлено! Клиент свяжется с вами');
+  btn.disabled=false;btn.textContent='Отправить предложение →';
+  ['rName','rPhone','rSpec','rPrice','rMessage'].forEach(id=>document.getElementById(id).value='');
+  loadOrders();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+document.getElementById('respondModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('respondModal'))closeRespond();
+});
+
+loadOrders();
+setInterval(loadOrders,30000); // refresh every 30s
+</script>
+</body>
+</html>
