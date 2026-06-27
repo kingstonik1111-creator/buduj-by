@@ -114,8 +114,16 @@ select.input option{background:var(--bg3)}
           onkeydown="if(event.key==='Enter')submitCreds()">
         <span class="pass-eye" onclick="togglePass('confirmInput')">👁</span>
       </div>
+      <!-- Email для телефонного аккаунта (для восстановления пароля) -->
+      <div id="phoneEmailWrap" style="display:none">
+        <label class="label">Email <span style="color:var(--t3);font-weight:400;text-transform:none">(для восстановления пароля)</span></label>
+        <input class="input" id="phoneEmailInput" type="email" placeholder="example@gmail.com">
+      </div>
     </div>
     <button class="btn" id="credsBtn" onclick="submitCreds()">Войти →</button>
+    <div id="forgotWrap" style="text-align:center;margin-top:12px">
+      <a onclick="forgotPassword()" style="font-size:13px;color:var(--t3);cursor:pointer;text-decoration:underline">Забыли пароль?</a>
+    </div>
   </div>
 
   <!-- ШАГ 2: Профиль (только при регистрации) -->
@@ -193,6 +201,9 @@ function setMode(m) {
   );
   document.getElementById('confirmWrap').style.display = m === 'register' ? 'block' : 'none';
   document.getElementById('credsBtn').textContent = m === 'login' ? 'Войти →' : 'Продолжить →';
+  document.getElementById('forgotWrap').style.display = m === 'login' ? 'block' : 'none';
+  const phoneEmailWrap = document.getElementById('phoneEmailWrap');
+  if (phoneEmailWrap) phoneEmailWrap.style.display = (method === 'phone' && m === 'register') ? 'block' : 'none';
   clearMsg('mainMsg');
   goStep(1);
 }
@@ -204,6 +215,9 @@ function setMethod(m) {
   );
   document.getElementById('phoneField').style.display = m === 'phone' ? 'block' : 'none';
   document.getElementById('emailField').style.display = m === 'email' ? 'block' : 'none';
+  // Показываем поле email для восстановления только при регистрации по телефону
+  const phoneEmailWrap = document.getElementById('phoneEmailWrap');
+  if (phoneEmailWrap) phoneEmailWrap.style.display = (m === 'phone' && mode === 'register') ? 'block' : 'none';
   clearMsg('mainMsg');
 }
 
@@ -234,6 +248,18 @@ function normalizePhone(p) {
 
 function phoneToEmail(phone) {
   return phone.replace('+', 'p') + '@users.buduj.by';
+}
+
+async function forgotPassword() {
+  clearMsg('mainMsg');
+  const email = document.getElementById('emailInput')?.value.trim() || '';
+  const input = prompt('Введите email для сброса пароля:', email);
+  if (!input) return;
+  const {error} = await sb.auth.resetPasswordForEmail(input.trim(), {
+    redirectTo: location.origin + '/login.html'
+  });
+  if (error) showMsg('mainMsg', 'Ошибка: ' + error.message, 'error');
+  else showMsg('mainMsg', '✅ Письмо отправлено на ' + input.trim() + '. Проверьте почту.', 'success');
 }
 
 async function submitCreds() {
@@ -288,7 +314,9 @@ async function doRegister(password) {
     if (!phone) { showMsg('mainMsg', 'Введите номер: +375 29 XXX-XX-XX', 'error'); return; }
     const {data: ex} = await sb.from('profiles').select('id').eq('phone', phone).maybeSingle();
     if (ex) { showMsg('mainMsg', 'Этот номер уже зарегистрирован. Войдите.', 'error'); return; }
-    email = phoneToEmail(phone);
+    // Используем введённый email если есть, иначе генерируем
+    const typedEmail = document.getElementById('phoneEmailInput')?.value.trim();
+    email = (typedEmail && typedEmail.includes('@')) ? typedEmail : phoneToEmail(phone);
   }
 
   const {data, error} = await sb.auth.signUp({email, password});
@@ -322,6 +350,10 @@ async function createProfile() {
   const uid = pendingUser?.userId || user?.id;
   if (!uid) { showMsg('profileMsg', 'Ошибка сессии. Обновите страницу.', 'error'); return; }
 
+  // Пробный период 1 месяц для мастеров
+  const trialEnd = new Date();
+  trialEnd.setMonth(trialEnd.getMonth() + 1);
+
   const profile = {
     id: uid,
     role: selectedRole,
@@ -332,6 +364,8 @@ async function createProfile() {
   };
   if (selectedRole === 'master') {
     profile.spec = document.getElementById('specInput').value.trim() || 'Строительные работы';
+    profile.subscription_plan = 'trial';
+    profile.subscription_end = trialEnd.toISOString();
   }
 
   const {error} = await sb.from('profiles').insert(profile);

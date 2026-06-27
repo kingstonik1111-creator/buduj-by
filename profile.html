@@ -123,6 +123,25 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
   nav .nav-links,.nav-btns{display:none}
   .hamburger{display:block}
 }
+/* FLOATING CONTACTS */
+.contact-float{position:fixed;right:24px;bottom:100px;z-index:90;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.cf-btn{display:flex;align-items:center;gap:10px;padding:10px 16px 10px 14px;border-radius:50px;font-size:13px;font-weight:600;color:#fff;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:transform .18s,opacity .18s;white-space:nowrap;overflow:hidden;max-width:46px}
+.cf-btn:hover{transform:translateX(-4px);max-width:220px}
+.cf-btn svg{flex-shrink:0;width:22px;height:22px}
+.cf-btn span{opacity:0;transition:opacity .15s .05s;font-size:13px}
+.cf-btn:hover span{opacity:1}
+.cf-tg{background:#2AABEE}.cf-vb{background:#7360F2}
+.cf-ig{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)}
+.cf-mail{background:#555}
+.cf-phone{background:var(--gold);color:#1C1512}
+.cf-phone span{color:#1C1512}
+@media(max-width:900px){.contact-float{bottom:80px;right:12px}}
+@media(max-width:768px){
+  .contact-float{right:8px;bottom:70px;gap:8px}
+  .cf-btn{max-width:44px!important;padding:10px 11px;justify-content:center}
+  .cf-btn span{display:none}
+  .cf-btn:hover{max-width:44px!important;transform:none}
+}
 </style>
 </head>
 <body>
@@ -137,8 +156,8 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
       <a href="for-masters.html">Для мастеров</a>
     </div>
     <div class="nav-btns">
-      <button class="btn-ghost" onclick="location.href='index.html'">Войти</button>
-      <button class="btn-gold" onclick="location.href='for-masters.html'">Стать мастером</button>
+      <button class="btn-ghost" onclick="location.href='login.html'">Войти в кабинет</button>
+      <button class="btn-gold" onclick="location.href='login.html?role=master'">Стать мастером</button>
     </div>
     <button class="hamburger" onclick="toggleMobMenu()">☰</button>
   </div>
@@ -364,5 +383,28 @@ gallery.innerHTML=master.thumbs.map((p,i)=>`
   </div>
 `).join('');
 </script>
+<!-- FLOATING CONTACTS -->
+<div class="contact-float">
+  <a class="cf-btn cf-phone" href="tel:+375XXXXXXXXX" title="Позвонить">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+    <span>+375 XX XXX-XX-XX</span>
+  </a>
+  <a class="cf-btn cf-tg" href="https://t.me/budujby" target="_blank" title="Telegram">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.9 8.2l-2 9.4c-.1.6-.5.8-1 .5l-2.8-2.1-1.3 1.3c-.1.1-.3.2-.6.2l.2-2.9 5.1-4.6c.2-.2 0-.3-.3-.1L6.4 14.5 3.7 13.7c-.6-.2-.6-.6.1-.8l11.6-4.5c.5-.2 1 .1.5.8z"/></svg>
+    <span>Telegram</span>
+  </a>
+  <a class="cf-btn cf-vb" href="viber://chat?number=375XXXXXXXXX" title="Viber">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.4 0C6.4.1 2.3 2 .8 5.8-.5 8.7-.3 12 .9 14.7c.5 1.1 1.3 2.1 2.2 3v2.7c0 .7.5 1.3 1.1 1.5.2.1.4.1.6.1.4 0 .8-.2 1.1-.4l2.2-1.8c.6.1 1.2.2 1.9.2 6.6 0 12-4.7 12-10.5C22 4.4 17.3 0 11.4 0zm.1 18.9c-.7 0-1.4-.1-2-.2l-.3-.1-2.5 2-.1-3c-.9-.7-1.7-1.6-2.3-2.6C3.3 12.8 3.1 10 4.2 7.4c1.2-2.8 4.3-4.3 7.7-4.4C16 2.9 20 6.3 20 10.5c0 4.7-3.8 8.4-8.5 8.4z"/></svg>
+    <span>Viber</span>
+  </a>
+  <a class="cf-btn cf-ig" href="https://instagram.com/buduj.by" target="_blank" title="Instagram">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.2 4.8 1.7 5 5 .1 1.3.1 1.6.1 4.8 0 3.2 0 3.6-.1 4.8-.2 3.3-1.7 4.8-5 5-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.2-4.8-1.7-5-5C2.1 15.6 2 15.2 2 12c0-3.2 0-3.6.1-4.8.2-3.3 1.7-4.8 5-5 1.3-.1 1.6-.1 4.9-.1zm0-2.2C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1.1 8.3 0 8.7 0 12c0 3.3 0 3.7.1 4.9.2 4.4 2.6 6.8 7 7C8.3 24 8.7 24 12 24c3.3 0 3.7 0 4.9-.1 4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9 0-3.3 0-3.7-.1-4.9C23.7 2.7 21.3.3 16.9.1 15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 100 12.4A6.2 6.2 0 0012 5.8zm0 10.2a4 4 0 110-8 4 4 0 010 8zm6.4-11.8a1.44 1.44 0 100 2.88 1.44 1.44 0 000-2.88z"/></svg>
+    <span>Instagram</span>
+  </a>
+  <a class="cf-btn cf-mail" href="mailto:Buduj.by@yandex.by" title="Email">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    <span>Buduj.by@yandex.by</span>
+  </a>
+</div>
 </body>
 </html>

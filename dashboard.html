@@ -175,6 +175,21 @@ input,select,textarea{font-family:'Inter',sans-serif}
 .empty h3{font-size:18px;color:var(--t2);margin-bottom:8px}
 .empty p{font-size:13px;margin-bottom:20px}
 
+/* SUBSCRIPTION BANNER */
+.sub-banner{padding:14px 20px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sub-banner.warning{background:rgba(255,140,66,.1);border:1px solid rgba(255,140,66,.4);color:#FF8C42}
+.sub-banner.expired{background:rgba(224,82,82,.1);border:1px solid var(--red);color:var(--red)}
+.sub-banner.trial{background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.3);color:var(--green)}
+.sub-banner button{padding:6px 16px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;background:var(--gold);color:#1C1512;margin-left:auto;flex-shrink:0}
+
+/* UPGRADE MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:36px;max-width:460px;width:100%;animation:fadeIn .3s ease}
+.modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;margin-bottom:8px}
+.modal-sub{font-size:14px;color:var(--t2);margin-bottom:24px;line-height:1.6}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--t3);font-size:22px;cursor:pointer}
+
 /* TOAST */
 .toast-wrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:500;pointer-events:none}
 .toast-msg{padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;transition:.3s;pointer-events:all}
@@ -304,6 +319,55 @@ input,select,textarea{font-family:'Inter',sans-serif}
       <div id="responsesList"></div>
     </div>
 
+    <!-- Клиент: Профиль -->
+    <div class="panel" id="p-client-profile">
+      <h2 class="panel-title">Мой профиль</h2>
+      <p class="panel-sub">Личные данные вашего аккаунта</p>
+
+      <!-- Аватар -->
+      <div class="profile-section" style="margin-bottom:0">
+        <div class="profile-top" style="align-items:center;gap:20px">
+          <div style="position:relative;flex-shrink:0">
+            <div class="profile-avatar-big" id="cpAvatar" style="width:80px;height:80px;font-size:28px">?</div>
+            <label for="cpPhotoFile" style="position:absolute;bottom:-4px;right:-4px;width:28px;height:28px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px" title="Изменить фото">📷</label>
+            <input type="file" id="cpPhotoFile" accept="image/*" style="display:none" onchange="uploadClientPhoto(this)">
+          </div>
+          <div>
+            <div class="profile-name" id="cpNameDisplay">—</div>
+            <div class="profile-spec" id="cpEmailDisplay" style="font-size:13px;color:var(--t3)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Форма -->
+      <div class="profile-section" style="margin-top:20px">
+        <h3 style="font-size:16px;margin-bottom:16px">Редактировать данные</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Имя</label>
+            <input class="form-input" id="cpFirstName" placeholder="Александр">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Фамилия</label>
+            <input class="form-input" id="cpLastName" placeholder="Иванов">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email для связи</label>
+          <input class="form-input" id="cpEmail" type="email" placeholder="example@gmail.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Телефон</label>
+          <input class="form-input" id="cpPhone" type="tel" placeholder="+375 XX XXX-XX-XX" readonly style="opacity:.6;cursor:not-allowed">
+          <div style="font-size:12px;color:var(--t3);margin-top:4px">Телефон изменить нельзя — используется для входа</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-gold" onclick="saveClientProfile()">Сохранить</button>
+        </div>
+        <div id="cpSaveMsg" style="display:none;margin-top:12px;padding:10px 14px;background:var(--green2);border-radius:8px;font-size:13px;color:var(--green)">✓ Данные сохранены</div>
+      </div>
+    </div>
+
     <!-- ===== МАСТЕР ===== -->
 
     <!-- Мастер: Профиль -->
@@ -382,7 +446,15 @@ input,select,textarea{font-family:'Inter',sans-serif}
           </div>
         </div>
         <button class="btn btn-gold btn-full" style="margin-top:16px" onclick="goToPay()">Оплатить подписку →</button>
-        <p style="font-size:12px;color:var(--t3);text-align:center;margin-top:8px">Первые 3 месяца бесплатно для всех</p>
+        <p style="font-size:12px;color:var(--t3);text-align:center;margin-top:8px">Первый месяц бесплатно для всех</p>
+        <div style="margin-top:16px;padding:14px;background:var(--bg3);border-radius:10px;font-size:12px;color:var(--t3);line-height:1.8">
+          <strong style="color:var(--t2)">Условия подписки:</strong><br>
+          • Без активной подписки профиль скрывается из поиска (теневой режим)<br>
+          • Отклики на заказы и просмотр контактов недоступны<br>
+          • <strong style="color:var(--t2)">Возврат:</strong> в течение 3 дней с момента оплаты при отсутствии откликов<br>
+          • Отмена в любой момент — доступ сохраняется до конца оплаченного периода<br>
+          • По вопросам: <span style="color:var(--gold)">+375 29 000-00-00</span>
+        </div>
       </div>
     </div>
 
@@ -476,6 +548,34 @@ input,select,textarea{font-family:'Inter',sans-serif}
   </div>
 </div>
 
+<!-- UPGRADE MODAL -->
+<div class="modal-overlay" id="upgradeModal">
+  <div class="modal-box" style="position:relative">
+    <button class="modal-close" onclick="closeUpgrade()">✕</button>
+    <div class="modal-title">🔒 Подписка истекла</div>
+    <div class="modal-sub">Ваш пробный период закончился. Оформите подписку чтобы продолжить получать заказы.</div>
+    <div class="sub-plans" style="margin-bottom:20px">
+      <div class="plan-item" onclick="selPlan(this,'basic')" data-plan="basic">
+        <div class="plan-price">20–30</div>
+        <div class="plan-name-sm">BYN/мес • Базовый</div>
+        <div class="plan-feat">5 фото · 3 отклика/мес</div>
+      </div>
+      <div class="plan-item sel" onclick="selPlan(this,'pro')" data-plan="pro">
+        <div class="plan-price">50–70</div>
+        <div class="plan-name-sm">BYN/мес • Профи ⭐</div>
+        <div class="plan-feat">20 фото · ∞ откликов · Приоритет</div>
+      </div>
+      <div class="plan-item" onclick="selPlan(this,'biz')" data-plan="biz">
+        <div class="plan-price">100–150</div>
+        <div class="plan-name-sm">BYN/мес • Бизнес</div>
+        <div class="plan-feat">До 5 мастеров · Топ выдачи</div>
+      </div>
+    </div>
+    <button class="btn btn-gold btn-full" onclick="goToPay();closeUpgrade()">Оплатить подписку →</button>
+    <p style="font-size:12px;color:var(--t3);text-align:center;margin-top:10px">Политика возврата: возврат в течение 3 дней с момента оплаты</p>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast-wrap"><div class="toast-msg" id="toastMsg"></div></div>
 
@@ -521,6 +621,7 @@ async function init(){
     loadMasterProfile();
     loadNewOrders();
     showPanel('p-master-profile');
+    showSubBanner();
   } else {
     loadMyOrders();
     showPanel('p-my-orders');
@@ -539,6 +640,7 @@ function buildNav(){
     {id:'p-my-orders',icon:'📋',label:'Мои заказы'},
     {id:'p-new-order',icon:'➕',label:'Новый заказ'},
     {id:'p-messages',icon:'💬',label:'Сообщения'},
+    {id:'p-client-profile',icon:'👤',label:'Мой профиль'},
     {id:'p-verification',icon:'🔐',label:'Верификация'},
   ];
 
@@ -548,9 +650,13 @@ function buildNav(){
   mobInner.innerHTML='';
 
   items.forEach(item=>{
+    // Бейдж истечения подписки на пункте "Профиль"
+    const subAlert=(CP.role==='master'&&item.id==='p-master-profile'&&!isSubActive())
+      ?'<span style="margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:100px">!</span>':'';
+
     const div=document.createElement('div');
     div.className='nav-item';div.dataset.panel=item.id;
-    div.innerHTML=`<span class="nav-icon">${item.icon}</span>${item.label}`;
+    div.innerHTML=`<span class="nav-icon">${item.icon}</span>${item.label}${subAlert}`;
     div.onclick=()=>showPanel(item.id,true);
     sidebar.appendChild(div);
 
@@ -574,6 +680,7 @@ function showPanel(id,fromNav){
     if(id==='p-messages')loadChatList();
     if(id==='p-my-orders')loadMyOrders();
     if(id==='p-verification')loadVerification();
+    if(id==='p-client-profile')loadClientProfile();
   }
 }
 
@@ -607,6 +714,59 @@ function stars(n){
 function initials(name){return(name||'?')[0].toUpperCase()}
 
 // ============ КЛИЕНТ: МОИ ЗАКАЗЫ ============
+// ── КЛИЕНТ: профиль ──────────────────────────────────────────────────────────
+function loadClientProfile(){
+  const fn=CP.first_name||'';
+  const ln=CP.last_name||'';
+  const fullName=(fn+' '+ln).trim()||CP.name||'—';
+  document.getElementById('cpNameDisplay').textContent=fullName;
+  document.getElementById('cpEmailDisplay').textContent=CP.auth_email||CP.email||'';
+  document.getElementById('cpFirstName').value=fn;
+  document.getElementById('cpLastName').value=ln;
+  document.getElementById('cpEmail').value=CP.auth_email||CP.email||'';
+  document.getElementById('cpPhone').value=CP.phone||'';
+  // аватар
+  const av=document.getElementById('cpAvatar');
+  if(CP.avatar_url){av.style.backgroundImage=`url(${CP.avatar_url})`;av.style.backgroundSize='cover';av.textContent='';}
+  else av.textContent=(fn||CP.name||'?')[0].toUpperCase();
+}
+
+async function saveClientProfile(){
+  const fn=document.getElementById('cpFirstName').value.trim();
+  const ln=document.getElementById('cpLastName').value.trim();
+  const email=document.getElementById('cpEmail').value.trim();
+  const name=(fn+' '+ln).trim()||fn||ln;
+  const{error}=await sb.from('profiles').update({
+    first_name:fn, last_name:ln, name:name||CP.name,
+    auth_email:email||CP.auth_email
+  }).eq('id',CU.id);
+  if(!error){
+    CP.first_name=fn; CP.last_name=ln; CP.name=name||CP.name;
+    if(email) CP.auth_email=email;
+    loadClientProfile();
+    const msg=document.getElementById('cpSaveMsg');
+    msg.style.display='block';
+    setTimeout(()=>msg.style.display='none',3000);
+  }
+}
+
+async function uploadClientPhoto(input){
+  const file=input.files[0]; if(!file) return;
+  const ext=file.name.split('.').pop();
+  const path=`avatars/${CU.id}.${ext}`;
+  const{error}=await sb.storage.from('avatars').upload(path,file,{upsert:true});
+  if(!error){
+    const{data}=sb.storage.from('avatars').getPublicUrl(path);
+    const url=data.publicUrl;
+    await sb.from('profiles').update({avatar_url:url}).eq('id',CU.id);
+    CP.avatar_url=url;
+    const av=document.getElementById('cpAvatar');
+    av.style.backgroundImage=`url(${url})`;
+    av.style.backgroundSize='cover';
+    av.textContent='';
+  }
+}
+
 async function loadMyOrders(){
   const el=document.getElementById('myOrdersList');
   el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto"></div></div>';
@@ -785,6 +945,18 @@ function goToPay(){
   toast(`Для оплаты тарифа «${selectedPlan}» (${prices[selectedPlan]}/мес) напишите нам: +375 29 000-00-00`);
 }
 
+// ============ ТЕНЕВОЙ БАН ============
+// Мастера без активной подписки скрыты из публичного поиска.
+// Реализуется через RLS в Supabase: profiles видны только если
+// subscription_end > now() ИЛИ это сам пользователь.
+// SQL для запуска в Supabase:
+// DROP POLICY IF EXISTS "profiles_select" ON profiles;
+// CREATE POLICY "profiles_select" ON profiles FOR SELECT USING (
+//   role = 'client'
+//   OR subscription_end > now()
+//   OR auth.uid() = id
+// );
+
 // ============ МАСТЕР: НОВЫЕ ЗАКАЗЫ ============
 async function loadNewOrders(){
   const el=document.getElementById('newOrdersList');
@@ -823,8 +995,8 @@ async function loadNewOrders(){
 // ОТКЛИК НА ЗАКАЗ (мастер)
 let respondOrderId='';let respondClientId='';
 function openRespondModal(orderId,title,clientId){
+  if(!requireSub()) return;
   respondOrderId=orderId;respondClientId=clientId;
-  const msg=`Хочу откликнуться на заказ: ${title}\n\nМастер: ${CP.name}\nСпециализация: ${CP.spec}`;
   openChat(orderId,clientId||'',CP.name||'Клиент',title,true);
 }
 
@@ -983,6 +1155,52 @@ function closeChat(){
   document.getElementById('chatOverlay').classList.remove('open');
   document.getElementById('chatDrawer').classList.remove('open');
   if(chatChannel){sb.removeChannel(chatChannel);chatChannel=null;}
+}
+
+// ============ ПОДПИСКА ============
+function isSubActive(){
+  if(CP.role!=='master') return true; // клиентам не нужна подписка
+  if(!CP.subscription_end) return false;
+  return new Date(CP.subscription_end) > new Date();
+}
+
+function daysLeft(){
+  if(!CP.subscription_end) return 0;
+  return Math.ceil((new Date(CP.subscription_end)-new Date())/(1000*60*60*24));
+}
+
+function showSubBanner(){
+  if(CP.role!=='master') return;
+  const days=daysLeft();
+  const main=document.getElementById('dashMain');
+  const existing=document.getElementById('subBanner');
+  if(existing) existing.remove();
+
+  let html='';
+  if(days<=0){
+    html=`<div class="sub-banner expired" id="subBanner">
+      🔒 Ваша подписка истекла — доступ к откликам и контактам заблокирован
+      <button onclick="openUpgrade()">Продлить подписку</button>
+    </div>`;
+  } else if(days<=14){
+    html=`<div class="sub-banner warning" id="subBanner">
+      ⚠️ Подписка истекает через ${days} дн. — не забудьте продлить
+      <button onclick="showPanel('p-master-profile',true)">Продлить</button>
+    </div>`;
+  } else if(CP.subscription_plan==='trial'){
+    html=`<div class="sub-banner trial" id="subBanner">
+      🎁 Пробный период активен — осталось ${days} дн. из 30
+    </div>`;
+  }
+  if(html) main.insertAdjacentHTML('afterbegin', html);
+}
+
+function openUpgrade(){ document.getElementById('upgradeModal').classList.add('open'); }
+function closeUpgrade(){ document.getElementById('upgradeModal').classList.remove('open'); }
+
+function requireSub(action){
+  if(!isSubActive()){openUpgrade();return false;}
+  return true;
 }
 
 // ============ ВЕРИФИКАЦИЯ ============
