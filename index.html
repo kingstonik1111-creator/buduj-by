@@ -446,7 +446,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-tag"><span class="dot"></span>47 мастеров онлайн прямо сейчас</div>
+  <div class="hero-tag"><span class="dot"></span><span id="heroCount">47</span> мастеров на платформе</div>
   <h1>Найдите мастера<br>с <span>фото работ</span> за 3 минуты</h1>
   <p class="hero-sub">Только проверенные специалисты по всей Беларуси.<br>Договор, гарантия, реальные отзывы — без посредников.</p>
   <!-- Выбор роли -->
@@ -901,6 +901,21 @@ function doSearch(){
   location.href=`masters.html?q=${encodeURIComponent(q)}&city=${encodeURIComponent(c)}`;
 }
 function search(cat){location.href=`masters.html?cat=${encodeURIComponent(cat)}`}
+
+// Реальное количество мастеров из Supabase
+fetch('https://inhlhqzavjtghechstzb.supabase.co/rest/v1/profiles?role=eq.master&select=id',{
+  headers:{
+    'apikey':'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9',
+    'Prefer':'count=exact',
+    'Range':'0-0'
+  }
+}).then(r=>{
+  const range=r.headers.get('Content-Range');
+  if(range){
+    const total=range.split('/')[1];
+    if(total&&+total>0)document.getElementById('heroCount').textContent=total;
+  }
+}).catch(()=>{});
 
 // SERVICES FILTER
 function filterCat(cat,el){
