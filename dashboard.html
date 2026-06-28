@@ -1020,12 +1020,17 @@ async function openOrderDetail(id,title,cat,city,budget){
     const name=mp?mp.name:(r.master_name||'Мастер');
     const spec=mp?mp.spec:(r.master_spec||'Специалист');
     const isRevealed=r.master_user_id&&revealedIds.has(r.master_user_id);
+    const avatarEl=r.master_user_id
+      ?`<div class="rc-avatar" style="cursor:pointer" onclick="location.href='profile.html?id=${r.master_user_id}'">${initials(name)}</div>`
+      :`<div class="rc-avatar">${initials(name)}</div>`;
     return `
     <div class="response-card">
       <div class="rc-top">
-        <div class="rc-avatar">${initials(name)}</div>
+        ${avatarEl}
         <div style="flex:1;min-width:0">
-          <div class="rc-name">${name}</div>
+          <div class="rc-name"${r.master_user_id?` style="cursor:pointer;color:var(--gold)" onclick="location.href='profile.html?id=${r.master_user_id}'"`:''}>
+            ${name}${r.master_user_id?` <span style="font-size:11px;color:var(--t3)">→ профиль</span>`:''}
+          </div>
           <div class="rc-spec">${spec}</div>
           <div class="rc-stars">${stars(rating)} ${rating>0?rating.toFixed(1):''}</div>
         </div>
@@ -1039,11 +1044,29 @@ async function openOrderDetail(id,title,cat,city,budget){
            <button class="btn-reveal" onclick="revealPhone('${r.id}','${r.master_user_id||''}','${id}','${r.master_phone||''}',this)">Показать номер</button>`
         }
       </div>
-      <div class="btn-row">
+      <div class="btn-row" style="gap:8px;flex-wrap:wrap">
         ${r.master_user_id?`<button class="btn btn-gold btn-sm" onclick="openChat('${id}','${r.master_user_id}','${name}','${title}')">💬 Написать</button>`:''}
+        ${r.master_user_id?`<button class="btn btn-ghost btn-sm" onclick="location.href='profile.html?id=${r.master_user_id}'">👤 Профиль и отзывы</button>`:''}
+        <button class="btn btn-green btn-sm" style="margin-left:auto" onclick="acceptResponse('${r.id}','${id}','${name}')">✅ Принять мастера</button>
       </div>
     </div>`;
   }).join('');
+}
+
+async function acceptResponse(responseId,orderId,masterName){
+  if(!confirm(`Выбрать ${masterName} исполнителем этого заказа?`))return;
+  await sb.from('orders').update({status:'in_progress',accepted_response_id:responseId}).eq('id',orderId).eq('owner_id',CU.id);
+  toast('✅ Мастер выбран! Свяжитесь с ним по телефону или в чате.');
+  // обновляем карточки — помечаем выбранного
+  document.querySelectorAll('.response-card').forEach(card=>{
+    const btn=card.querySelector('.btn-green');
+    if(btn&&btn.getAttribute('onclick')&&btn.getAttribute('onclick').includes(responseId)){
+      card.style.border='1px solid var(--green)';
+      btn.textContent='✅ Выбран';btn.disabled=true;
+    } else {
+      card.style.opacity='0.5';
+    }
+  });
 }
 
 async function revealPhone(responseId,masterUserId,orderId,phone,btn){
