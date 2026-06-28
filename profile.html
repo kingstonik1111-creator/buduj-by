@@ -271,6 +271,10 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
           <div class="price-label">Стоимость работ</div>
           <div class="price-num">от <span id="masterPrice">30</span> BYN<span>/час</span></div>
         </div>
+        <a id="sideWhatsapp" href="#" target="_blank" style="display:none;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#25D366;border:none;border-radius:10px;font-size:15px;font-weight:700;color:#fff;text-decoration:none;margin-bottom:10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Написать в WhatsApp
+        </a>
         <button class="btn-contact" onclick="showContact()">💬 Написать мастеру</button>
         <button class="btn-request" onclick="showOrder()">📋 Запросить смету</button>
         <div class="contact-info">
@@ -445,15 +449,28 @@ async function loadProfile(){
   document.getElementById('statRating').textContent=rating||'—';
   document.getElementById('statReviews').textContent=reviews||'0';
 
-  // Phone in floating button & contact card
+  // Phone + WhatsApp + Viber floating buttons
+  document.getElementById('contactFloat').style.display='flex';
   if(m.phone){
-    document.querySelector('.cf-phone').href=`tel:${m.phone}`;
-    document.querySelector('.cf-phone span').textContent=m.phone;
+    const digits=m.phone.replace(/\D/g,'');
+    const cfPhone=document.getElementById('cfPhone');
+    cfPhone.href=`tel:${m.phone}`;
+    document.getElementById('cfPhoneNum').textContent=m.phone;
+    const cfWa=document.getElementById('cfWa');
+    cfWa.href=`https://wa.me/${digits}`;
+    cfWa.style.display='flex';
+    const cfVb=document.getElementById('cfVb');
+    cfVb.href=`viber://chat?number=${digits}`;
+    cfVb.style.display='flex';
+    // Contact row
     document.querySelectorAll('.contact-row').forEach(row=>{
       if(row.textContent.includes('Телефон')){
-        row.innerHTML=`<div class="contact-icon">📱</div><a href="tel:${m.phone}" style="color:var(--gold)">${m.phone}</a>`;
+        row.innerHTML=`<div class="contact-icon">📱</div><a href="tel:${m.phone}" style="color:var(--gold);font-weight:700">${m.phone}</a>`;
       }
     });
+    // Sidebar WhatsApp button
+    const sideWa=document.getElementById('sideWhatsapp');
+    if(sideWa){sideWa.href=`https://wa.me/${digits}`;sideWa.style.display='flex';}
   }
 
   // Gallery — placeholder (portfolio feature coming soon)
@@ -579,26 +596,18 @@ loadProfile().then(()=>{
 </div>
 
 <!-- FLOATING CONTACTS -->
-<div class="contact-float">
-  <a class="cf-btn cf-phone" href="tel:+375XXXXXXXXX" title="Позвонить">
+<div class="contact-float" id="contactFloat" style="display:none">
+  <a class="cf-btn cf-phone" id="cfPhone" href="#" title="Позвонить">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
-    <span>+375 XX XXX-XX-XX</span>
+    <span id="cfPhoneNum">Позвонить</span>
   </a>
-  <a class="cf-btn cf-tg" href="https://t.me/budujby" target="_blank" title="Telegram">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.9 8.2l-2 9.4c-.1.6-.5.8-1 .5l-2.8-2.1-1.3 1.3c-.1.1-.3.2-.6.2l.2-2.9 5.1-4.6c.2-.2 0-.3-.3-.1L6.4 14.5 3.7 13.7c-.6-.2-.6-.6.1-.8l11.6-4.5c.5-.2 1 .1.5.8z"/></svg>
-    <span>Telegram</span>
+  <a class="cf-btn" id="cfWa" href="#" target="_blank" title="WhatsApp" style="background:#25D366;display:none">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <span>WhatsApp</span>
   </a>
-  <a class="cf-btn cf-vb" href="viber://chat?number=375XXXXXXXXX" title="Viber">
+  <a class="cf-btn cf-vb" id="cfVb" href="#" title="Viber" style="display:none">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.4 0C6.4.1 2.3 2 .8 5.8-.5 8.7-.3 12 .9 14.7c.5 1.1 1.3 2.1 2.2 3v2.7c0 .7.5 1.3 1.1 1.5.2.1.4.1.6.1.4 0 .8-.2 1.1-.4l2.2-1.8c.6.1 1.2.2 1.9.2 6.6 0 12-4.7 12-10.5C22 4.4 17.3 0 11.4 0zm.1 18.9c-.7 0-1.4-.1-2-.2l-.3-.1-2.5 2-.1-3c-.9-.7-1.7-1.6-2.3-2.6C3.3 12.8 3.1 10 4.2 7.4c1.2-2.8 4.3-4.3 7.7-4.4C16 2.9 20 6.3 20 10.5c0 4.7-3.8 8.4-8.5 8.4z"/></svg>
     <span>Viber</span>
-  </a>
-  <a class="cf-btn cf-ig" href="https://instagram.com/buduj.by" target="_blank" title="Instagram">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.2 4.8 1.7 5 5 .1 1.3.1 1.6.1 4.8 0 3.2 0 3.6-.1 4.8-.2 3.3-1.7 4.8-5 5-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.2-4.8-1.7-5-5C2.1 15.6 2 15.2 2 12c0-3.2 0-3.6.1-4.8.2-3.3 1.7-4.8 5-5 1.3-.1 1.6-.1 4.9-.1zm0-2.2C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1.1 8.3 0 8.7 0 12c0 3.3 0 3.7.1 4.9.2 4.4 2.6 6.8 7 7C8.3 24 8.7 24 12 24c3.3 0 3.7 0 4.9-.1 4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9 0-3.3 0-3.7-.1-4.9C23.7 2.7 21.3.3 16.9.1 15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 100 12.4A6.2 6.2 0 0012 5.8zm0 10.2a4 4 0 110-8 4 4 0 010 8zm6.4-11.8a1.44 1.44 0 100 2.88 1.44 1.44 0 000-2.88z"/></svg>
-    <span>Instagram</span>
-  </a>
-  <a class="cf-btn cf-mail" href="mailto:Buduj.by@yandex.by" title="Email">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-    <span>Buduj.by@yandex.by</span>
   </a>
 </div>
 </body>

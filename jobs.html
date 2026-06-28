@@ -212,6 +212,23 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
   <button class="filter-btn" onclick="filterCity('Гомель',this)">Гомель</button>
   <button class="filter-btn" onclick="filterCity('Могилёв',this)">Могилёв</button>
 </div>
+<div class="filters" style="padding-top:0">
+  <select class="filter-select" id="catFilter" onchange="filterCat(this.value)" style="min-width:220px">
+    <option value="">🔧 Все категории</option>
+    <option>Электрика</option>
+    <option>Сантехника</option>
+    <option>Ремонт квартир под ключ</option>
+    <option>Укладка плитки</option>
+    <option>Укладка ламината / полов</option>
+    <option>Покраска и штукатурка</option>
+    <option>Кровельные работы</option>
+    <option>Сварочные работы</option>
+    <option>Натяжные потолки</option>
+    <option>Установка дверей и окон</option>
+    <option>Мебель и сборка</option>
+    <option>Другое</option>
+  </select>
+</div>
 
 <div class="jobs-grid" id="jobsGrid">
   <div class="loading"><div class="spinner"></div>Загружаем заказы...</div>
