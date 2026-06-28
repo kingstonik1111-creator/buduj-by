@@ -3,4 +3,18 @@ Allow: /
 Disallow: /dashboard.html
 Disallow: /login.html
 
+# Яндекс
+User-agent: Yandex
+Allow: /
+Disallow: /dashboard.html
+Disallow: /login.html
+Crawl-delay: 1
+
+# Google
+User-agent: Googlebot
+Allow: /
+Disallow: /dashboard.html
+Disallow: /login.html
+
 Sitemap: https://buduj.by/sitemap.xml
+Host: buduj.by
