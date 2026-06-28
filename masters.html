@@ -392,7 +392,27 @@ function applyFilters(){
 
   const grid=document.getElementById('mastersGrid');
   if(!filtered.length){
-    grid.innerHTML='<div class="no-results" style="grid-column:1/-1"><h3>Мастера не найдены</h3><p>Попробуйте изменить фильтры</p></div>';
+    const cityCheckedNow=[...document.querySelectorAll('#cityFilters input:checked')].map(i=>i.value);
+    const catCheckedNow=[...document.querySelectorAll('#catFilters input:checked')].map(i=>i.value);
+    const cityLabel=cityCheckedNow.length?cityCheckedNow.join(', '):'вашем городе';
+    const catLabel=catCheckedNow.length?catCheckedNow.join(', '):'';
+    grid.innerHTML=`
+      <div class="no-results" style="grid-column:1/-1">
+        <div style="font-size:48px;margin-bottom:16px">🔍</div>
+        <h3>Мастеров пока нет в ${cityLabel}</h3>
+        <p style="margin-bottom:24px">${catLabel?'По специальности «'+catLabel+'» — ещё':'Ещё'} никто не зарегистрировался.<br>Оставьте контакт — сообщим первыми когда появится.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;max-width:420px;margin:0 auto">
+          <input id="notifyPhone" type="tel" placeholder="Телефон или Telegram (@username)"
+            style="flex:1;min-width:200px;padding:12px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-size:14px;outline:none;font-family:'Inter',sans-serif">
+          <button onclick="submitNotify('${cityLabel}','${catLabel}')"
+            style="padding:12px 22px;background:var(--gold);border:none;border-radius:10px;font-size:14px;font-weight:700;color:#1C1512;cursor:pointer;white-space:nowrap">
+            Уведомить меня
+          </button>
+        </div>
+        <p style="margin-top:16px;font-size:13px;color:var(--t3)">
+          Или <a href="for-masters.html" style="color:var(--gold)">зарегистрируйтесь как мастер</a> — заказы уже ждут
+        </p>
+      </div>`;
     return;
   }
   grid.innerHTML=filtered.map(m=>{
@@ -494,6 +514,19 @@ function mToast(msg){
   el.textContent=msg;el.classList.add('show');
   clearTimeout(mToast._t);
   mToast._t=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+function submitNotify(city,cat){
+  const contact=document.getElementById('notifyPhone')?.value.trim();
+  if(!contact){alert('Введите телефон или Telegram');return;}
+  fetch('https://formspree.io/f/xjgqwdny',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({type:'Уведомить о мастере',city,cat,contact})
+  });
+  const btn=document.querySelector('[onclick^="submitNotify"]');
+  if(btn){btn.textContent='✅ Запомнили!';btn.disabled=true;btn.style.background='var(--green)';}
+  document.getElementById('notifyPhone').disabled=true;
 }
 
 applyFilters();
