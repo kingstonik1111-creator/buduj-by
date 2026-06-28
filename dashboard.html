@@ -1218,6 +1218,33 @@ function loadMasterProfile(){
   document.getElementById('epCity').value=CP.city||'Минск';
   // Telegram статус
   updateTgBlock();
+  // Прогресс профиля
+  showProfileProgress();
+}
+
+function showProfileProgress(){
+  const checks=[
+    {done:!!(CP.name&&CP.name.trim().length>2),     tip:'✏️ Добавьте имя и фамилию',          pts:20},
+    {done:!!(CP.spec&&CP.spec.trim().length>2),     tip:'🔧 Укажите специализацию',             pts:15},
+    {done:!!(CP.city&&CP.city.trim().length>1),     tip:'📍 Укажите город',                     pts:10},
+    {done:!!(CP.phone&&CP.phone.trim().length>5),   tip:'📱 Добавьте номер телефона',            pts:20},
+    {done:!!(CP.bio&&CP.bio.trim().length>20),      tip:'📝 Напишите о себе (хотя бы 20 символов)',pts:15},
+    {done:!!(CP.avatar_url),                        tip:'🖼 Загрузите фото профиля',             pts:10},
+    {done:!!(CP.portfolio_urls&&CP.portfolio_urls.length>0),tip:'📷 Добавьте фото работ',       pts:10},
+  ];
+  const total=checks.reduce((s,c)=>s+(c.done?c.pts:0),0);
+  const el=document.getElementById('profileProgress');
+  if(!el)return;
+  // Скрываем если профиль заполнен на 100%
+  if(total>=100){el.style.display='none';return;}
+  el.style.display='block';
+  document.getElementById('progressBar').style.width=total+'%';
+  document.getElementById('progressPct').textContent=total+'%';
+  const color=total<50?'var(--red)':total<80?'var(--amber)':'var(--green)';
+  document.getElementById('progressBar').style.background=color;
+  document.getElementById('progressPct').style.color=color;
+  const missing=checks.filter(c=>!c.done).map(c=>`<span style="display:inline-block;margin-right:12px">${c.tip}</span>`).join('');
+  document.getElementById('progressTips').innerHTML='<strong style="color:var(--t3)">Что добавить:</strong> '+missing;
 }
 
 function updateTgBlock(){
