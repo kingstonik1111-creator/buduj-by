@@ -334,7 +334,8 @@ async function loadMasters(){
   const{data,error}=await sb.from('profiles')
     .select('id,name,spec,city,rating,reviews_count,avatar_url,is_verified,verified_status,bio')
     .eq('role','master')
-    .order('rating',{ascending:false});
+    .order('rating',{ascending:false})
+    .limit(200);
 
   if(error||!data||!data.length){
     grid.innerHTML=`<div class="no-results" style="grid-column:1/-1">
