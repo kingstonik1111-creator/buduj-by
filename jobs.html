@@ -278,6 +278,7 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let allOrders=[];
 let currentCity='';
+let currentCat='';
 let currentOrderId=null;
 let currentOrderTitle='';
 let currentUser=null;
@@ -340,8 +341,9 @@ async function loadOrders(){
     return;
   }
   allOrders=data||[];
-  document.getElementById('jobsCount').textContent=allOrders.length;
-  renderOrders(allOrders);
+  const filtered=currentCat?allOrders.filter(o=>o.category===currentCat):allOrders;
+  document.getElementById('jobsCount').textContent=filtered.length;
+  renderOrders(filtered);
 }
 
 function filterCity(city,btn){
@@ -349,6 +351,13 @@ function filterCity(city,btn){
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   loadOrders();
+}
+
+function filterCat(cat){
+  currentCat=cat;
+  const filtered=currentCat?allOrders.filter(o=>o.category===currentCat):allOrders;
+  document.getElementById('jobsCount').textContent=filtered.length;
+  renderOrders(filtered);
 }
 
 function openRespond(orderId,title){
