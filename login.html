@@ -302,9 +302,9 @@ async function doLogin(password) {
   } else {
     const phone = normalizePhone(document.getElementById('phoneInput').value);
     if (!phone) { showMsg('mainMsg', 'Введите номер: +375 29 XXX-XX-XX', 'error'); return; }
-    const {data: prof} = await sb.from('profiles').select('auth_email').eq('phone', phone).maybeSingle();
-    if (!prof) { showMsg('mainMsg', 'Номер не найден. Сначала зарегистрируйтесь.', 'error'); return; }
-    email = prof.auth_email;
+    const {data: foundEmail} = await sb.rpc('get_login_email', {p_phone: phone});
+    if (!foundEmail) { showMsg('mainMsg', 'Номер не найден. Сначала зарегистрируйтесь.', 'error'); return; }
+    email = foundEmail;
   }
   const {error} = await sb.auth.signInWithPassword({email, password});
   if (error) {
@@ -325,8 +325,8 @@ async function doRegister(password) {
   } else {
     phone = normalizePhone(document.getElementById('phoneInput').value);
     if (!phone) { showMsg('mainMsg', 'Введите номер: +375 29 XXX-XX-XX', 'error'); return; }
-    const {data: ex} = await sb.from('profiles').select('id').eq('phone', phone).maybeSingle();
-    if (ex) { showMsg('mainMsg', 'Этот номер уже зарегистрирован. Войдите.', 'error'); return; }
+    const {data: taken} = await sb.rpc('phone_taken', {p_phone: phone});
+    if (taken) { showMsg('mainMsg', 'Этот номер уже зарегистрирован. Войдите.', 'error'); return; }
     // Используем введённый email если есть, иначе генерируем
     const typedEmail = document.getElementById('phoneEmailInput')?.value.trim();
     email = (typedEmail && typedEmail.includes('@')) ? typedEmail : phoneToEmail(phone);

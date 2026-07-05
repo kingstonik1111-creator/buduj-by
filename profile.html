@@ -385,7 +385,7 @@ async function loadProfile(){
   document.getElementById('masterSpec').textContent='';
 
   const{data:m,error}=await sb.from('profiles')
-    .select('*')
+    .select('id,created_at,role,name,first_name,last_name,spec,city,bio,rating,reviews_count,avatar_url,is_verified,verified_status,last_seen_at')
     .eq('id',masterId)
     .eq('role','master')
     .single();
@@ -474,9 +474,14 @@ async function loadProfile(){
   document.getElementById('statRating').textContent=rating||'—';
   document.getElementById('statReviews').textContent=reviews||'0';
 
-  // Phone + WhatsApp + Viber — контакты только для зарегистрированных
+  // Phone + WhatsApp + Viber — контакты только для зарегистрированных.
+  // Телефон не входит в основной запрос: анониму он не приходит вовсе.
   const{data:{user:authUser}}=await sb.auth.getUser();
   AUTHED=!!authUser;
+  if(AUTHED){
+    const{data:contact}=await sb.from('profiles').select('phone').eq('id',masterId).single();
+    if(contact) m.phone=contact.phone;
+  }
   if(AUTHED && m.phone){
     document.getElementById('contactFloat').style.display='flex';
     const digits=m.phone.replace(/\D/g,'');
