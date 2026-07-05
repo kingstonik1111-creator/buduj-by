@@ -553,7 +553,7 @@ function openReviewModal(){
 function closeReviewModal(){
   document.getElementById('reviewModal').classList.remove('open');
 }
-document.getElementById('reviewModal').addEventListener('click',e=>{
+document.getElementById('reviewModal')?.addEventListener('click',e=>{
   if(e.target===document.getElementById('reviewModal'))closeReviewModal();
 });
 
