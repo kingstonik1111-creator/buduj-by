@@ -346,8 +346,12 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowRight')lbNav(1);
   if(e.key==='ArrowLeft')lbNav(-1);
 });
-function showContact(){document.getElementById('contactModal').style.display='flex'}
-function showOrder(){document.getElementById('contactModal').style.display='flex'}
+let AUTHED=false;
+function requireLogin(){
+  location.href='login.html?next='+encodeURIComponent(location.pathname+location.search);
+}
+function showContact(){if(!AUTHED){requireLogin();return}document.getElementById('contactModal').style.display='flex'}
+function showOrder(){if(!AUTHED){requireLogin();return}document.getElementById('contactModal').style.display='flex'}
 function submitContact(){
   const task=document.getElementById('contactTask').value.trim();
   const phone=document.getElementById('contactPhone').value.trim();
@@ -470,9 +474,11 @@ async function loadProfile(){
   document.getElementById('statRating').textContent=rating||'—';
   document.getElementById('statReviews').textContent=reviews||'0';
 
-  // Phone + WhatsApp + Viber floating buttons
-  document.getElementById('contactFloat').style.display='flex';
-  if(m.phone){
+  // Phone + WhatsApp + Viber — контакты только для зарегистрированных
+  const{data:{user:authUser}}=await sb.auth.getUser();
+  AUTHED=!!authUser;
+  if(AUTHED && m.phone){
+    document.getElementById('contactFloat').style.display='flex';
     const digits=m.phone.replace(/\D/g,'');
     const cfPhone=document.getElementById('cfPhone');
     cfPhone.href=`tel:${m.phone}`;

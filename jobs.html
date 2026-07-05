@@ -283,13 +283,50 @@ let currentOrderId=null;
 let currentOrderTitle='';
 let currentUser=null;
 let currentProfile=null;
+let isActiveMaster=false;
 
 async function checkAuth(){
   const{data:{user}}=await sb.auth.getUser();
   if(!user)return;
   currentUser=user;
-  const{data}=await sb.from('profiles').select('name,phone,spec,role').eq('id',user.id).single();
-  if(data&&data.role==='master')currentProfile=data;
+  const{data}=await sb.from('profiles').select('name,phone,spec,role,subscription_end').eq('id',user.id).single();
+  if(data&&data.role==='master'){
+    currentProfile=data;
+    isActiveMaster = !!data.subscription_end && new Date(data.subscription_end) > new Date();
+  }
+}
+
+function showAuthGate(reason){
+  // Скрываем фильтры и счётчик
+  document.querySelectorAll('.filters').forEach(f=>f.style.display='none');
+  document.getElementById('jobsCount').textContent='';
+  let html;
+  if(reason==='expired'){
+    html=`<div class="empty-state">
+      <div class="empty-icon">🔒</div>
+      <h3>Подписка истекла</h3>
+      <p>Ваш пробный период или подписка закончились. Продлите доступ, чтобы снова видеть заказы и откликаться.</p>
+      <a href="dashboard.html" class="empty-btn">Продлить доступ →</a>
+    </div>`;
+  }else if(reason==='notmaster'){
+    html=`<div class="empty-state">
+      <div class="empty-icon">🔨</div>
+      <h3>Раздел только для мастеров</h3>
+      <p>Заказы видят и откликаются на них только зарегистрированные мастера.</p>
+      <a href="login.html?role=master" class="empty-btn">Стать мастером →</a>
+    </div>`;
+  }else{
+    html=`<div class="empty-state">
+      <div class="empty-icon">🔒</div>
+      <h3>Заказы доступны только мастерам</h3>
+      <p>Войдите или зарегистрируйтесь как мастер, чтобы видеть открытые заказы и откликаться на них.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <a href="login.html" class="empty-btn">Войти</a>
+        <a href="login.html?role=master" class="empty-btn" style="background:var(--green);color:#fff">Стать мастером</a>
+      </div>
+    </div>`;
+  }
+  document.getElementById('jobsGrid').innerHTML=html;
 }
 
 function timeAgo(ts){
@@ -361,6 +398,7 @@ function filterCat(cat){
 }
 
 function openRespond(orderId,title){
+  if(!isActiveMaster){location.href='login.html?role=master';return;}
   currentOrderId=orderId;
   currentOrderTitle=title;
   document.getElementById('respondOrderTitle').textContent=title+'...';
@@ -427,8 +465,18 @@ document.getElementById('respondModal').addEventListener('click',e=>{
   if(e.target===document.getElementById('respondModal'))closeRespond();
 });
 
-checkAuth().then(()=>loadOrders());
-setInterval(loadOrders,30000);
+checkAuth().then(()=>{
+  if(isActiveMaster){
+    loadOrders();
+    setInterval(loadOrders,30000);
+  }else if(currentProfile){
+    showAuthGate('expired');   // мастер, но подписка истекла
+  }else if(currentUser){
+    showAuthGate('notmaster'); // залогинен, но не мастер (клиент)
+  }else{
+    showAuthGate('anon');      // не залогинен
+  }
+});
 </script>
 <!-- FLOATING CONTACTS -->
 <div class="contact-float">

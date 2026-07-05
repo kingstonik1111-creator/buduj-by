@@ -37,7 +37,7 @@
 <script>
 const sb=window.supabase.createClient(
   'https://inhlhqzavjtghechstzb.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluaGxocXphdmp0Z2hlY2hzdHpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5NTIxNDQsImV4cCI6MjA2NjUyODE0NH0.U3BqJiYNMiMiHjPiMEQLqzQFJNFVOVDh6k-BONiEcZk'
+  'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9'
 );
 </script>
 <style>
@@ -454,7 +454,7 @@ function applyFilters(){
             <button class="btn-fav${favIds.has(String(m.id))?` saved`:``}" id="fav-${m.id}"
               onclick="event.stopPropagation();toggleFav('${m.id}','${m.name.replace(/'/g,'')}','${m.spec.replace(/'/g,'')}',${m.rating})"
               title="${favIds.has(String(m.id))?'Убрать из избранного':'В избранное'}">❤</button>
-            <button class="btn-sm">Написать</button>
+            <button class="btn-sm" onclick="event.stopPropagation();location.href='profile.html?id=${m.id}'">Написать</button>
           </div>
         </div>
       </div>
