@@ -1,12 +1,10 @@
 # ── BUDUJ.BY · заголовки безопасности и кэш (для hoster.by / Apache/LiteSpeed) ──
 # Заменяет файл _headers (формат Cloudflare, на белорусском хостинге не работает)
 
-# Принудительный HTTPS
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{HTTPS} off
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-</IfModule>
+# Принудительный HTTPS отключён на уровне .htaccess:
+# hoster.by терминирует SSL на прокси и отдаёт Apache http, из-за чего
+# редирект зацикливался (ERR_TOO_MANY_REDIRECTS). Перенаправление на https
+# нужно включать штатно в панели хостинга (Сайты → домен → перенаправлять на https).
 
 # Заголовки безопасности
 <IfModule mod_headers.c>

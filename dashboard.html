@@ -594,17 +594,17 @@ input,select,textarea{font-family:'Inter',sans-serif}
         <div class="sub-end" id="subEnd">Доступен до истечения пробного периода</div>
         <div class="sub-plans">
           <div class="plan-item" onclick="selPlan(this,'basic')" data-plan="basic">
-            <div class="plan-price">20–30</div>
+            <div class="plan-price">25</div>
             <div class="plan-name-sm">BYN/мес • Базовый</div>
             <div class="plan-feat">5 фото · 3 отклика/мес</div>
           </div>
           <div class="plan-item sel" onclick="selPlan(this,'pro')" data-plan="pro">
-            <div class="plan-price">50–70</div>
+            <div class="plan-price">60</div>
             <div class="plan-name-sm">BYN/мес • Профи ⭐</div>
             <div class="plan-feat">20 фото · ∞ откликов · Приоритет</div>
           </div>
           <div class="plan-item" onclick="selPlan(this,'biz')" data-plan="biz">
-            <div class="plan-price">100–150</div>
+            <div class="plan-price">125</div>
             <div class="plan-name-sm">BYN/мес • Бизнес</div>
             <div class="plan-feat">До 5 мастеров · Топ выдачи</div>
           </div>
@@ -751,17 +751,17 @@ input,select,textarea{font-family:'Inter',sans-serif}
     <div class="modal-sub">Ваш пробный период закончился. Оформите подписку чтобы продолжить получать заказы.</div>
     <div class="sub-plans" style="margin-bottom:20px">
       <div class="plan-item" onclick="selPlan(this,'basic')" data-plan="basic">
-        <div class="plan-price">20–30</div>
+        <div class="plan-price">25</div>
         <div class="plan-name-sm">BYN/мес • Базовый</div>
         <div class="plan-feat">5 фото · 3 отклика/мес</div>
       </div>
       <div class="plan-item sel" onclick="selPlan(this,'pro')" data-plan="pro">
-        <div class="plan-price">50–70</div>
+        <div class="plan-price">60</div>
         <div class="plan-name-sm">BYN/мес • Профи ⭐</div>
         <div class="plan-feat">20 фото · ∞ откликов · Приоритет</div>
       </div>
       <div class="plan-item" onclick="selPlan(this,'biz')" data-plan="biz">
-        <div class="plan-price">100–150</div>
+        <div class="plan-price">125</div>
         <div class="plan-name-sm">BYN/мес • Бизнес</div>
         <div class="plan-feat">До 5 мастеров · Топ выдачи</div>
       </div>
@@ -1528,20 +1528,22 @@ async function openChat(orderId,otherId,otherName,orderTitle,isMasterInit){
   document.getElementById('chatMessages').innerHTML='<div style="text-align:center;padding:20px;color:var(--t3)">Загружаем...</div>';
   hideTyping();
 
-  // Онлайн статус собеседника
+  // Окно открываем сразу, ДО асинхронных запросов — чтобы диалог всегда появлялся по клику
+  document.getElementById('chatOverlay').classList.add('open');
+  document.getElementById('chatDrawer').classList.add('open');
+
+  // Онлайн статус собеседника (не блокирует открытие окна)
   const dot=document.getElementById('chatOnlineDot');
   const txt=document.getElementById('chatOnlineText');
   if(dot&&txt&&otherId){
-    const{data:op}=await sb.from('profiles').select('last_seen_at,name').eq('id',otherId).single();
-    if(op){
-      const online=isOnline(op.last_seen_at);
-      dot.className='online-dot'+(online?' is-online':'');
-      txt.textContent=online?'Онлайн':op.last_seen_at?'Был(-а) недавно':'—';
-    }
+    sb.from('profiles').select('last_seen_at,name').eq('id',otherId).single().then(({data:op})=>{
+      if(op){
+        const online=isOnline(op.last_seen_at);
+        dot.className='online-dot'+(online?' is-online':'');
+        txt.textContent=online?'Онлайн':op.last_seen_at?'Был(-а) недавно':'—';
+      }
+    });
   }
-
-  document.getElementById('chatOverlay').classList.add('open');
-  document.getElementById('chatDrawer').classList.add('open');
 
   // Загружаем сообщения
   const{data:msgs}=await sb.from('messages').select('*')
