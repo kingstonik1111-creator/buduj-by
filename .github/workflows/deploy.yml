@@ -21,7 +21,7 @@ jobs:
       - name: Deploy files via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: vh152.hoster.by
+          server: 87.232.64.12   # прямой IPv4, чтобы FTP не уходил в IPv6-passive (ECONNRESET на data socket)
           username: h210996_deploy
           password: ${{ secrets.HOSTER_FTP_PASSWORD }}
           port: 21
