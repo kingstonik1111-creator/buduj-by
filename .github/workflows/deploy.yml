@@ -1,0 +1,40 @@
+name: Deploy to hoster.by
+
+# Авто-деплой сайта на hoster.by при каждом push в ветку main.
+# Требуется один секрет в настройках репозитория:
+#   Settings → Secrets and variables → Actions → New repository secret
+#   Имя:  HOSTER_FTP_PASSWORD
+#   Значение: FTP-пароль хостинга (тот же, что для FTP-пользователя h210996)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # можно запускать вручную из вкладки Actions
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: vh152.hoster.by
+          username: h210996_deploy
+          password: ${{ secrets.HOSTER_FTP_PASSWORD }}
+          port: 21
+          protocol: ftp          # если хостинг требует шифрование — заменить на ftps
+          security: loose
+          server-dir: ./        # FTP-пользователь h210996_deploy уже "приземляется" в /www/buduj.by
+          # что НЕ заливать на публичный сайт (бэкенд/служебное):
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            supabase/**
+            *.sql
+            *.ts
+            *.md
+            _headers
