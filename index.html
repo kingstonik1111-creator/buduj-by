@@ -419,7 +419,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
 <!-- URGENCY BAR -->
 <div class="urgency-bar">
   <div class="urgency-bar-inner">
-    <strong>🎁 Акция:</strong> Первые 50 мастеров получают 3 месяца бесплатно. Осталось <strong id="freeSlots">…</strong>
+    <strong>🎁 Акция:</strong> Первые 50 мастеров получают 3 месяца бесплатно<span id="freeSlots"></span>
   </div>
 </div>
 
@@ -459,7 +459,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-tag"><span class="dot"></span><span id="heroCount">47</span> мастеров на платформе</div>
+  <div class="hero-tag"><span class="dot"></span><span id="heroCount">Мастера по всей Беларуси</span></div>
   <h1>Найдите мастера<br>с <span>фото работ</span> за 3 минуты</h1>
   <p class="hero-sub">Только проверенные специалисты по всей Беларуси.<br>Договор, гарантия, реальные отзывы — без посредников.</p>
   <!-- Выбор роли -->
@@ -488,11 +488,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
     <span class="chip" onclick="search('Сварщик')">🔩 Сварка</span>
   </div>
   <div class="trust-strip">
-    <div class="ts-item"><div class="tv"><span>1 247</span></div><div class="tl">заказов выполнено</div></div>
-    <div class="ts-item"><div class="tv"><span>50+</span></div><div class="tl">проверенных мастеров</div></div>
+    <div class="ts-item"><div class="tv"><span>65</span></div><div class="tl">видов работ</div></div>
     <div class="ts-item"><div class="tv"><span>6</span></div><div class="tl">городов Беларуси</div></div>
-    <div class="ts-item"><div class="tv"><span>4.8</span> ★</div><div class="tl">средний рейтинг</div></div>
-    <div class="ts-item"><div class="tv"><span>98%</span></div><div class="tl">клиентов вернулись</div></div>
+    <div class="ts-item"><div class="tv"><span>0%</span></div><div class="tl">комиссии с заказов</div></div>
+    <div class="ts-item"><div class="tv"><span>Фото</span></div><div class="tl">работ у каждого мастера</div></div>
+    <div class="ts-item"><div class="tv"><span>Договор</span></div><div class="tl">до начала работ</div></div>
   </div>
 </section>
 
@@ -632,24 +632,25 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
 <section class="sp-section">
   <div class="sp-inner">
     <p class="sp-quote">«Ни один конкурент в Беларуси не показывает фото работ.<br>На BUDUJ.BY <span>вы выбираете глазами</span> — как в Instagram»</p>
-    <p style="font-size:14px;color:var(--t3)">— Почему нам доверяют 1 247 клиентов</p>
+    <p style="font-size:14px;color:var(--t3)">— Так работает BUDUJ</p>
     <div class="sp-reviews">
       <div class="sp-card">
-        <div class="sp-stars">★★★★★</div>
-        <div class="sp-text">Нашла электрика за 10 минут. Посмотрела фото его работ — сразу поняла, что аккуратный. Сделал всё чисто, договор был, претензий нет.</div>
-        <div class="sp-author"><div class="sp-avatar">ИК</div><div><div class="sp-name">Ирина К.</div><div class="sp-city">Минск, электрика</div></div></div>
+        <div class="sp-stars">🏗️</div>
+        <div class="sp-text">Мы запустились в 2026 году и собираем платформу с нуля — честно, без накрученных цифр и выдуманных отзывов. Всё, что вы видите здесь, настоящее.</div>
+        <div class="sp-author"><div class="sp-avatar">BY</div><div><div class="sp-name">Команда BUDUJ.BY</div><div class="sp-city">Витебск</div></div></div>
       </div>
       <div class="sp-card">
-        <div class="sp-stars">★★★★★</div>
-        <div class="sp-text">Давно искал хорошего плиточника в Бресте. На других сайтах — только текст без примеров. Здесь увидел портфолио и сразу написал. Ванная — огонь.</div>
-        <div class="sp-author"><div class="sp-avatar">ДВ</div><div><div class="sp-name">Денис В.</div><div class="sp-city">Брест, плитка</div></div></div>
+        <div class="sp-stars">📸</div>
+        <div class="sp-text">Каждый мастер показывает фото своих работ. Вы выбираете не по красивому описанию, а по результату — как выбирали бы подрядчика по рекомендации друга.</div>
+        <div class="sp-author"><div class="sp-avatar">✓</div><div><div class="sp-name">Фото-портфолио</div><div class="sp-city">У каждого мастера</div></div></div>
       </div>
       <div class="sp-card">
-        <div class="sp-stars">★★★★★</div>
-        <div class="sp-text">Ремонт в новостройке под ключ. Бригада работала быстро, все расходники фиксировали в смете. Никаких сюрпризов по деньгам.</div>
-        <div class="sp-author"><div class="sp-avatar">МС</div><div><div class="sp-name">Марина С.</div><div class="sp-city">Минск, ремонт под ключ</div></div></div>
+        <div class="sp-stars">🤝</div>
+        <div class="sp-text">Платформа не берёт процент с ваших заказов. Мастер платит только за доступ к заявкам — поэтому цена для вас не выше, чем при прямом обращении.</div>
+        <div class="sp-author"><div class="sp-avatar">0%</div><div><div class="sp-name">Без комиссий</div><div class="sp-city">Работаете напрямую</div></div></div>
       </div>
     </div>
+    <p style="font-size:14px;color:var(--t2);margin-top:22px">Первые отзыв��� появятся здесь, как только клиенты завершат заказы. Обещаем: только настоящие.</p>
   </div>
 </section>
 
@@ -690,7 +691,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
   <div class="cta-card">
     <div class="cta-left">
       <h2>Вы мастер или бригада?<br>Получайте заказы без посредников</h2>
-      <p>Создайте профиль с фото работ за 5 минут. Первые 3 месяца бесплатно. Уже 50+ мастеров получают заказы через BUDUJ.BY.</p>
+      <p>Создайте профиль с фото работ за 5 минут. Первые 3 месяца бесплатно. Присоединяйтесь к первым мастерам платформы.</p>
     </div>
     <div class="cta-right">
       <button class="btn-cta-gold" onclick="location.href='login.html'">Зарегистрироваться бесплатно</button>
@@ -895,33 +896,62 @@ const MASTERS=[
   {id:5,name:'Алексей Петров',init:'АП',spec:'Сантехника',city:'Витебск',rating:4.9,reviews:55,price:35,verified:true,hot:false,resp:'~15 мин',mainPhoto:PHOTOS.elec2,thumbs:[PHOTOS.elec2,PHOTOS.bath1,PHOTOS.lam2]},
   {id:6,name:'Павел Кузнецов',init:'ПК',spec:'Ремонт квартир',city:'Минск',rating:4.8,reviews:63,price:22,verified:true,hot:true,resp:'~30 мин',mainPhoto:PHOTOS.paint2,thumbs:[PHOTOS.paint2,PHOTOS.bath3,PHOTOS.lam2]},
 ];
-document.getElementById('mastersGrid').innerHTML=MASTERS.map(m=>`
-  <div class="master-card" onclick="location.href='profile.html?id=${m.id}'">
-    <div class="master-photo">
-      <img src="${m.mainPhoto}" alt="${m.spec}" onerror="this.style.display='none'">
-      ${m.verified?`<div class="verified-badge"><span class="online-dot"></span>Проверен</div>`:''}
-      ${m.hot?`<div class="hot-badge">🔥 Горячий</div>`:''}
-    </div>
-    <div class="master-info">
-      <div class="master-header">
-        <div class="avatar">${m.init}</div>
-        <div class="master-meta"><h3>${m.name}</h3><span class="spec">${m.spec}</span></div>
-        <div class="city-tag">📍${m.city}</div>
-      </div>
-      <div class="master-rating">
-        <span class="stars">★★★★★</span>
-        <span class="rating-num">${m.rating}</span>
-        <span class="reviews">(${m.reviews})</span>
-        <span class="response-time">⚡ ${m.resp}</span>
-      </div>
-      <div class="work-thumbs">${m.thumbs.map(p=>`<div class="thumb"><img src="${p}" onerror="this.parentNode.style.background='var(--bg4)'"></div>`).join('')}</div>
-      <div class="master-footer">
-        <div class="price">от <strong>${m.price} BYN</strong>/ч</div>
-        <button class="btn-sm">Написать →</button>
-      </div>
-    </div>
-  </div>
-`).join('');
+// Реальные мастера из базы. Демо-карточек больше нет —
+// если каталог пуст, показываем честное приглашение, а не выдуманных людей.
+(function loadMasters(){
+  const grid=document.getElementById('mastersGrid');
+  if(!grid)return;
+  fetch('https://inhlhqzavjtghechstzb.supabase.co/rest/v1/profiles?role=eq.master&select=id,name,spec,city,rating,reviews_count,avatar_url,is_verified&order=rating.desc&limit=6',{
+    headers:{'apikey':'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9'}
+  }).then(r=>r.json()).then(rows=>{
+    if(!Array.isArray(rows)||!rows.length){
+      grid.innerHTML=`
+        <div style="grid-column:1/-1;text-align:center;padding:48px 24px;border:1px dashed var(--border2);border-radius:16px">
+          <div style="font-size:40px;margin-bottom:14px">🏗️</div>
+          <h3 style="font-size:22px;margin-bottom:10px">Каталог наполняется</h3>
+          <p style="color:var(--t2);max-width:460px;margin:0 auto 22px;line-height:1.6">
+            Мы только запустились и принимаем первых мастеров. Зарегистрируйтесь сейчас —
+            первые 50 получают 3 месяца бесплатно и попадают в самый верх выдачи.
+          </p>
+          <button onclick="location.href='login.html?role=master'"
+            style="padding:13px 28px;background:var(--gold);border:none;border-radius:12px;font-size:15px;font-weight:700;color:#1C1512;cursor:pointer;font-family:'Inter',sans-serif">
+            🔨 Стать одним из первых
+          </button>
+        </div>`;
+      return;
+    }
+    grid.innerHTML=rows.map(m=>{
+      const init=(m.name||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      const rating=m.rating?(+m.rating).toFixed(1):'—';
+      const rev=m.reviews_count||0;
+      return `
+      <div class="master-card" onclick="location.href='profile.html?id=${m.id}'">
+        <div class="master-photo">
+          ${m.avatar_url?`<img src="${m.avatar_url}" alt="${m.spec||''}" onerror="this.style.display='none'">`:''}
+          ${m.is_verified?`<div class="verified-badge"><span class="online-dot"></span>Проверен</div>`:''}
+        </div>
+        <div class="master-info">
+          <div class="master-header">
+            <div class="avatar">${init}</div>
+            <div class="master-meta"><h3>${m.name||'Мастер'}</h3><span class="spec">${m.spec||''}</span></div>
+            <div class="city-tag">📍${m.city||''}</div>
+          </div>
+          <div class="master-rating">
+            <span class="stars">★★★★★</span>
+            <span class="rating-num">${rating}</span>
+            <span class="reviews">(${rev})</span>
+          </div>
+          <div class="master-footer">
+            <div class="price">Профиль с фото работ</div>
+            <button class="btn-sm">Открыть →</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }).catch(()=>{
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--t2)">Не удалось загрузить мастеров. Обновите страницу.</div>';
+  });
+})();
 
 // MOBILE MENU
 function toggleMobMenu(){
@@ -940,25 +970,23 @@ function search(cat){location.href=`masters.html?cat=${encodeURIComponent(cat)}`
 fetch('https://inhlhqzavjtghechstzb.supabase.co/rest/v1/profiles?role=eq.master&select=id',{
   headers:{'apikey':'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9'}
 }).then(r=>r.json()).then(rows=>{
-  const bar=document.querySelector('.urgency-bar');
-  const slots=document.getElementById('freeSlots');
   const total=Array.isArray(rows)?rows.length:0;
-  if(!total){ if(bar)bar.style.display='none'; return; }
+  if(!total)return;   // нет реальных данных — ничего не пишем, но и не врём
 
   const hc=document.getElementById('heroCount');
-  if(hc)hc.textContent=total;
+  if(hc)hc.textContent=total+' мастеров на платформе';
 
-  // честно: 50 минус те, кто уже зарегистрирован
-  const left=50-total;
+  // счётчик мест по акции — только пока места действительно есть
+  const left=50-total, slots=document.getElementById('freeSlots');
   if(left>0&&slots){
     const w=(left%10===1&&left%100!==11)?' место'
           :((left%10>=2&&left%10<=4&&(left%100<10||left%100>=20))?' места':' мест');
-    slots.textContent=left+w;
-  }else if(bar){ bar.style.display='none'; }
-}).catch(()=>{
-  const bar=document.querySelector('.urgency-bar');
-  if(bar)bar.style.display='none';
-});
+    slots.textContent='. Осталось '+left+w;
+  }else if(left<=0){
+    const bar=document.querySelector('.urgency-bar');
+    if(bar)bar.style.display='none';   // места кончились — акцию убираем
+  }
+}).catch(()=>{});
 
 // SERVICES FILTER
 function filterCat(cat,el){
