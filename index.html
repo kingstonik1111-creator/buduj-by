@@ -98,8 +98,8 @@
   --green:#3ECF8E;--green2:rgba(62,207,142,0.12);
   --red:#E05252;--red2:rgba(224,82,82,0.12);
   --amber:#FF8C42;--amber2:rgba(255,140,66,0.12);
-  --white:#FFFFFF;--t2:#C4A882;--t3:#7A6358;
-  --border:rgba(245,166,35,0.15);--border2:rgba(245,166,35,0.3);
+  --white:#FFFFFF;--t2:#C4A882;--t3:#9C8272;
+  --border:rgba(245,166,35,0.25);--border2:rgba(245,166,35,0.42);
   --r:12px;--r2:8px
 }
 html{scroll-behavior:smooth}
@@ -419,9 +419,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
 <!-- URGENCY BAR -->
 <div class="urgency-bar">
   <div class="urgency-bar-inner">
-    <strong>🎁 Акция:</strong> Первые 50 мастеров получают 3 месяца бесплатно. Осталось <strong>23 места</strong>
-    <span class="ub-sep">•</span>
-    Предложение истекает через: <span class="urgency-timer" id="urgTimer">47:32</span>
+    <strong>🎁 Акция:</strong> Первые 50 мастеров получают 3 месяца бесплатно. Осталось <strong id="freeSlots">…</strong>
   </div>
 </div>
 
@@ -467,6 +465,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
   <!-- Выбор роли -->
   <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap">
     <button onclick="location.href='login.html?role=client'" style="padding:13px 28px;background:var(--gold);border:none;border-radius:12px;font-size:15px;font-weight:700;color:#1C1512;cursor:pointer;font-family:'Inter',sans-serif">🏠 Я заказчик — найти мастера</button>
+    <button onclick="location.href='orders.html'" style="padding:13px 28px;background:var(--gold);border:none;border-radius:12px;font-size:15px;font-weight:700;color:#1C1512;cursor:pointer;font-family:'Inter',sans-serif">📋 Разместить заказ бесплатно</button>
     <button onclick="location.href='login.html?role=master'" style="padding:13px 28px;background:transparent;border:2px solid var(--gold);border-radius:12px;font-size:15px;font-weight:700;color:var(--gold);cursor:pointer;font-family:'Inter',sans-serif">🔨 Я мастер — получать заказы</button>
   </div>
   <div class="search-box">
@@ -730,8 +729,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
       <h4>Платформа</h4>
       <a href="for-masters.html">Для мастеров</a>
       <a href="for-masters.html#pricing">Тарифы</a>
-      <a href="#" onclick="openAdPopup()">Реклама на сайте</a>
-      <a href="#">Блог</a>
+      <a href="javascript:void(0)" onclick="openAdPopup()">Реклама на сайте</a>
+      <a href="for-masters.html#faq">Вопросы и ответы</a>
     </div>
     <div class="footer-col">
       <h4>Контакты</h4>
@@ -974,40 +973,74 @@ function openAdPopup(){document.getElementById('popupAd').classList.add('open')}
 function submitPopup(id){
   const popup=document.getElementById(id);
   const inputs=popup?popup.querySelectorAll('.popup-input'):[];
-  const data={type:'Лид с попапа',popup:id};
-  inputs.forEach((el,i)=>data['field'+(i+1)]=el.value.trim());
+  const vals=[...inputs].map(el=>el.value.trim()).filter(Boolean);
+  if(!vals.length){ showToast('⚠️','Заполните поле','Оставьте телефон или email'); return; }
+
+  // Лиды идут в ту же базу, где заказы — ничего не теряется
+  const payload={
+    source:id,
+    contact:vals.join(' · '),
+    page:location.pathname
+  };
+  fetch('https://inhlhqzavjtghechstzb.supabase.co/rest/v1/leads',{
+    method:'POST',
+    headers:{
+      'apikey':'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9',
+      'Content-Type':'application/json',
+      'Prefer':'return=minimal'
+    },
+    body:JSON.stringify(payload)
+  }).catch(()=>{});
+
+  // Дублируем на почту, чтобы не пропустить
   fetch('https://formspree.io/f/xjgqwdny',{
     method:'POST',
     headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify(data)
-  });
+    body:JSON.stringify({type:'Лид с сайта',popup:id,contact:vals.join(' · ')})
+  }).catch(()=>{});
+
+  localStorage.setItem('bd_lead','1');
   closePopup(id);
-  showToast('✅','Заявка принята!','Мы свяжемся с вами скоро');
+  showToast('✅','Заявка принята','Свяжемся с вами в течение часа');
 }
-setTimeout(()=>openPopup('popupTimer'),30000);
-let scrollShown=false;
-window.addEventListener('scroll',()=>{
-  if(window.scrollY/(document.body.scrollHeight-window.innerHeight)>0.7&&!scrollShown){
-    scrollShown=true;openPopup('popupScroll');
-  }
-});
-let exitShown=false;
+// Один попап: только при уходе, и только после 40 сек на сайте.
+// Не показываем тем, кто уже начал заполнять форму или оставил заявку.
+let exitShown=false, siteReady=false;
+setTimeout(()=>{siteReady=true},40000);
 document.addEventListener('mouseleave',e=>{
-  if(e.clientY<20&&!exitShown){exitShown=true;openPopup('popupExit')}
+  if(e.clientY>20||exitShown||!siteReady)return;
+  if(localStorage.getItem('bd_lead')==='1')return;
+  const q=document.getElementById('searchMain');
+  if(q&&q.value.trim())return;
+  exitShown=true;openPopup('popupExit');
 });
 document.querySelectorAll('.popup-overlay').forEach(o=>{
   o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')})
 });
 
-// URGENCY TIMER
-let secs=47*60+32;
-setInterval(()=>{
-  secs=Math.max(0,secs-1);
-  const m=Math.floor(secs/60).toString().padStart(2,'0');
-  const s=(secs%60).toString().padStart(2,'0');
-  const el=document.getElementById('urgTimer');
-  if(el)el.textContent=`${m}:${s}`;
-},1000);
+// ЧЕСТНЫЙ СЧЁТЧИК СВОБОДНЫХ МЕСТ ПО АКЦИИ
+// Считаем реально: 50 минус количество зарегистрированных мастеров.
+// Если места кончились — плашку скрываем, ничего не выдумываем.
+fetch('https://inhlhqzavjtghechstzb.supabase.co/rest/v1/profiles?role=eq.master&select=id',{
+  headers:{
+    'apikey':'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9',
+    'Prefer':'count=exact','Range':'0-0'
+  }
+}).then(r=>{
+  const range=r.headers.get('Content-Range');
+  const total=range?+range.split('/')[1]:0;
+  const left=50-(total||0);
+  const bar=document.querySelector('.urgency-bar');
+  const el=document.getElementById('freeSlots');
+  if(left>0){
+    if(el)el.textContent=left+(left%10===1&&left%100!==11?' место':(left%10>=2&&left%10<=4&&(left%100<10||left%100>=20)?' места':' мест'));
+  }else if(bar){
+    bar.style.display='none';
+  }
+}).catch(()=>{
+  const bar=document.querySelector('.urgency-bar');
+  if(bar)bar.style.display='none';
+});
 
 // CHAT
 let chatOpen=false;
