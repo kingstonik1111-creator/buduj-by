@@ -938,32 +938,23 @@ function search(cat){location.href=`masters.html?cat=${encodeURIComponent(cat)}`
 
 // Реальное количество мастеров из Supabase
 fetch('https://inhlhqzavjtghechstzb.supabase.co/rest/v1/profiles?role=eq.master&select=id',{
-  headers:{
-    'apikey':'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9',
-    'Prefer':'count=exact',
-    'Range':'0-0'
-  }
-}).then(r=>{
-  const range=r.headers.get('Content-Range');
+  headers:{'apikey':'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9'}
+}).then(r=>r.json()).then(rows=>{
   const bar=document.querySelector('.urgency-bar');
   const slots=document.getElementById('freeSlots');
-  if(range){
-    const total=+range.split('/')[1];
-    if(total>0){
-      const hc=document.getElementById('heroCount');
-      if(hc)hc.textContent=total;
-      // честно: 50 минус уже зарегистрированные
-      const left=50-total;
-      if(left>0&&slots){
-        const w=(left%10===1&&left%100!==11)?' место'
-              :((left%10>=2&&left%10<=4&&(left%100<10||left%100>=20))?' места':' мест');
-        slots.textContent=left+w;
-      }else if(bar){bar.style.display='none';}
-      return;
-    }
-  }
-  // не смогли посчитать — плашку не показываем вовсе
-  if(bar)bar.style.display='none';
+  const total=Array.isArray(rows)?rows.length:0;
+  if(!total){ if(bar)bar.style.display='none'; return; }
+
+  const hc=document.getElementById('heroCount');
+  if(hc)hc.textContent=total;
+
+  // честно: 50 минус те, кто уже зарегистрирован
+  const left=50-total;
+  if(left>0&&slots){
+    const w=(left%10===1&&left%100!==11)?' место'
+          :((left%10>=2&&left%10<=4&&(left%100<10||left%100>=20))?' места':' мест');
+    slots.textContent=left+w;
+  }else if(bar){ bar.style.display='none'; }
 }).catch(()=>{
   const bar=document.querySelector('.urgency-bar');
   if(bar)bar.style.display='none';
