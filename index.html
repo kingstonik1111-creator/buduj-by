@@ -945,11 +945,29 @@ fetch('https://inhlhqzavjtghechstzb.supabase.co/rest/v1/profiles?role=eq.master&
   }
 }).then(r=>{
   const range=r.headers.get('Content-Range');
+  const bar=document.querySelector('.urgency-bar');
+  const slots=document.getElementById('freeSlots');
   if(range){
-    const total=range.split('/')[1];
-    if(total&&+total>0)document.getElementById('heroCount').textContent=total;
+    const total=+range.split('/')[1];
+    if(total>0){
+      const hc=document.getElementById('heroCount');
+      if(hc)hc.textContent=total;
+      // честно: 50 минус уже зарегистрированные
+      const left=50-total;
+      if(left>0&&slots){
+        const w=(left%10===1&&left%100!==11)?' место'
+              :((left%10>=2&&left%10<=4&&(left%100<10||left%100>=20))?' места':' мест');
+        slots.textContent=left+w;
+      }else if(bar){bar.style.display='none';}
+      return;
+    }
   }
-}).catch(()=>{});
+  // не смогли посчитать — плашку не показываем вовсе
+  if(bar)bar.style.display='none';
+}).catch(()=>{
+  const bar=document.querySelector('.urgency-bar');
+  if(bar)bar.style.display='none';
+});
 
 // SERVICES FILTER
 function filterCat(cat,el){
@@ -1018,29 +1036,7 @@ document.querySelectorAll('.popup-overlay').forEach(o=>{
   o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')})
 });
 
-// ЧЕСТНЫЙ СЧЁТЧИК СВОБОДНЫХ МЕСТ ПО АКЦИИ
-// Считаем реально: 50 минус количество зарегистрированных мастеров.
-// Если места кончились — плашку скрываем, ничего не выдумываем.
-fetch('https://inhlhqzavjtghechstzb.supabase.co/rest/v1/profiles?role=eq.master&select=id',{
-  headers:{
-    'apikey':'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9',
-    'Prefer':'count=exact','Range':'0-0'
-  }
-}).then(r=>{
-  const range=r.headers.get('Content-Range');
-  const total=range?+range.split('/')[1]:0;
-  const left=50-(total||0);
-  const bar=document.querySelector('.urgency-bar');
-  const el=document.getElementById('freeSlots');
-  if(left>0){
-    if(el)el.textContent=left+(left%10===1&&left%100!==11?' место':(left%10>=2&&left%10<=4&&(left%100<10||left%100>=20)?' места':' мест'));
-  }else if(bar){
-    bar.style.display='none';
-  }
-}).catch(()=>{
-  const bar=document.querySelector('.urgency-bar');
-  if(bar)bar.style.display='none';
-});
+// счётчик мест считается в блоке загрузки мастеров ниже
 
 // CHAT
 let chatOpen=false;
