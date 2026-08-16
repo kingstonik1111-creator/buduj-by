@@ -532,6 +532,26 @@ input,select,textarea{font-family:'Inter',sans-serif}
         </div>
       </div>
 
+      <!-- ФОТО РАБОТ -->
+      <div class="profile-section" id="portfolioSection">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+          <h3 style="font-size:16px">Фото работ</h3>
+          <span id="pfCount" style="font-size:13px;color:var(--t3)"></span>
+        </div>
+        <div style="font-size:13px;color:var(--t3);margin-bottom:14px;line-height:1.5">
+          Заказчики выбирают глазами. Профиль с фото получает отклик заметно чаще,
+          чем профиль без них. Снимайте общий план и деталь, до 5 МБ на фото.
+        </div>
+
+        <div id="pfGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:14px"></div>
+
+        <input type="file" id="pfInput" accept="image/*" multiple style="display:none" onchange="uploadPortfolio(this)">
+        <button class="btn btn-gold btn-sm" id="pfAddBtn" onclick="document.getElementById('pfInput').click()">
+          + Добавить фото
+        </button>
+        <div id="pfMsg" style="font-size:13px;margin-top:10px;display:none"></div>
+      </div>
+
       <!-- Прогресс заполнения профиля -->
       <div id="profileProgress" style="display:none;padding:16px;background:var(--bg3);border-radius:12px;margin-bottom:16px;border:1px solid var(--border)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -1262,6 +1282,7 @@ function loadMasterProfile(){
   document.getElementById('epPhone').value=CP.phone||'';
   // Telegram статус
   updateTgBlock();
+  renderPortfolio();
   // Прогресс профиля
   showProfileProgress();
 }
@@ -1729,7 +1750,14 @@ function showSubBanner(){
   if(existing) existing.remove();
 
   let html='';
-  if(days<=0){
+  if(!CP.subscription_end){
+    // Мастер только зарегистрировался и ещё не платил.
+    // «Истекла» тут было бы неправдой — у него её и не было.
+    html=`<div class="sub-banner expired" id="subBanner">
+      Осталось оформить подписку — без неё нельзя откликаться на заказы и видеть контакты
+      <button onclick="openUpgrade()">Выбрать тариф</button>
+    </div>`;
+  } else if(days<=0){
     html=`<div class="sub-banner expired" id="subBanner">
       🔒 Ваша подписка истекла — доступ к откликам и контактам заблокирован
       <button onclick="openUpgrade()">Продлить подписку</button>
@@ -1807,6 +1835,106 @@ async function loadVerification(){
     phoneBadge.textContent='✅ Подтверждён';
     phoneBadge.className='verify-ok';
   }
+}
+
+// ============ ФОТО РАБОТ (ПОРТФОЛИО) ============
+// Столько же, сколько обещано в тарифах на for-masters.html.
+// Без подписки — 3, чтобы мастер собрал профиль до оплаты.
+function portfolioLimit(){
+  const active = CP.subscription_end && new Date(CP.subscription_end) > new Date();
+  if(!active) return 3;
+  if(CP.subscription_plan==='basic') return 5;
+  if(CP.subscription_plan==='pro'||CP.subscription_plan==='biz') return 20;
+  return 3;
+}
+
+function pfSay(text, ok){
+  const el=document.getElementById('pfMsg');
+  if(!el)return;
+  el.style.display='block';
+  el.style.color=ok?'var(--green)':'var(--red)';
+  el.textContent=text;
+  if(ok) setTimeout(()=>{el.style.display='none'},3000);
+}
+
+function renderPortfolio(){
+  const grid=document.getElementById('pfGrid');
+  if(!grid)return;
+  const urls=Array.isArray(CP.portfolio_urls)?CP.portfolio_urls:[];
+  const max=portfolioLimit();
+
+  document.getElementById('pfCount').textContent=`${urls.length} из ${max}`;
+  const btn=document.getElementById('pfAddBtn');
+  if(btn){
+    const full=urls.length>=max;
+    btn.disabled=full;
+    btn.style.opacity=full?'.5':'1';
+    btn.textContent=full?`Достигнут предел тарифа (${max})`:'+ Добавить фото';
+  }
+
+  grid.innerHTML = urls.length
+    ? urls.map((u,i)=>`
+        <div style="position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--border)">
+          <img src="${u}" style="width:100%;height:100%;object-fit:cover" loading="lazy">
+          <button onclick="deletePortfolio(${i})" title="Удалить"
+            style="position:absolute;top:6px;right:6px;width:26px;height:26px;border:none;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:15px;line-height:1;cursor:pointer">×</button>
+        </div>`).join('')
+    : '<div style="grid-column:1/-1;padding:22px;text-align:center;color:var(--t3);font-size:13px;border:1px dashed var(--border);border-radius:10px">Фотографий пока нет</div>';
+}
+
+async function uploadPortfolio(input){
+  const files=[...input.files];
+  input.value='';
+  if(!files.length)return;
+
+  const urls=Array.isArray(CP.portfolio_urls)?[...CP.portfolio_urls]:[];
+  const max=portfolioLimit();
+  const room=max-urls.length;
+  if(room<=0){pfSay(`На вашем тарифе можно не больше ${max} фото`,false);return}
+
+  const take=files.slice(0,room);
+  if(files.length>room) pfSay(`Загружаю ${room} из ${files.length}: на тарифе предел ${max}`,false);
+
+  const btn=document.getElementById('pfAddBtn');
+  btn.disabled=true; btn.textContent='Загружаю...';
+
+  for(const file of take){
+    if(file.size>5*1024*1024){pfSay(`«${file.name}» больше 5 МБ — пропущен`,false);continue}
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    // Папка = uuid мастера: политика хранилища пускает только в свою
+    const path=`${CU.id}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+    const{error}=await sb.storage.from('portfolio').upload(path,file,{upsert:false});
+    if(error){pfSay('Ошибка загрузки: '+error.message,false);continue}
+    const{data}=sb.storage.from('portfolio').getPublicUrl(path);
+    urls.push(data.publicUrl);
+  }
+
+  const{error:dbErr}=await sb.from('profiles').update({portfolio_urls:urls}).eq('id',CU.id);
+  btn.disabled=false;
+  if(dbErr){pfSay('Не удалось сохранить: '+dbErr.message,false);renderPortfolio();return}
+
+  CP.portfolio_urls=urls;
+  renderPortfolio();
+  showProfileProgress();
+  pfSay('Фото добавлены',true);
+}
+
+async function deletePortfolio(i){
+  const urls=Array.isArray(CP.portfolio_urls)?[...CP.portfolio_urls]:[];
+  const url=urls[i];
+  if(!url)return;
+  if(!confirm('Удалить это фото?'))return;
+
+  // Из публичной ссылки достаём путь внутри бакета
+  const m=url.match(/\/portfolio\/(.+)$/);
+  if(m) await sb.storage.from('portfolio').remove([m[1]]);
+
+  urls.splice(i,1);
+  const{error}=await sb.from('profiles').update({portfolio_urls:urls}).eq('id',CU.id);
+  if(error){pfSay('Не удалось удалить: '+error.message,false);return}
+  CP.portfolio_urls=urls;
+  renderPortfolio();
+  showProfileProgress();
 }
 
 // ============ ЗАГРУЗКА ДОКУМЕНТА ДЛЯ ВЕРИФИКАЦИИ ============

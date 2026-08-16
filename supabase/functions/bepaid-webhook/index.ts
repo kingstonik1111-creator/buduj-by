@@ -48,25 +48,18 @@ function serviceKey(): string {
   throw new Error('Нет сервисного ключа: ни SUPABASE_SERVICE_ROLE_KEY, ни SUPABASE_SECRET_KEYS')
 }
 
-function b64(buf: ArrayBuffer): string {
-  return btoa(String.fromCharCode(...new Uint8Array(buf)))
-}
-
-async function hmacBase64(body: string, key: string): Promise<string> {
-  const k = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode(key),
-    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
-  )
-  return b64(await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(body)))
-}
-
-// Сравнение без утечки времени
-function safeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false
-  let diff = 0
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
-  return diff === 0
-}
+// О подписи bePaid — выяснено на боевых уведомлениях 16.08.2026.
+// Приходит строка base64 длиной 344 символа = 256 байт = подпись RSA-2048.
+// Это асимметричная подпись: проверяется ОТКРЫТЫМ ключом bePaid, а не
+// нашим секретом магазина. HMAC на секретном ключе не подойдёт никогда —
+// проверка через него была ошибкой, убрана.
+//
+// Подлинность обеспечивается вторым рубежом: запросом к gateway.bepaid.by
+// с нашим ключом магазина. Подделать уведомление, не имея реальной
+// транзакции у банка, невозможно.
+//
+// Если понадобится проверять ещё и подпись — нужен открытый ключ bePaid
+// (запросить в поддержке) и crypto.subtle.verify с RSASSA-PKCS1-v1_5.
 
 // Независимая проверка: спрашиваем у bePaid, что за транзакция.
 // Подделать уведомление, не имея реальной транзакции, так нельзя.
@@ -107,16 +100,10 @@ serve(async (req) => {
       headers['signature'] ??
       null
 
-    if (sigHeader) {
-      const expected = await hmacBase64(raw, SECRET_KEY)
-      if (!safeEqual(sigHeader.trim(), expected)) {
-        console.error('Подпись не совпала', { got: sigHeader })
-        if (STRICT) return new Response('bad signature', { status: 401 })
-      }
-    } else {
-      // Заголовка нет — записываем какие вообще пришли, чтобы узнать имя
-      console.warn('Подписи нет. Заголовки:', JSON.stringify(headers))
-      if (STRICT) return new Response('no signature', { status: 401 })
+    // Наличие подписи фиксируем, но проверить её нечем (см. комментарий выше).
+    // Решение о допуске принимается ниже — по подтверждению транзакции банком.
+    if (!sigHeader) {
+      console.warn('Уведомление без подписи. Заголовки:', JSON.stringify(headers))
     }
 
     const data = JSON.parse(raw)
@@ -131,9 +118,12 @@ serve(async (req) => {
     const trackingId = String(vtx?.tracking_id ?? tx.tracking_id ?? '')
     const isTest = Boolean(vtx?.test ?? tx.test ?? false)
 
-    if (!verified && STRICT) {
-      console.error('Транзакция не подтверждена банком:', tx.uid)
-      return new Response('unverified', { status: 401 })
+    // Единственный рубеж подлинности: транзакцию подтвердил сам банк.
+    // Запрос к шлюзу идёт с нашим секретным ключом магазина, поэтому
+    // подделать уведомление, не имея реальной транзакции, нельзя.
+    if (!verified) {
+      console.error('Отклонено: банк не подтвердил транзакцию', tx.uid)
+      if (STRICT) return new Response('unverified', { status: 401 })
     }
 
     // ── 3. Разбираем tracking_id: "{uuid мастера}:{тариф}" ────────

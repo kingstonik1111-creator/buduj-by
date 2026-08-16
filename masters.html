@@ -346,7 +346,7 @@ async function loadMasters(){
 
   // Мастера (только с активной подпиской — shadow ban через RLS)
   const{data,error}=await sb.from('profiles')
-    .select('id,name,spec,categories,city,rating,reviews_count,avatar_url,is_verified,verified_status,bio')
+    .select('id,name,spec,categories,city,rating,reviews_count,avatar_url,portfolio_urls,is_verified,verified_status,bio')
     .eq('role','master')
     .order('rating',{ascending:false})
     .limit(200);
@@ -367,6 +367,7 @@ async function loadMasters(){
     init:(p.name||'М')[0].toUpperCase(),
     spec:p.spec||'Специалист',
     categories:Array.isArray(p.categories)?p.categories:[],
+    portfolio:Array.isArray(p.portfolio_urls)?p.portfolio_urls:[],
     city:p.city||'—',
     rating:parseFloat(p.rating)||0,
     reviews:p.reviews_count||0,
@@ -436,8 +437,11 @@ function applyFilters(){
   }
   grid.innerHTML=filtered.map(m=>{
     const online=onlineIds.has(m.id);
-    const avatarHtml=m.avatar_url
-      ?`<img src="${m.avatar_url}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover">`
+    // На карточке лучше работает фото работы, а не портрет: заказчик
+    // выбирает по результату. Портрет — запасной вариант, инициалы — третий.
+    const cover=(Array.isArray(m.portfolio)&&m.portfolio[0])||m.avatar_url;
+    const avatarHtml=cover
+      ?`<img src="${cover}" alt="Работы мастера ${m.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`
       :`<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:52px;font-weight:800;color:var(--gold);font-family:'Plus Jakarta Sans',sans-serif;opacity:.5">${m.init}</div>`;
     const stars='★'.repeat(Math.round(m.rating))+'☆'.repeat(5-Math.round(m.rating));
     return`<div class="master-card" onclick="location.href='profile.html?id=${m.id}'">

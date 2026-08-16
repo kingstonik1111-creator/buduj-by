@@ -425,10 +425,6 @@ async function createProfile() {
   const uid = pendingUser?.userId || user?.id;
   if (!uid) { showMsg('profileMsg', 'Ошибка сессии. Обновите страницу.', 'error'); return; }
 
-  // Пробный период 1 месяц для мастеров
-  const trialEnd = new Date();
-  trialEnd.setMonth(trialEnd.getMonth() + 1);
-
   const profile = {
     id: uid,
     role: selectedRole,
@@ -450,8 +446,9 @@ async function createProfile() {
     profile.categories = cats;
     // spec — свободная подпись под именем. По ней больше не ищут.
     profile.spec = document.getElementById('specInput').value.trim() || cats[0];
-    profile.subscription_plan = 'trial';
-    profile.subscription_end = trialEnd.toISOString();
+    // Пробного месяца больше нет: подписка платная с первого дня, но
+    // с гарантией — нет заказов за месяц, продлеваем бесплатно (п.4 оферты).
+    // subscription_plan и subscription_end остаются пустыми до оплаты.
   }
 
   const {error} = await sb.from('profiles').insert(profile);
