@@ -127,10 +127,14 @@ select.input option{background:var(--bg3)}
           onkeydown="if(event.key==='Enter')submitCreds()">
         <span class="pass-eye" onclick="togglePass('confirmInput')">👁</span>
       </div>
-      <!-- Email для телефонного аккаунта (для восстановления пароля) -->
+      <!-- Email для телефонного аккаунта. Обязателен: без него аккаунт
+           невозможно восстановить, если человек забудет пароль. -->
       <div id="phoneEmailWrap" style="display:none">
-        <label class="label">Email <span style="color:var(--t3);font-weight:400;text-transform:none">(для восстановления пароля)</span></label>
-        <input class="input" id="phoneEmailInput" type="email" placeholder="example@gmail.com">
+        <label class="label">Email</label>
+        <input class="input" id="phoneEmailInput" type="email" placeholder="example@gmail.com" style="margin-bottom:4px">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:16px">
+          Понадобится, только если забудете пароль. Писем с рекламой не шлём.
+        </div>
       </div>
     </div>
     <button class="btn" id="credsBtn" onclick="submitCreds()">Войти →</button>
@@ -288,25 +292,49 @@ function phoneToEmail(phone) {
   return 'u' + phone.replace(/\D/g,'') + '@budujauth.com';
 }
 
+// Синтетический адрес вида u375XXXXXXXXX@budujauth.com — это не почта,
+// а технический логин для телефонных аккаунтов. Письмо туда не дойдёт.
+function isFakeEmail(e) {
+  return !e || e.includes('@budujauth.com');
+}
+
 async function forgotPassword() {
   clearMsg('mainMsg');
-  // Телефонные аккаунты — у них нет реального email, сброс через почту не работает
+  let email = '';
+
   if (method === 'phone') {
-    showMsg('mainMsg',
-      '📱 Для восстановления доступа напишите нам в Telegram: <a href="https://t.me/budujby_bot" target="_blank" style="color:var(--gold)">@budujby_bot</a> — поможем в течение часа.',
-      'info');
-    return;
+    // Раньше телефонных просто отправляли в бота уведомлений, который
+    // отвечает автоответом про заказы — то есть в никуда. Теперь ищем
+    // резервный email, который человек мог указать при регистрации.
+    const phone = normalizePhone(document.getElementById('phoneInput')?.value || '');
+    if (!phone) { showMsg('mainMsg', 'Введите номер: +375 29 XXX-XX-XX', 'error'); return; }
+
+    const {data: found} = await sb.rpc('get_login_email', {p_phone: phone});
+    if (!found) { showMsg('mainMsg', 'Номер не найден. Возможно, вы регистрировались по email.', 'error'); return; }
+
+    if (isFakeEmail(found)) {
+      showMsg('mainMsg',
+        'При регистрации вы не указали резервный email, поэтому сбросить пароль письмом не получится.<br><br>' +
+        'Напишите нам — восстановим доступ вручную:<br>' +
+        '📞 <a href="tel:+375259138172" style="color:var(--gold)">+375 25 913-81-72</a>' +
+        ' · ✉️ <a href="mailto:Buduj.by@yandex.by" style="color:var(--gold)">Buduj.by@yandex.by</a>',
+        'error');
+      return;
+    }
+    email = found;
+  } else {
+    email = document.getElementById('emailInput')?.value.trim() || '';
+    if (!email) { showMsg('mainMsg', 'Введите email в поле выше', 'error'); return; }
   }
-  const email = document.getElementById('emailInput')?.value.trim() || '';
-  if (!email) {
-    showMsg('mainMsg', 'Введите email в поле выше', 'error');
-    return;
-  }
+
   const {error} = await sb.auth.resetPasswordForEmail(email, {
     redirectTo: location.origin + '/login.html'
   });
-  if (error) showMsg('mainMsg', 'Ошибка: ' + error.message, 'error');
-  else showMsg('mainMsg', '✅ Письмо отправлено на ' + email + '. Проверьте почту.', 'success');
+  if (error) { showMsg('mainMsg', 'Ошибка: ' + error.message, 'error'); return; }
+
+  // Адрес не показываем целиком — по телефону его мог запросить кто угодно
+  const masked = email.replace(/^(.{2}).*(@.*)$/, '$1•••$2');
+  showMsg('mainMsg', '✅ Письмо для сброса пароля отправлено на ' + masked + '. Проверьте почту и папку «Спам».', 'success');
 }
 
 async function submitCreds() {
@@ -374,9 +402,16 @@ async function doRegister(password) {
     if (!phone) { showMsg('mainMsg', 'Введите номер: +375 29 XXX-XX-XX', 'error'); return; }
     const {data: taken} = await sb.rpc('phone_taken', {p_phone: phone});
     if (taken) { showMsg('mainMsg', 'Этот номер уже зарегистрирован. Войдите.', 'error'); return; }
-    // Используем введённый email если есть, иначе генерируем
+    // Email обязателен: без него аккаунт невозможно восстановить.
+    // Раньше поле было необязательным — человек его пропускал, забывал
+    // пароль, и вернуть доступ было нечем.
     const typedEmail = document.getElementById('phoneEmailInput')?.value.trim();
-    email = (typedEmail && typedEmail.includes('@')) ? typedEmail : phoneToEmail(phone);
+    if (!typedEmail || !typedEmail.includes('@') || !typedEmail.includes('.')) {
+      showMsg('mainMsg', 'Укажите email — без него не получится восстановить пароль, если забудете', 'error');
+      document.getElementById('phoneEmailInput')?.focus();
+      return;
+    }
+    email = typedEmail;
   }
 
   const {data, error} = await sb.auth.signUp({email, password});
