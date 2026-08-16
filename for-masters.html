@@ -280,16 +280,30 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
 <section class="hero">
   <div class="hero-tag">Для мастеров и бригад</div>
   <h1>Получай заказы на ремонт<br><span>без посредников</span></h1>
-  <p>Разместите профиль с фото работ и получайте 3–15 новых заказов в месяц от проверенных клиентов</p>
+  <p>Смотрите заказы бесплатно и без регистрации. Платите, только когда решите ответить.</p>
   <div class="hero-btns">
-    <button class="btn-hero" onclick="location.href='login.html'">Зарегистрироваться бесплатно</button>
-    <button class="btn-hero-ghost" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">Посмотреть тарифы</button>
+    <button class="btn-hero" onclick="location.href='jobs.html'">Смотреть заказы</button>
+    <button class="btn-hero-ghost" onclick="location.href='login.html?role=master'">Зарегистрироваться</button>
   </div>
   <div class="hero-stats">
-    <div class="hstat"><div class="val">65</div><div class="lbl">видов работ в каталоге</div></div>
-    <div class="hstat"><div class="val">6</div><div class="lbl">городов Беларуси</div></div>
+    <div class="hstat"><div class="val" id="demandTotal">—</div><div class="lbl">заказов за 7 дней</div></div>
     <div class="hstat"><div class="val">19 BYN</div><div class="lbl">от, в месяц</div></div>
     <div class="hstat"><div class="val">0%</div><div class="lbl">комиссии с ваших заказов</div></div>
+  </div>
+</section>
+
+<!-- СПРОС В ЦИФРАХ — настоящие данные из базы, без прикрас -->
+<section class="section" style="padding-top:0" id="demand">
+  <div class="section-label">Сколько сейчас работы</div>
+  <h2 class="section-title" style="font-size:30px">Заказы за последние 7 дней</h2>
+  <p class="section-sub" style="margin-bottom:24px">
+    Это не обещание, а то, что реально пришло на площадку. Цифры обновляются сами.
+  </p>
+  <div id="demandGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">
+    <div style="color:var(--t3);font-size:14px">Загружаем…</div>
+  </div>
+  <div style="margin-top:18px">
+    <a href="jobs.html" style="color:var(--gold);font-weight:600;font-size:15px">Посмотреть все заказы →</a>
   </div>
 </section>
 
@@ -491,6 +505,67 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
 function toggleMobMenu(){
   document.getElementById('mobMenu').classList.toggle('open');
 }
+
+// ── СПРОС В ЦИФРАХ ────────────────────────────────────────────────
+// Берём напрямую из базы. Если заказов нет — так и пишем: честная
+// пустота убеждает лучше, чем выдуманные «3–15 заказов в месяц».
+// Библиотеку Supabase сюда не тянем ради 200 КБ — хватает обычного запроса.
+(function(){
+  const URL='https://inhlhqzavjtghechstzb.supabase.co/rest/v1/rpc/demand_stats';
+  const KEY='sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9';
+
+  fetch(URL,{
+    method:'POST',
+    headers:{'apikey':KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({p_days:7})
+  })
+  .then(r=>r.ok?r.json():Promise.reject(r.status))
+  .then(rows=>{
+    const grid=document.getElementById('demandGrid');
+    const totalEl=document.getElementById('demandTotal');
+    if(!grid)return;
+
+    const total=(rows||[]).reduce((s,r)=>s+Number(r.orders_count||0),0);
+    if(totalEl) totalEl.textContent=total;
+
+    if(!rows||!rows.length){
+      grid.innerHTML=`<div style="grid-column:1/-1;padding:20px;border:1px dashed var(--border);border-radius:12px;color:var(--t2);font-size:14px;line-height:1.6">
+        За последние 7 дней новых заказов не было — площадка только запускается.
+        Поэтому мы и не берём деньги вперёд: не получите заказов за оплаченный
+        месяц, продлим следующий бесплатно.
+      </div>`;
+      return;
+    }
+
+    // Группируем по городу
+    const byCity={};
+    rows.forEach(r=>{
+      (byCity[r.city] ||= []).push(r);
+    });
+
+    grid.innerHTML=Object.entries(byCity)
+      .sort((a,b)=>b[1].reduce((s,r)=>s+Number(r.orders_count),0)
+                  -a[1].reduce((s,r)=>s+Number(r.orders_count),0))
+      .map(([city,list])=>{
+        const sum=list.reduce((s,r)=>s+Number(r.orders_count),0);
+        const cats=list.sort((a,b)=>b.orders_count-a.orders_count).slice(0,4)
+          .map(r=>`<div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--t2);padding:3px 0">
+                     <span>${r.category||'Другое'}</span><b style="color:var(--white)">${r.orders_count}</b>
+                   </div>`).join('');
+        return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 18px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+            <div style="font-weight:700">${city}</div>
+            <div style="font-size:22px;font-weight:800;color:var(--gold);font-family:'Plus Jakarta Sans',sans-serif">${sum}</div>
+          </div>
+          ${cats}
+        </div>`;
+      }).join('');
+  })
+  .catch(()=>{
+    const grid=document.getElementById('demandGrid');
+    if(grid) grid.innerHTML='<div style="color:var(--t3);font-size:14px">Не удалось загрузить статистику. Посмотрите <a href="jobs.html" style="color:var(--gold)">список заказов</a> напрямую.</div>';
+  });
+})();
 function toggleFaq(el){
   const item=el.parentElement;
   const wasOpen=item.classList.contains('open');

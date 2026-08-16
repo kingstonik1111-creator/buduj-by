@@ -345,6 +345,33 @@ function timeAgo(ts){
   return Math.floor(diff/86400)+' дн назад';
 }
 
+// Реальный дефицит вместо выдуманного: заказ без откликов — это шанс,
+// и мастеру полезно видеть, что он первый.
+function respLabel(n){
+  if(n===0) return '<span style="color:var(--green);font-weight:700">Откликов ещё нет</span>';
+  if(n===1) return '1 отклик';
+  if(n<5)   return n+' отклика';
+  return n+' откликов';
+}
+
+// Кнопка зависит от того, кто смотрит. Заказы видны всем — платит тот,
+// кто хочет ответить. Цена сравнивается не с нулём, а с конкретным заказом.
+function respondButton(o){
+  const t=(o.title||'').replace(/'/g,'').replace(/"/g,'').substring(0,60);
+  if(isActiveMaster){
+    return `<button class="respond-btn" onclick="event.stopPropagation();openRespond('${o.id}','${t}')">Откликнуться</button>`;
+  }
+  if(currentProfile){   // мастер, но без активной подписки
+    return `<button class="respond-btn" style="background:var(--bg3);border:1px solid var(--border2);color:var(--gold)"
+      onclick="event.stopPropagation();location.href='dashboard.html#pay'">Ответить — от 19 BYN/мес</button>`;
+  }
+  if(currentUser){      // вошёл как заказчик
+    return `<span style="font-size:12px;color:var(--t3)">Вы вошли как заказчик</span>`;
+  }
+  return `<button class="respond-btn" style="background:var(--bg3);border:1px solid var(--border2);color:var(--gold)"
+    onclick="event.stopPropagation();location.href='login.html?role=master'">Стать мастером и ответить</button>`;
+}
+
 function renderOrders(orders){
   const grid=document.getElementById('jobsGrid');
   if(!orders.length){
@@ -357,7 +384,7 @@ function renderOrders(orders){
     return;
   }
   grid.innerHTML=orders.map(o=>`
-    <div class="job-card" onclick="openRespond('${o.id}','${(o.title||'').replace(/'/g,'').substring(0,60)}')">
+    <div class="job-card" onclick="openRespond('${o.id}','${(o.title||'').replace(/'/g,'').substring(0,60)}')" style="${o.responses_count===0?'border-color:var(--border2)':''}">
       <div class="job-top">
         <span class="job-cat">${o.category||'Другое'}</span>
         <span class="job-time">${timeAgo(o.created_at)}</span>
@@ -370,23 +397,28 @@ function renderOrders(orders){
       <div class="job-footer">
         <div>
           <div class="job-budget">${o.budget||'Нужна смета'}</div>
-          <div class="responses-badge">${o.responses_count||0} откликов</div>
+          <div class="responses-badge">${respLabel(o.responses_count||0)}</div>
         </div>
-        <button class="respond-btn" onclick="event.stopPropagation();openRespond('${o.id}','${(o.title||'').replace(/'/g,'').replace(/"/g,'').substring(0,60)}')">Откликнуться</button>
+        ${respondButton(o)}
       </div>
     </div>
   `).join('');
 }
 
 async function loadOrders(){
-  let query=sb.from('orders').select('*').eq('status','open').order('created_at',{ascending:false});
-  if(currentCity)query=query.eq('city',currentCity);
-  const {data,error}=await query;
+  // Заказы видны всем — через RPC, которая не отдаёт телефон и email.
+  // Раньше здесь был прямой запрос к таблице, и мастер без подписки
+  // не видел ничего: приходилось платить вслепую.
+  const {data,error}=await sb.rpc('orders_public',{
+    p_city: currentCity||null,
+    p_category: null,
+    p_limit: 60
+  });
   if(error){
     document.getElementById('jobsGrid').innerHTML='<div class="loading">Ошибка загрузки. Обновите страницу.</div>';
     return;
   }
-  allOrders=data||[];
+  allOrders=(data||[]).map(o=>({...o, responses_count:Number(o.responses_cnt||0)}));
   const filtered=currentCat?allOrders.filter(o=>o.category===currentCat):allOrders;
   document.getElementById('jobsCount').textContent=filtered.length;
   renderOrders(filtered);
@@ -478,18 +510,43 @@ document.getElementById('respondModal').addEventListener('click',e=>{
   if(e.target===document.getElementById('respondModal'))closeRespond();
 });
 
-checkAuth().then(()=>{
-  if(isActiveMaster){
-    loadOrders();
-    setInterval(loadOrders,30000);
-  }else if(currentProfile){
-    showAuthGate('expired');   // мастер, но подписка истекла
-  }else if(currentUser){
-    showAuthGate('notmaster'); // залогинен, но не мастер (клиент)
-  }else{
-    showAuthGate('anon');      // не залогинен
+// Полоса над списком: объясняет, что видно и чего не хватает.
+// Раньше здесь стоял замок — заказы просто не показывались.
+function showAccessBar(){
+  const grid=document.getElementById('jobsGrid');
+  if(!grid||isActiveMaster)return;
+
+  let html='';
+  if(currentProfile){
+    html=`<div style="background:rgba(245,166,35,.07);border:1px solid var(--border2);border-radius:12px;padding:16px 18px;margin:0 24px 20px;max-width:1200px;margin-left:auto;margin-right:auto;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+      <div style="flex:1;min-width:240px;font-size:14px;color:var(--t2);line-height:1.6">
+        Заказы вы видите полностью. Чтобы <b style="color:var(--white)">откликнуться и получить контакт заказчика</b>, нужна подписка — от 19 BYN в месяц.
+        <div style="font-size:13px;color:var(--t3);margin-top:4px">Не получите ни одного заказа за месяц — продлим следующий бесплатно.</div>
+      </div>
+      <button class="btn-post" onclick="location.href='dashboard.html#pay'">Выбрать тариф →</button>
+    </div>`;
+  }else if(!currentUser){
+    html=`<div style="background:rgba(245,166,35,.07);border:1px solid var(--border2);border-radius:12px;padding:16px 18px;margin:0 auto 20px;max-width:1200px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+      <div style="flex:1;min-width:240px;font-size:14px;color:var(--t2);line-height:1.6">
+        Это реальные заказы от заказчиков Беларуси. Регистрация бесплатна —
+        <b style="color:var(--white)">посмотрите, сколько работы в вашем городе</b>, прежде чем что-то платить.
+      </div>
+      <button class="btn-post" onclick="location.href='login.html?role=master'">Стать мастером →</button>
+    </div>`;
   }
+  if(html) grid.insertAdjacentHTML('beforebegin', html);
+}
+
+checkAuth().then(()=>{
+  // Заказы показываем всем. Платит тот, кто хочет ответить.
+  showAccessBar();
+  loadOrders();
+  if(isActiveMaster) setInterval(loadOrders,30000);
 });
+
+// showAuthGate больше не вызывается: заказы открыты всем.
+// Функция оставлена в файле — если понадобится закрыть раздел обратно,
+// достаточно вернуть её вызов в checkAuth выше.
 </script>
 <!-- FLOATING CONTACTS -->
 <div class="contact-float">
