@@ -1286,7 +1286,7 @@ function resetWizard(){
   const tt=document.getElementById('noTitle');if(tt)tt.value='';
   const nc=document.getElementById('noCity');if(nc)nc.selectedIndex=0;
   const nt=document.getElementById('noTiming');if(nt)nt.selectedIndex=0;
-  const pp=document.getElementById('orderPhotosPreview');if(pp)pp.innerHTML='';
+  const pp=document.getElementById('orderPhotosPreview');if(pp)pp.innerHTML='';orderPhotoFiles=[];
   wzGo(1);
 }
 
@@ -1322,16 +1322,39 @@ function selectCat(el,cat){
   selectedCat=cat;
 }
 
+// Файлы держим до отправки заказа: раньше превью рисовалось через
+// createObjectURL и на этом всё заканчивалось — снимки никуда не уходили,
+// мастер их не видел. А именно по фото он оценивает объём без выезда.
+let orderPhotoFiles=[];
+
 function previewOrderPhotos(input){
   const prev=document.getElementById('orderPhotosPreview');
+  orderPhotoFiles=Array.from(input.files)
+    .filter(f=>f.size<=5*1024*1024)
+    .slice(0,5);
+  if(input.files.length>orderPhotoFiles.length)
+    toast('Взяли первые 5 фото до 5 МБ',false);
   prev.innerHTML='';
-  Array.from(input.files).slice(0,5).forEach(f=>{
-    const url=URL.createObjectURL(f);
+  orderPhotoFiles.forEach(f=>{
     const img=document.createElement('img');
-    img.src=url;
+    img.src=URL.createObjectURL(f);
     img.style.cssText='width:72px;height:72px;border-radius:8px;object-fit:cover;border:1px solid var(--border2)';
     prev.appendChild(img);
   });
+}
+
+// Общая загрузка фото заказа — используется и здесь, и на orders.html
+async function uploadOrderPhotos(files){
+  const urls=[];
+  for(const file of files){
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const path=`${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+    const{error}=await sb.storage.from('order-photos').upload(path,file,{upsert:false});
+    if(error){console.error('Фото не загрузилось:',error.message);continue}
+    const{data}=sb.storage.from('order-photos').getPublicUrl(path);
+    urls.push(data.publicUrl);
+  }
+  return urls;
 }
 
 // НОВЫЙ ЗАКАЗ ИЗ КАБИНЕТА
@@ -1345,11 +1368,14 @@ async function submitNewOrder(){
   const category=selectedCat||document.getElementById('noCat')?.value||'';
   if(!title){toast('Опишите задачу',false);return}
   if(!city){toast('Выберите город',false);return}
+  const photos = orderPhotoFiles.length ? await uploadOrderPhotos(orderPhotoFiles) : [];
+
   const{error}=await sb.from('orders').insert({
     title,city,category,
     timing:document.getElementById('noTiming').value,
     budget:selectedBudget,
     phone:CP.phone||'',
+    photos,
     status:'open',
     owner_id:CU.id
   });
@@ -1378,6 +1404,23 @@ function loadMasterProfile(){
   catRow.innerHTML=cats.length
     ? cats.map(c=>`<span style="background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:3px 11px;font-size:12px;color:var(--t2)">${c}</span>`).join('')
     : '<span style="font-size:12px;color:var(--red)">⚠ Категории не выбраны — заказчики вас не найдут</span>';
+
+  // Мессенджеры. Блок с галочками спрятан за кнопкой редактирования,
+  // и мастер может его не найти — а без них заказчик увидит только
+  // «Позвонить». Поэтому подсказываем прямо в профиле.
+  const mess=Array.isArray(CP.messengers)?CP.messengers:[];
+  let mRow=document.getElementById('mpMess');
+  if(!mRow){
+    mRow=document.createElement('div');
+    mRow.id='mpMess';
+    mRow.style.cssText='margin-top:10px;font-size:12px';
+    catRow.insertAdjacentElement('afterend',mRow);
+  }
+  const NAMES={whatsapp:'WhatsApp',viber:'Viber',telegram:'Telegram'};
+  mRow.innerHTML=mess.length
+    ? `<span style="color:var(--t3)">Связь: </span><span style="color:var(--t2)">📞 Звонок · ${mess.map(m=>NAMES[m]||m).join(' · ')}</span>`
+    : `<span style="color:var(--amber)">⚠ Не указано, есть ли у вас WhatsApp, Viber или Telegram — заказчик увидит только кнопку «Позвонить».</span>
+       <a onclick="toggleProfileEdit()" style="color:var(--gold);cursor:pointer;text-decoration:underline;margin-left:4px">Указать</a>`;
   document.getElementById('mpCity').textContent='📍 '+(CP.city||'—');
   document.getElementById('mpRating').textContent=(CP.rating||0).toFixed(1);
   document.getElementById('mpRevCount').textContent=`(${CP.reviews_count||0} отзывов)`;

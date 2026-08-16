@@ -270,6 +270,17 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
       <input class="form-input" type="email" id="fEmail" placeholder="для получения уведомлений">
     </div>
 
+    <div class="form-section">
+      <label class="form-label">Фото объекта (необязательно)</label>
+      <input class="form-input" type="file" id="fPhotos" accept="image/*" multiple
+             onchange="previewPhotos(this)" style="padding:10px 12px">
+      <div class="form-hint">
+        До 5 фото. По ним мастер оценит объём и назовёт цену без выезда —
+        заявки с фото получают отклик заметно быстрее.
+      </div>
+      <div id="photoPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"></div>
+    </div>
+
     <button class="submit-btn" id="submitBtn" onclick="submitOrder()">Разместить заказ бесплатно →</button>
     <div class="guarantee">🔒 Ваши данные в безопасности · Спам не придёт</div>
   </div>
@@ -385,6 +396,36 @@ async function claimOrder(){
   location.href='dashboard.html';
 }
 
+let photoFiles=[];
+
+function previewPhotos(input){
+  photoFiles=Array.from(input.files).filter(f=>f.size<=5*1024*1024).slice(0,5);
+  const prev=document.getElementById('photoPreview');
+  prev.innerHTML='';
+  if(input.files.length>photoFiles.length){
+    prev.innerHTML='<div style="font-size:12px;color:var(--amber);width:100%">Взяли первые 5 фото до 5 МБ</div>';
+  }
+  photoFiles.forEach(f=>{
+    const img=document.createElement('img');
+    img.src=URL.createObjectURL(f);
+    img.style.cssText='width:72px;height:72px;border-radius:8px;object-fit:cover;border:1px solid var(--border2)';
+    prev.appendChild(img);
+  });
+}
+
+async function uploadPhotos(){
+  const urls=[];
+  for(const file of photoFiles){
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const path=`${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+    const{error}=await sb.storage.from('order-photos').upload(path,file,{upsert:false});
+    if(error){console.error('Фото не загрузилось:',error.message);continue}
+    const{data}=sb.storage.from('order-photos').getPublicUrl(path);
+    urls.push(data.publicUrl);
+  }
+  return urls;
+}
+
 function selectBudget(el,val){
   document.querySelectorAll('.budget-chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
@@ -411,6 +452,8 @@ async function submitOrder(){
 
   // Заказ создаётся через RPC — она возвращает claim_token, по которому
   // заказ потом привязывается к аккаунту заказчика (иначе он не увидит отклики).
+  const photos = photoFiles.length ? await uploadPhotos() : [];
+
   const {data:token,error}=await sb.rpc('create_order_public',{
     p_title:title,
     p_city:city,
@@ -419,7 +462,8 @@ async function submitOrder(){
     p_category:category||'Другое',
     p_email:email||null,
     p_timing:timing||null,
-    p_budget:selectedBudget||'Нужна смета'
+    p_budget:selectedBudget||'Нужна смета',
+    p_photos:photos
   });
 
   if(error||!token){

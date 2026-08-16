@@ -164,7 +164,15 @@ select.input option{background:var(--bg3)}
       <div id="catPick" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px"></div>
       <div id="catMsg" style="font-size:12px;color:var(--red);display:none;margin-bottom:10px"></div>
 
-      <label class="label">Коротко о себе</label>
+      <label class="label">Где с вами связываться</label>
+      <div style="font-size:12px;color:var(--t3);margin:-4px 0 8px">
+        Заказчик увидит именно эти кнопки. Отметите лишнее — он напишет
+        туда, где вас нет, и решит, что вы не отвечаете.
+      </div>
+      <div id="messPick" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px"></div>
+      <div id="messMsg" style="font-size:12px;color:var(--red);display:none;margin-bottom:10px"></div>
+
+      <label class="label" style="margin-top:14px">Коротко о себе</label>
       <input class="input" id="specInput" placeholder="Электрик с 12-летним стажем">
       <div style="font-size:12px;color:var(--t3);margin-top:4px">Эта строка показывается под вашим именем</div>
     </div>
@@ -405,12 +413,49 @@ function selectedCategories() {
   return [...document.querySelectorAll('#catPick input:checked')].map(i => i.value);
 }
 
+// Спрашиваем сразу при регистрации и обязательно: если оставить это
+// на «потом», мастер не найдёт настройку, и заказчик увидит только
+// кнопку «Позвонить». Вариант «только звонки» нужен, чтобы человек
+// не отмечал лишнее просто ради прохождения шага.
+const MESSENGERS = [
+  {id:'whatsapp', label:'WhatsApp', color:'#25D366'},
+  {id:'viber',    label:'Viber',    color:'#7360F2'},
+  {id:'telegram', label:'Telegram', color:'#2AABEE'},
+  {id:'none',     label:'Только звонки', color:'#9C8272'},
+];
+
+function renderMessPick() {
+  const box = document.getElementById('messPick');
+  if (!box || box.dataset.ready) return;
+  box.innerHTML = MESSENGERS.map(m => `
+    <label style="display:flex;align-items:center;gap:7px;padding:9px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--t2);cursor:pointer">
+      <input type="checkbox" value="${m.id}" style="accent-color:${m.color};flex-shrink:0"
+             onchange="messToggle(this)"> ${m.label}
+    </label>`).join('');
+  box.dataset.ready = '1';
+}
+
+// «Только звонки» и мессенджеры — взаимоисключающие
+function messToggle(el) {
+  const all = [...document.querySelectorAll('#messPick input')];
+  if (el.value === 'none' && el.checked) {
+    all.forEach(i => { if (i.value !== 'none') i.checked = false; });
+  } else if (el.value !== 'none' && el.checked) {
+    const none = all.find(i => i.value === 'none');
+    if (none) none.checked = false;
+  }
+}
+
+function selectedMessengers() {
+  return [...document.querySelectorAll('#messPick input:checked')].map(i => i.value);
+}
+
 function selectRole(r) {
   selectedRole = r;
   document.getElementById('rcClient').classList.toggle('sel', r === 'client');
   document.getElementById('rcMaster').classList.toggle('sel', r === 'master');
   document.getElementById('specWrap').style.display = r === 'master' ? 'block' : 'none';
-  if (r === 'master') renderCatPick();
+  if (r === 'master') { renderCatPick(); renderMessPick(); }
 }
 
 async function createProfile() {
@@ -443,6 +488,19 @@ async function createProfile() {
       return;
     }
     document.getElementById('catMsg').style.display = 'none';
+
+    const mess = selectedMessengers();
+    if (!mess.length) {
+      const mm = document.getElementById('messMsg');
+      mm.style.display = 'block';
+      mm.textContent = 'Отметьте, где с вами связываться — или выберите «только звонки»';
+      document.getElementById('messPick').scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+    document.getElementById('messMsg').style.display = 'none';
+    // «none» — это осознанный ответ «мессенджеров нет», в базу пишем пусто
+    profile.messengers = mess.filter(m => m !== 'none');
+
     profile.categories = cats;
     // spec — свободная подпись под именем. По ней больше не ищут.
     profile.spec = document.getElementById('specInput').value.trim() || cats[0];
