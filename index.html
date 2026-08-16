@@ -850,7 +850,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
     <div class="chat-avatar">💬</div>
     <div class="chat-header-info">
       <h4>Поддержка BUDUJ</h4>
-      <span class="online"><span class="online-dot"></span>онлайн</span>
+      <span class="online"><span class="online-dot"></span>отвечаем в течение часа</span>
     </div>
     <button class="chat-close-btn" onclick="toggleChat()">✕</button>
   </div>
@@ -975,7 +975,11 @@ fetch('https://inhlhqzavjtghechstzb.supabase.co/rest/v1/profiles?role=eq.master&
   if(!total)return;   // нет реальных данных — ничего не пишем, но и не врём
 
   const hc=document.getElementById('heroCount');
-  if(hc)hc.textContent=total+' мастеров на платформе';
+  if(hc){
+    const w = (total%10===1 && total%100!==11) ? 'мастер'
+            : ((total%10>=2 && total%10<=4 && (total%100<10||total%100>=20)) ? 'мастера' : 'мастеров');
+    hc.textContent = total + ' ' + w + ' на платформе';
+  }
 
   // Счётчик мест был привязан к акции «первые 50 — 3 месяца бесплатно».
   // Акции больше нет: подписка платная с первого дня, вместо неё гарантия.
@@ -1058,9 +1062,11 @@ const chatReplies={
   'стоит':'Цены зависят от вида работ: электрика от 15 BYN/точка, плитка от 20 BYN/м², ремонт под ключ от 180 BYN/м². Точные цены — в профиле мастера.',
   'проверяет':'Да! Мастер со значком «Проверен» прошёл верификацию документов. Мы проверяем паспорт или ИП. Значок виден прямо на карточке.',
   'реклам':'Для рекламодателей у нас есть баннерные слоты от 30 BYN/мес. Оставьте контакт — наш менеджер свяжется с вами.',
-  'default':'Понял! Для точного ответа опишите задачу подробнее — помогу найти нужного мастера или передам в поддержку.'
 };
 function quickMsg(txt){document.getElementById('chatInput').value=txt;sendChat()}
+let chatAwaitingContact = false;
+let chatLastQuestion = '';
+
 function sendChat(){
   const inp=document.getElementById('chatInput');
   const msg=inp.value.trim();
@@ -1068,33 +1074,98 @@ function sendChat(){
   inp.value='';
   const msgs=document.getElementById('chatMessages');
   msgs.innerHTML+=`<div class="chat-msg user">${msg}</div>`;
+
+  // Ждём контакт — значит предыдущее сообщение было вопросом без ответа
+  if(chatAwaitingContact){
+    chatAwaitingContact=false;
+    saveChatLead(chatLastQuestion, msg);
+    msgs.innerHTML+=`<div class="chat-msg support">Записал. Ответим в течение часа — обычно быстрее. Если срочно: <a href="tel:+375259138172" style="color:var(--gold)">+375 25 913-81-72</a></div>`;
+    msgs.scrollTop=msgs.scrollHeight;
+    return;
+  }
+
   const typing=document.createElement('div');
   typing.className='chat-typing';
   typing.innerHTML='<span></span><span></span><span></span>';
   msgs.appendChild(typing);
   msgs.scrollTop=msgs.scrollHeight;
+
   setTimeout(()=>{
     typing.remove();
-    const key=Object.keys(chatReplies).find(k=>msg.toLowerCase().includes(k))||'default';
-    msgs.innerHTML+=`<div class="chat-msg support">${chatReplies[key]}</div>`;
+    const key=Object.keys(chatReplies).find(k=>msg.toLowerCase().includes(k));
+
+    if(key){
+      msgs.innerHTML+=`<div class="chat-msg support">${chatReplies[key]}</div>`;
+    }else{
+      // Готового ответа нет — не отписываемся, а забираем вопрос себе
+      chatAwaitingContact=true;
+      chatLastQuestion=msg;
+      msgs.innerHTML+=`<div class="chat-msg support">На такой вопрос лучше ответит человек. Оставьте телефон или Telegram — напишем в течение часа.</div>`;
+    }
     msgs.scrollTop=msgs.scrollHeight;
-  },1200);
+  },900);
 }
+
+// Вопрос и контакт падают в ту же таблицу, что и остальные заявки
+async function saveChatLead(question, contact){
+  try{
+    await fetch('https://inhlhqzavjtghechstzb.supabase.co/rest/v1/leads',{
+      method:'POST',
+      headers:{
+        'apikey':'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9',
+        'Content-Type':'application/json',
+        'Prefer':'return=minimal'
+      },
+      body:JSON.stringify({
+        source:'Чат на сайте',
+        contact:contact.substring(0,120),
+        page:location.pathname,
+        note:('Вопрос: '+question).substring(0,500)
+      })
+    });
+  }catch(e){}
+}
+
 setTimeout(()=>{
   if(!chatOpen)document.getElementById('chatBadge').style.display='flex';
 },8000);
 
 // LIVE TOASTS
-const toastData=[
-  {icon:'⚡',name:'Александр из Минска',action:'нашёл электрика'},
-  {icon:'🪣',name:'Елена из Бреста',action:'заказала укладку плитки'},
-  {icon:'🏠',name:'Дмитрий из Гродно',action:'записался на ремонт ванной'},
-  {icon:'🔧',name:'Ирина из Минска',action:'нашла сантехника за 10 мин'},
-  {icon:'🪵',name:'Павел из Витебска',action:'заказал укладку ламината'},
-  {icon:'🖌️',name:'Наталья из Гомеля',action:'нашла маляра-штукатурщика'},
+// ЖИВАЯ ЛЕНТА СОБЫТИЙ
+// Раньше здесь крутились выдуманные люди — «Александр из Минска нашёл
+// электрика». Список повторялся по кругу и распознавался за пять минут.
+// Механику оставили, но подставляем настоящие события из базы.
+// Пока их нет — показываем правдивые преимущества, чтобы полоса не пустовала.
+
+const ICONS = {
+  'Электрика':'⚡','Сантехника':'🔧','Плитка':'🪣','Полы и ламинат':'🪵',
+  'Покраска и штукатурка':'🖌️','Натяжные потолки':'⬜','Двери и окна':'🚪',
+  'Кровля':'🏗️','Сварка':'🔥','Мебель и сборка':'🪑','Ремонт квартир под ключ':'🏠'
+};
+
+// Правда о площадке — работает как оффер и не зависит от потока заказов
+const FACTS = [
+  {icon:'💸', strong:'0% комиссии',        text:'мастер получает всю оплату за работу'},
+  {icon:'🆓', strong:'Заказчикам бесплатно', text:'разместить заявку и получить отклики'},
+  {icon:'🛡️', strong:'Гарантия мастеру',   text:'нет заказов за месяц — следующий бесплатно'},
+  {icon:'📷', strong:'Фото работ',          text:'видно, что мастер делал раньше'},
 ];
+
+function timeAgoShort(iso){
+  const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (m < 1)  return 'только что';
+  if (m < 60) return m + ' мин назад';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + ' ч назад';
+  const d = Math.floor(h / 24);
+  return d === 1 ? 'вчера' : d + ' дн назад';
+}
+
+let feed = [], ti = 0;
+
 function showToast(icon,strong,text){
   const c=document.getElementById('toastContainer');
+  if(!c)return;
   const t=document.createElement('div');
   t.className='toast';
   t.innerHTML=`<span class="toast-icon">${icon}</span><div class="toast-text"><strong>${strong}</strong><br><span>${text}</span></div>`;
@@ -1102,12 +1173,34 @@ function showToast(icon,strong,text){
   setTimeout(()=>{t.style.opacity='0'},4500);
   setTimeout(()=>t.remove(),5000);
 }
-let ti=0;
+
 function showNextToast(){
-  const d=toastData[ti%toastData.length];
-  showToast(d.icon,d.name,d.action);ti++;
-  setTimeout(showNextToast,6000+Math.random()*5000);
+  const pool = feed.length ? feed : FACTS;
+  const d = pool[ti % pool.length]; ti++;
+  showToast(d.icon, d.strong, d.text);
+  setTimeout(showNextToast, 7000 + Math.random()*6000);
 }
+
+// Тянем настоящие события. Не получилось — остаются факты о площадке.
+fetch('https://inhlhqzavjtghechstzb.supabase.co/rest/v1/rpc/recent_activity',{
+  method:'POST',
+  headers:{'apikey':'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9','Content-Type':'application/json'},
+  body:JSON.stringify({p_limit:12})
+})
+.then(r=>r.ok?r.json():[])
+.then(rows=>{
+  feed = (rows||[]).map(r=>{
+    const icon = ICONS[r.category] || '🔨';
+    const when = timeAgoShort(r.happened_at);
+    if (r.kind === 'order')
+      return {icon, strong:`Новый заказ: ${r.category}`, text:`${r.city} · ${when}`};
+    if (r.kind === 'response')
+      return {icon, strong:'Мастер откликнулся', text:`${r.category} · ${r.city} · ${when}`};
+    return {icon, strong:'Заказчик выбрал мастера', text:`${r.category} · ${r.city} · ${when}`};
+  });
+})
+.catch(()=>{});
+
 setTimeout(showNextToast,5000);
 </script>
 
