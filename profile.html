@@ -503,30 +503,38 @@ async function loadProfile(){
   const{data:{user:authUser}}=await sb.auth.getUser();
   AUTHED=!!authUser;
   if(AUTHED){
-    const{data:contact}=await sb.from('profiles').select('phone').eq('id',masterId).single();
-    if(contact) m.phone=contact.phone;
+    const{data:contact}=await sb.from('profiles').select('phone,messengers').eq('id',masterId).single();
+    if(contact){ m.phone=contact.phone; m.messengers=contact.messengers; }
   }
   if(AUTHED && m.phone){
     document.getElementById('contactFloat').style.display='flex';
     const digits=m.phone.replace(/\D/g,'');
+    // Показываем только те мессенджеры, которые мастер отметил у себя.
+    // Раньше WhatsApp и Viber рисовались всем подряд: если их у мастера нет,
+    // заказчик писал в пустоту, а мастер даже не знал, что его искали.
+    const mess=Array.isArray(m.messengers)?m.messengers:[];
+
     const cfPhone=document.getElementById('cfPhone');
     cfPhone.href=`tel:${m.phone}`;
     document.getElementById('cfPhoneNum').textContent=m.phone;
+
     const cfWa=document.getElementById('cfWa');
-    cfWa.href=`https://wa.me/${digits}`;
-    cfWa.style.display='flex';
+    if(mess.includes('whatsapp')){ cfWa.href=`https://wa.me/${digits}`; cfWa.style.display='flex'; }
+
     const cfVb=document.getElementById('cfVb');
-    cfVb.href=`viber://chat?number=${digits}`;
-    cfVb.style.display='flex';
+    if(mess.includes('viber')){ cfVb.href=`viber://chat?number=${digits}`; cfVb.style.display='flex'; }
+
     // Contact row
     document.querySelectorAll('.contact-row').forEach(row=>{
       if(row.textContent.includes('Телефон')){
         row.innerHTML=`<div class="contact-icon">📱</div><a href="tel:${m.phone}" style="color:var(--gold);font-weight:700">${m.phone}</a>`;
       }
     });
-    // Sidebar WhatsApp button
+    // Кнопка WhatsApp в боковой колонке — тоже по выбору мастера
     const sideWa=document.getElementById('sideWhatsapp');
-    if(sideWa){sideWa.href=`https://wa.me/${digits}`;sideWa.style.display='flex';}
+    if(sideWa && mess.includes('whatsapp')){
+      sideWa.href=`https://wa.me/${digits}`; sideWa.style.display='flex';
+    }
   }
 
   // Gallery — placeholder (portfolio feature coming soon)
