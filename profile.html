@@ -385,7 +385,7 @@ async function loadProfile(){
   document.getElementById('masterSpec').textContent='';
 
   const{data:m,error}=await sb.from('profiles')
-    .select('id,created_at,role,name,first_name,last_name,spec,city,bio,rating,reviews_count,avatar_url,is_verified,verified_status,last_seen_at')
+    .select('id,created_at,role,name,first_name,last_name,spec,categories,city,bio,rating,reviews_count,avatar_url,is_verified,verified_status,last_seen_at')
     .eq('id',masterId)
     .eq('role','master')
     .single();
@@ -395,7 +395,9 @@ async function loadProfile(){
   // Name & initials
   const name=m.name||[m.first_name,m.last_name].filter(Boolean).join(' ')||'Мастер';
   const initials=name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()||'М';
-  const spec=m.specialty||m.category||m.spec||'';
+  const cats=Array.isArray(m.categories)?m.categories:[];
+  // spec — подпись под именем. Если её нет, показываем категории.
+  const spec=m.specialty||m.category||m.spec||cats.join(' · ')||'';
   const city=m.city||'Беларусь';
   const rating=m.rating?parseFloat(m.rating).toFixed(1):null;
   const reviews=m.reviews_count||m.reviews||0;
@@ -424,6 +426,19 @@ async function loadProfile(){
   // Identity
   document.getElementById('masterName').textContent=name;
   document.getElementById('masterSpec').textContent=spec;
+  // Категории тегами — то, по чему мастера находят в каталоге
+  if(cats.length){
+    let row=document.getElementById('masterCats');
+    if(!row){
+      row=document.createElement('div');
+      row.id='masterCats';
+      row.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-top:10px';
+      document.getElementById('masterSpec').insertAdjacentElement('afterend',row);
+    }
+    row.innerHTML=cats.map(c=>
+      `<a href="masters.html?cat=${encodeURIComponent(c)}" style="background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:4px 12px;font-size:12px;color:var(--t2);text-decoration:none">${c}</a>`
+    ).join('');
+  }
   document.getElementById('masterCity').textContent=city;
   if(m.is_verified)document.getElementById('verifiedBadge').style.display='inline-flex';
 
@@ -532,7 +547,13 @@ async function loadProfile(){
       const stars='★'.repeat(Math.round(r.rating||5))+'☆'.repeat(5-Math.round(r.rating||5));
       const date=new Date(r.created_at).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
       return`<div class="review-card">
-        <div class="review-header"><span class="reviewer">${r.reviewer_name||'Клиент'}</span><span class="review-date">${date}</span></div>
+        <div class="review-header">
+          <span class="reviewer">${r.reviewer_name||'Клиент'}${
+            r.is_verified_order
+              ? ' <span title="Заказчик работал с этим мастером через BUDUJ.BY" style="background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.35);color:var(--green);border-radius:100px;padding:2px 9px;font-size:11px;font-weight:700;margin-left:6px;white-space:nowrap">✓ проверенный заказ</span>'
+              : ''}</span>
+          <span class="review-date">${date}</span>
+        </div>
         <div class="review-stars">${stars}</div>
         <div class="review-text">${r.text||''}</div>
         ${r.service?`<div class="review-service">${r.service}</div>`:''}
@@ -546,7 +567,24 @@ async function loadProfile(){
 let reviewRating=5;
 let reviewMasterId=null;
 
-function openReviewModal(){
+async function openReviewModal(){
+  // Отзыв может оставить только вошедший: client_id обязателен в базе
+  // и защищён политикой (auth.uid() = client_id). Аноним получал ошибку.
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){
+    if(confirm('Чтобы оставить отзыв, нужно войти — так мы отличаем живых заказчиков от накрутки.\n\nПерейти ко входу?')){
+      location.href='login.html?next='+encodeURIComponent(location.pathname+location.search);
+    }
+    return;
+  }
+  if(session.user.id===reviewMasterId){
+    alert('Нельзя оставить отзыв самому себе');
+    return;
+  }
+  // Имя берём из профиля — руками его вводить больше не нужно
+  const {data:me}=await sb.from('profiles').select('name').eq('id',session.user.id).single();
+  const nameField=document.getElementById('rvName');
+  if(me?.name){ nameField.value=me.name; nameField.readOnly=true; nameField.style.opacity='.7'; }
   document.getElementById('reviewModal').classList.add('open');
   setRating(5);
 }
@@ -575,8 +613,28 @@ async function submitReview(){
   const btn=document.getElementById('rvSubmit');
   btn.disabled=true;btn.textContent='Публикуем...';
 
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){
+    alert('Сессия истекла — войдите ещё раз');
+    btn.disabled=false;btn.textContent='Опубликовать отзыв →';
+    return;
+  }
+
+  // Если у заказчика был заказ с этим мастером — привязываем отзыв к нему.
+  // Триггер в базе по этому же следу проставит значок «проверенный заказ».
+  let orderId=null;
+  const {data:ord}=await sb.from('orders')
+    .select('id,accepted_response_id,responses!inner(master_user_id)')
+    .eq('owner_id',session.user.id)
+    .eq('responses.master_user_id',reviewMasterId)
+    .order('created_at',{ascending:false})
+    .limit(1);
+  if(ord&&ord.length)orderId=ord[0].id;
+
   const{error}=await sb.from('reviews').insert({
     master_id:reviewMasterId,
+    client_id:session.user.id,   // NOT NULL + требуется политикой RLS
+    order_id:orderId,
     reviewer_name:name,
     rating:reviewRating,
     text,
@@ -584,7 +642,10 @@ async function submitReview(){
   });
 
   if(error){
-    alert('Ошибка: '+error.message);
+    const dup=String(error.message).includes('duplicate')||error.code==='23505';
+    alert(dup
+      ? 'Вы уже оставляли отзыв этому мастеру'
+      : 'Ошибка: '+error.message);
     btn.disabled=false;btn.textContent='Опубликовать отзыв →';
     return;
   }

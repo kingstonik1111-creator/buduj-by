@@ -218,13 +218,13 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
     <option>Электрика</option>
     <option>Сантехника</option>
     <option>Ремонт квартир под ключ</option>
-    <option>Укладка плитки</option>
-    <option>Укладка ламината / полов</option>
+    <option>Плитка</option>
+    <option>Полы и ламинат</option>
     <option>Покраска и штукатурка</option>
-    <option>Кровельные работы</option>
-    <option>Сварочные работы</option>
+    <option>Кровля</option>
+    <option>Сварка</option>
     <option>Натяжные потолки</option>
-    <option>Установка дверей и окон</option>
+    <option>Двери и окна</option>
     <option>Мебель и сборка</option>
     <option>Другое</option>
   </select>
@@ -433,7 +433,11 @@ async function submitResponse(){
     master_spec:spec,
     message,price
   };
-  if(currentUser)insertData.master_id=currentUser.id;
+  // ВАЖНО: колонка называется master_user_id — по ней заказчик находит профиль
+  // мастера (dashboard.html:1026), а мастер видит свои отклики (dashboard.html:1407).
+  // Раньше сюда писалось master_id, которую никто не читает: из-за этого не работали
+  // чат, ссылка на профиль, рейтинг в отклике и раздел «Мои отклики».
+  if(currentUser)insertData.master_user_id=currentUser.id;
   const {error}=await sb.from('responses').insert(insertData);
 
   if(!error){

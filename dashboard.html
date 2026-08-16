@@ -353,13 +353,15 @@ input,select,textarea{font-family:'Inter',sans-serif}
           <div class="cat-pick-grid">
             <div class="cat-pick-item" onclick="selectCat(this,'Электрика')"><span class="cat-pick-icon">⚡</span>Электрика</div>
             <div class="cat-pick-item" onclick="selectCat(this,'Сантехника')"><span class="cat-pick-icon">🔧</span>Сантехника</div>
-            <div class="cat-pick-item" onclick="selectCat(this,'Укладка плитки')"><span class="cat-pick-icon">🪣</span>Плитка</div>
-            <div class="cat-pick-item" onclick="selectCat(this,'Укладка полов')"><span class="cat-pick-icon">🪵</span>Полы</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Плитка')"><span class="cat-pick-icon">🪣</span>Плитка</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Полы и ламинат')"><span class="cat-pick-icon">🪵</span>Полы</div>
             <div class="cat-pick-item" onclick="selectCat(this,'Ремонт квартир под ключ')"><span class="cat-pick-icon">🏠</span>Ремонт под ключ</div>
             <div class="cat-pick-item" onclick="selectCat(this,'Покраска и штукатурка')"><span class="cat-pick-icon">🖌️</span>Покраска</div>
             <div class="cat-pick-item" onclick="selectCat(this,'Натяжные потолки')"><span class="cat-pick-icon">⬜</span>Потолки</div>
-            <div class="cat-pick-item" onclick="selectCat(this,'Установка дверей и окон')"><span class="cat-pick-icon">🚪</span>Двери/Окна</div>
-            <div class="cat-pick-item" onclick="selectCat(this,'Кровельные работы')"><span class="cat-pick-icon">🏗️</span>Кровля</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Двери и окна')"><span class="cat-pick-icon">🚪</span>Двери/Окна</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Кровля')"><span class="cat-pick-icon">🏗️</span>Кровля</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Сварка')"><span class="cat-pick-icon">🔥</span>Сварка</div>
+            <div class="cat-pick-item" onclick="selectCat(this,'Мебель и сборка')"><span class="cat-pick-icon">🪑</span>Мебель</div>
             <div class="cat-pick-item" onclick="selectCat(this,'Другое')"><span class="cat-pick-icon">🔩</span>Другое</div>
           </div>
           <div class="wz-nav"><button class="btn btn-gold" style="margin-left:auto" onclick="wzNext(1)">Далее →</button></div>
@@ -543,8 +545,8 @@ input,select,textarea{font-family:'Inter',sans-serif}
               <input class="form-input" id="epName" placeholder="Имя и фамилия">
             </div>
             <div class="form-group">
-              <label class="form-label">Специализация</label>
-              <input class="form-input" id="epSpec" placeholder="Электрик, плиточник…">
+              <label class="form-label">Коротко о себе <span style="font-size:11px;color:var(--t3)">(строка под именем)</span></label>
+              <input class="form-input" id="epSpec" placeholder="Электрик с 12-летним стажем">
             </div>
           </div>
           <div class="form-row">
@@ -559,6 +561,11 @@ input,select,textarea{font-family:'Inter',sans-serif}
               <label class="form-label">Телефон <span style="font-size:11px;color:var(--t3)">(виден клиентам после отклика)</span></label>
               <input class="form-input" id="epPhone" type="tel" placeholder="+375 25 913-81-72">
             </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">В каких работах вы мастер</label>
+            <div style="font-size:12px;color:var(--t3);margin-bottom:8px">По этим категориям вас находят заказчики. Отметьте всё, что делаете.</div>
+            <div id="epCatPick" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px"></div>
           </div>
           <div class="form-group">
             <label class="form-label">О себе</label>
@@ -1209,7 +1216,20 @@ async function submitNewOrder(){
 function loadMasterProfile(){
   document.getElementById('mpName').textContent=CP.name||'Имя не указано';
   document.getElementById('mpAvatar').textContent=initials(CP.name);
-  document.getElementById('mpSpec').textContent=CP.spec||'Специализация не указана';
+  const cats=Array.isArray(CP.categories)?CP.categories:[];
+  document.getElementById('mpSpec').textContent=
+    CP.spec || (cats.length?cats.join(' · '):'Специализация не указана');
+  // Категории отдельной строкой — по ним заказчики находят мастера
+  let catRow=document.getElementById('mpCats');
+  if(!catRow){
+    catRow=document.createElement('div');
+    catRow.id='mpCats';
+    catRow.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-top:8px';
+    document.getElementById('mpSpec').insertAdjacentElement('afterend',catRow);
+  }
+  catRow.innerHTML=cats.length
+    ? cats.map(c=>`<span style="background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:3px 11px;font-size:12px;color:var(--t2)">${c}</span>`).join('')
+    : '<span style="font-size:12px;color:var(--red)">⚠ Категории не выбраны — заказчики вас не найдут</span>';
   document.getElementById('mpCity').textContent='📍 '+(CP.city||'—');
   document.getElementById('mpRating').textContent=(CP.rating||0).toFixed(1);
   document.getElementById('mpRevCount').textContent=`(${CP.reviews_count||0} отзывов)`;
@@ -1274,9 +1294,27 @@ function updateTgBlock(){
   }
 }
 
+// Единый справочник категорий. Те же названия в login.html, masters.html,
+// orders.html и jobs.html. «Другое» здесь нет — это категория заказа, не мастера.
+const CATEGORIES=['Электрика','Сантехника','Ремонт квартир под ключ','Плитка',
+  'Полы и ламинат','Покраска и штукатурка','Натяжные потолки',
+  'Двери и окна','Кровля','Сварка','Мебель и сборка'];
+
+function renderCatPick(){
+  const box=document.getElementById('epCatPick');
+  if(!box)return;
+  const mine=Array.isArray(CP.categories)?CP.categories:[];
+  box.innerHTML=CATEGORIES.map(c=>`
+    <label style="display:flex;align-items:center;gap:7px;padding:9px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--t2);cursor:pointer">
+      <input type="checkbox" value="${c}"${mine.includes(c)?' checked':''} style="accent-color:var(--gold);flex-shrink:0"> ${c}
+    </label>`).join('');
+}
+
 function toggleProfileEdit(){
   const f=document.getElementById('profileEditForm');
-  f.style.display=f.style.display==='none'?'block':'none';
+  const opening=f.style.display==='none';
+  f.style.display=opening?'block':'none';
+  if(opening)renderCatPick();
 }
 
 async function saveProfile(){
@@ -1285,10 +1323,18 @@ async function saveProfile(){
   const city=document.getElementById('epCity').value;
   const bio=document.getElementById('epBio').value.trim();
   const phone=document.getElementById('epPhone').value.trim();
+  const categories=[...document.querySelectorAll('#epCatPick input:checked')].map(i=>i.value);
   if(!name){toast('Введите имя',false);return}
-  const{error}=await sb.from('profiles').update({name,spec,city,bio,phone}).eq('id',CU.id);
+  if(CP.role==='master'&&!categories.length){
+    toast('Отметьте хотя бы одну категорию — иначе заказчики вас не найдут',false);
+    document.getElementById('epCatPick').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  const patch={name,spec,city,bio,phone};
+  if(CP.role==='master')patch.categories=categories;
+  const{error}=await sb.from('profiles').update(patch).eq('id',CU.id);
   if(error){toast('Ошибка: '+error.message,false);return}
-  CP={...CP,name,spec,city,bio,phone};
+  CP={...CP,...patch};
   loadMasterProfile();
   toggleProfileEdit();
   toast('Профиль сохранён!');

@@ -49,12 +49,12 @@
     "itemListElement": [
       {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Электромонтажные работы"}},
       {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Сантехнические работы"}},
-      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Укладка плитки"}},
-      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Укладка полов"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Плитка"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Полы и ламинат"}},
       {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Ремонт квартир под ключ"}},
       {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Покраска и штукатурка"}},
       {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Натяжные потолки"}},
-      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Кровельные работы"}}
+      {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Кровля"}}
     ]
   }
 }
@@ -481,11 +481,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
     <span class="chip" onclick="search('Электрика')">⚡ Электрика</span>
     <span class="chip" onclick="search('Сантехника')">🔧 Сантехника</span>
     <span class="chip" onclick="search('Плитка')">🪣 Плитка</span>
-    <span class="chip" onclick="search('Укладка полов')">🪵 Полы</span>
-    <span class="chip" onclick="search('Ремонт квартир')">🏠 Под ключ</span>
-    <span class="chip" onclick="search('Маляр-штукатур')">🖌️ Покраска</span>
-    <span class="chip" onclick="search('Кровельщик')">🏗️ Кровля</span>
-    <span class="chip" onclick="search('Сварщик')">🔩 Сварка</span>
+    <span class="chip" onclick="search('Полы и ламинат')">🪵 Полы</span>
+    <span class="chip" onclick="search('Ремонт квартир под ключ')">🏠 Под ключ</span>
+    <span class="chip" onclick="search('Покраска и штукатурка')">🖌️ Покраска</span>
+    <span class="chip" onclick="search('Кровля')">🏗️ Кровля</span>
+    <span class="chip" onclick="search('Сварка')">🔩 Сварка</span>
   </div>
   <div class="trust-strip">
     <div class="ts-item"><div class="tv"><span>65</span></div><div class="tl">видов работ</div></div>
@@ -539,47 +539,47 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
     <div class="svc-card" data-cat="tile" onclick="search('Плитка')"><span class="svc-icon">🔷</span><div><div class="svc-name">Мозаика и декор</div><div class="svc-price">от 35 BYN/м²</div></div></div>
     <div class="svc-card" data-cat="tile" onclick="search('Плитка')"><span class="svc-icon">🛡️</span><div><div class="svc-name">Гидроизоляция</div><div class="svc-price">от 15 BYN/м²</div></div></div>
     <div class="svc-card" data-cat="tile" onclick="search('Плитка')"><span class="svc-icon">🔨</span><div><div class="svc-name">Демонтаж плитки</div><div class="svc-price">от 8 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="floor" onclick="search('Укладка полов')"><span class="svc-icon">🪵</span><div><div class="svc-name">Укладка ламината</div><div class="svc-price">от 12 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="floor" onclick="search('Укладка полов')"><span class="svc-icon">🌲</span><div><div class="svc-name">Паркетная доска</div><div class="svc-price">от 18 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="floor" onclick="search('Укладка полов')"><span class="svc-icon">⬜</span><div><div class="svc-name">ПВХ-плитка</div><div class="svc-price">от 10 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="floor" onclick="search('Укладка полов')"><span class="svc-icon">🧱</span><div><div class="svc-name">Стяжка пола</div><div class="svc-price">от 15 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="floor" onclick="search('Укладка полов')"><span class="svc-icon">✨</span><div><div class="svc-name">Шлифовка паркета</div><div class="svc-price">от 12 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="floor" onclick="search('Укладка полов')"><span class="svc-icon">📏</span><div><div class="svc-name">Монтаж плинтусов</div><div class="svc-price">от 3 BYN/м</div></div></div>
-    <div class="svc-card" data-cat="paint" onclick="search('Маляр-штукатур')"><span class="svc-icon">🖌️</span><div><div class="svc-name">Штукатурка стен</div><div class="svc-price">от 12 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="paint" onclick="search('Маляр-штукатур')"><span class="svc-icon">🪣</span><div><div class="svc-name">Шпаклёвка</div><div class="svc-price">от 8 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="paint" onclick="search('Маляр-штукатур')"><span class="svc-icon">🎨</span><div><div class="svc-name">Покраска стен</div><div class="svc-price">от 7 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="paint" onclick="search('Маляр-штукатур')"><span class="svc-icon">🌟</span><div><div class="svc-name">Декоративная штукатурка</div><div class="svc-price">от 25 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="paint" onclick="search('Маляр-штукатур')"><span class="svc-icon">🏛️</span><div><div class="svc-name">Венецианская штукатурка</div><div class="svc-price">от 40 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="paint" onclick="search('Маляр-штукатур')"><span class="svc-icon">📰</span><div><div class="svc-name">Поклейка обоев</div><div class="svc-price">от 9 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="ceil" onclick="search('Ремонт квартир')"><span class="svc-icon">⬜</span><div><div class="svc-name">Натяжные потолки</div><div class="svc-price">от 18 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="ceil" onclick="search('Ремонт квартир')"><span class="svc-icon">🟫</span><div><div class="svc-name">Гипсокартонный потолок</div><div class="svc-price">от 20 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="ceil" onclick="search('Ремонт квартир')"><span class="svc-icon">🟦</span><div><div class="svc-name">Подвесной потолок</div><div class="svc-price">от 15 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="ceil" onclick="search('Маляр-штукатур')"><span class="svc-icon">🎨</span><div><div class="svc-name">Покраска потолков</div><div class="svc-price">от 7 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="gkl" onclick="search('Ремонт квартир')"><span class="svc-icon">🧱</span><div><div class="svc-name">Перегородки ГКЛ</div><div class="svc-price">от 25 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="gkl" onclick="search('Ремонт квартир')"><span class="svc-icon">📦</span><div><div class="svc-name">Короба и ниши</div><div class="svc-price">от 30 BYN</div></div></div>
-    <div class="svc-card" data-cat="gkl" onclick="search('Ремонт квартир')"><span class="svc-icon">🌙</span><div><div class="svc-name">Арки из ГКЛ</div><div class="svc-price">от 60 BYN</div></div></div>
-    <div class="svc-card" data-cat="gkl" onclick="search('Ремонт квартир')"><span class="svc-icon">🌡️</span><div><div class="svc-name">Утепление стен ГКЛ</div><div class="svc-price">от 18 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="door" onclick="search('Ремонт квартир')"><span class="svc-icon">🚪</span><div><div class="svc-name">Межкомнатные двери</div><div class="svc-price">от 60 BYN</div></div></div>
-    <div class="svc-card" data-cat="door" onclick="search('Ремонт квартир')"><span class="svc-icon">🔐</span><div><div class="svc-name">Входная дверь</div><div class="svc-price">от 80 BYN</div></div></div>
-    <div class="svc-card" data-cat="door" onclick="search('Ремонт квартир')"><span class="svc-icon">🪟</span><div><div class="svc-name">Установка окон ПВХ</div><div class="svc-price">от 50 BYN/окно</div></div></div>
-    <div class="svc-card" data-cat="door" onclick="search('Ремонт квартир')"><span class="svc-icon">🔨</span><div><div class="svc-name">Откосы и подоконники</div><div class="svc-price">от 20 BYN</div></div></div>
-    <div class="svc-card" data-cat="door" onclick="search('Ремонт квартир')"><span class="svc-icon">⚙️</span><div><div class="svc-name">Регулировка фурнитуры</div><div class="svc-price">от 15 BYN</div></div></div>
-    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир')"><span class="svc-icon">🏠</span><div><div class="svc-name">Косметический ремонт</div><div class="svc-price">от 80 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир')"><span class="svc-icon">🔑</span><div><div class="svc-name">Ремонт под ключ</div><div class="svc-price">от 200 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир')"><span class="svc-icon">🏗️</span><div><div class="svc-name">Ремонт в новостройке</div><div class="svc-price">от 180 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="floor" onclick="search('Полы и ламинат')"><span class="svc-icon">🪵</span><div><div class="svc-name">Укладка ламината</div><div class="svc-price">от 12 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="floor" onclick="search('Полы и ламинат')"><span class="svc-icon">🌲</span><div><div class="svc-name">Паркетная доска</div><div class="svc-price">от 18 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="floor" onclick="search('Полы и ламинат')"><span class="svc-icon">⬜</span><div><div class="svc-name">ПВХ-плитка</div><div class="svc-price">от 10 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="floor" onclick="search('Полы и ламинат')"><span class="svc-icon">🧱</span><div><div class="svc-name">Стяжка пола</div><div class="svc-price">от 15 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="floor" onclick="search('Полы и ламинат')"><span class="svc-icon">✨</span><div><div class="svc-name">Шлифовка паркета</div><div class="svc-price">от 12 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="floor" onclick="search('Полы и ламинат')"><span class="svc-icon">📏</span><div><div class="svc-name">Монтаж плинтусов</div><div class="svc-price">от 3 BYN/м</div></div></div>
+    <div class="svc-card" data-cat="paint" onclick="search('Покраска и штукатурка')"><span class="svc-icon">🖌️</span><div><div class="svc-name">Штукатурка стен</div><div class="svc-price">от 12 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="paint" onclick="search('Покраска и штукатурка')"><span class="svc-icon">🪣</span><div><div class="svc-name">Шпаклёвка</div><div class="svc-price">от 8 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="paint" onclick="search('Покраска и штукатурка')"><span class="svc-icon">🎨</span><div><div class="svc-name">Покраска стен</div><div class="svc-price">от 7 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="paint" onclick="search('Покраска и штукатурка')"><span class="svc-icon">🌟</span><div><div class="svc-name">Декоративная штукатурка</div><div class="svc-price">от 25 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="paint" onclick="search('Покраска и штукатурка')"><span class="svc-icon">🏛️</span><div><div class="svc-name">Венецианская штукатурка</div><div class="svc-price">от 40 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="paint" onclick="search('Покраска и штукатурка')"><span class="svc-icon">📰</span><div><div class="svc-name">Поклейка обоев</div><div class="svc-price">от 9 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="ceil" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">⬜</span><div><div class="svc-name">Натяжные потолки</div><div class="svc-price">от 18 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="ceil" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🟫</span><div><div class="svc-name">Гипсокартонный потолок</div><div class="svc-price">от 20 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="ceil" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🟦</span><div><div class="svc-name">Подвесной потолок</div><div class="svc-price">от 15 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="ceil" onclick="search('Покраска и штукатурка')"><span class="svc-icon">🎨</span><div><div class="svc-name">Покраска потолков</div><div class="svc-price">от 7 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="gkl" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🧱</span><div><div class="svc-name">Перегородки ГКЛ</div><div class="svc-price">от 25 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="gkl" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">📦</span><div><div class="svc-name">Короба и ниши</div><div class="svc-price">от 30 BYN</div></div></div>
+    <div class="svc-card" data-cat="gkl" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🌙</span><div><div class="svc-name">Арки из ГКЛ</div><div class="svc-price">от 60 BYN</div></div></div>
+    <div class="svc-card" data-cat="gkl" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🌡️</span><div><div class="svc-name">Утепление стен ГКЛ</div><div class="svc-price">от 18 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="door" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🚪</span><div><div class="svc-name">Межкомнатные двери</div><div class="svc-price">от 60 BYN</div></div></div>
+    <div class="svc-card" data-cat="door" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🔐</span><div><div class="svc-name">Входная дверь</div><div class="svc-price">от 80 BYN</div></div></div>
+    <div class="svc-card" data-cat="door" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🪟</span><div><div class="svc-name">Установка окон ПВХ</div><div class="svc-price">от 50 BYN/окно</div></div></div>
+    <div class="svc-card" data-cat="door" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🔨</span><div><div class="svc-name">Откосы и подоконники</div><div class="svc-price">от 20 BYN</div></div></div>
+    <div class="svc-card" data-cat="door" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">⚙️</span><div><div class="svc-name">Регулировка фурнитуры</div><div class="svc-price">от 15 BYN</div></div></div>
+    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🏠</span><div><div class="svc-name">Косметический ремонт</div><div class="svc-price">от 80 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🔑</span><div><div class="svc-name">Ремонт под ключ</div><div class="svc-price">от 200 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🏗️</span><div><div class="svc-name">Ремонт в новостройке</div><div class="svc-price">от 180 BYN/м²</div></div></div>
     <div class="svc-card" data-cat="full" onclick="search('Плитка')"><span class="svc-icon">🛁</span><div><div class="svc-name">Ремонт ванной под ключ</div><div class="svc-price">от 1500 BYN</div></div></div>
-    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир')"><span class="svc-icon">🍳</span><div><div class="svc-name">Ремонт кухни</div><div class="svc-price">от 100 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир')"><span class="svc-icon">🏢</span><div><div class="svc-name">Ремонт офиса</div><div class="svc-price">от 90 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир')"><span class="svc-icon">🧹</span><div><div class="svc-name">Уборка после ремонта</div><div class="svc-price">от 3 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир')"><span class="svc-icon">🚛</span><div><div class="svc-name">Вывоз строймусора</div><div class="svc-price">от 60 BYN</div></div></div>
-    <div class="svc-card" data-cat="ext" onclick="search('Кровельщик')"><span class="svc-icon">🏠</span><div><div class="svc-name">Монтаж металлочерепицы</div><div class="svc-price">от 15 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="ext" onclick="search('Кровельщик')"><span class="svc-icon">☂️</span><div><div class="svc-name">Мягкая кровля</div><div class="svc-price">от 18 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="ext" onclick="search('Кровельщик')"><span class="svc-icon">🧊</span><div><div class="svc-name">Утепление фасада</div><div class="svc-price">от 20 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="ext" onclick="search('Ремонт квартир')"><span class="svc-icon">🏡</span><div><div class="svc-name">Сайдинг</div><div class="svc-price">от 12 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="ext" onclick="search('Сварщик')"><span class="svc-icon">🔩</span><div><div class="svc-name">Сварочные работы</div><div class="svc-price">от 20 BYN/ч</div></div></div>
-    <div class="svc-card" data-cat="ext" onclick="search('Сварщик')"><span class="svc-icon">🚧</span><div><div class="svc-name">Заборы и ворота</div><div class="svc-price">от 30 BYN/м</div></div></div>
-    <div class="svc-card" data-cat="ext" onclick="search('Ремонт квартир')"><span class="svc-icon">🧱</span><div><div class="svc-name">Тротуарная плитка</div><div class="svc-price">от 15 BYN/м²</div></div></div>
-    <div class="svc-card" data-cat="ext" onclick="search('Ремонт квартир')"><span class="svc-icon">🌿</span><div><div class="svc-name">Планировка участка</div><div class="svc-price">от 5 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🍳</span><div><div class="svc-name">Ремонт кухни</div><div class="svc-price">от 100 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🏢</span><div><div class="svc-name">Ремонт офиса</div><div class="svc-price">от 90 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🧹</span><div><div class="svc-name">Уборка после ремонта</div><div class="svc-price">от 3 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="full" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🚛</span><div><div class="svc-name">Вывоз строймусора</div><div class="svc-price">от 60 BYN</div></div></div>
+    <div class="svc-card" data-cat="ext" onclick="search('Кровля')"><span class="svc-icon">🏠</span><div><div class="svc-name">Монтаж металлочерепицы</div><div class="svc-price">от 15 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="ext" onclick="search('Кровля')"><span class="svc-icon">☂️</span><div><div class="svc-name">Мягкая кровля</div><div class="svc-price">от 18 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="ext" onclick="search('Кровля')"><span class="svc-icon">🧊</span><div><div class="svc-name">Утепление фасада</div><div class="svc-price">от 20 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="ext" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🏡</span><div><div class="svc-name">Сайдинг</div><div class="svc-price">от 12 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="ext" onclick="search('Сварка')"><span class="svc-icon">🔩</span><div><div class="svc-name">Сварочные работы</div><div class="svc-price">от 20 BYN/ч</div></div></div>
+    <div class="svc-card" data-cat="ext" onclick="search('Сварка')"><span class="svc-icon">🚧</span><div><div class="svc-name">Заборы и ворота</div><div class="svc-price">от 30 BYN/м</div></div></div>
+    <div class="svc-card" data-cat="ext" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🧱</span><div><div class="svc-name">Тротуарная плитка</div><div class="svc-price">от 15 BYN/м²</div></div></div>
+    <div class="svc-card" data-cat="ext" onclick="search('Ремонт квартир под ключ')"><span class="svc-icon">🌿</span><div><div class="svc-name">Планировка участка</div><div class="svc-price">от 5 BYN/м²</div></div></div>
   </div>
 </section>
 
@@ -713,7 +713,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 24p
       <a href="masters.html?cat=Электрика">Электрика</a>
       <a href="masters.html?cat=Сантехника">Сантехника</a>
       <a href="masters.html?cat=Плитка">Плитка и кафель</a>
-      <a href="masters.html?cat=Укладка полов">Полы</a>
+      <a href="masters.html?cat=Полы и ламинат">Полы</a>
       <a href="masters.html?cat=Ремонт квартир">Ремонт под ключ</a>
       <a href="masters.html">Все 65 услуг →</a>
     </div>
@@ -891,8 +891,8 @@ const PHOTOS={
 const MASTERS=[
   {id:1,name:'Андрей Павлов',init:'АП',spec:'Электрика',city:'Минск',rating:4.9,reviews:47,price:30,verified:true,hot:true,resp:'~20 мин',mainPhoto:PHOTOS.elec1,thumbs:[PHOTOS.elec1,PHOTOS.elec2,PHOTOS.bath1]},
   {id:2,name:'Сергей Климович',init:'СК',spec:'Плитка',city:'Брест',rating:5.0,reviews:31,price:25,verified:true,hot:false,resp:'~30 мин',mainPhoto:PHOTOS.bath1,thumbs:[PHOTOS.bath1,PHOTOS.bath2,PHOTOS.bath3]},
-  {id:3,name:'Дмитрий Василевский',init:'ДВ',spec:'Укладка полов',city:'Гродно',rating:4.8,reviews:22,price:20,verified:true,hot:false,resp:'~1 ч',mainPhoto:PHOTOS.lam1,thumbs:[PHOTOS.lam1,PHOTOS.lam2,PHOTOS.bath1]},
-  {id:4,name:'Игорь Романов',init:'ИР',spec:'Маляр-штукатур',city:'Минск',rating:4.7,reviews:38,price:18,verified:false,hot:true,resp:'~45 мин',mainPhoto:PHOTOS.paint1,thumbs:[PHOTOS.paint1,PHOTOS.paint2,PHOTOS.lam1]},
+  {id:3,name:'Дмитрий Василевский',init:'ДВ',spec:'Полы и ламинат',city:'Гродно',rating:4.8,reviews:22,price:20,verified:true,hot:false,resp:'~1 ч',mainPhoto:PHOTOS.lam1,thumbs:[PHOTOS.lam1,PHOTOS.lam2,PHOTOS.bath1]},
+  {id:4,name:'Игорь Романов',init:'ИР',spec:'Покраска и штукатурка',city:'Минск',rating:4.7,reviews:38,price:18,verified:false,hot:true,resp:'~45 мин',mainPhoto:PHOTOS.paint1,thumbs:[PHOTOS.paint1,PHOTOS.paint2,PHOTOS.lam1]},
   {id:5,name:'Алексей Петров',init:'АП',spec:'Сантехника',city:'Витебск',rating:4.9,reviews:55,price:35,verified:true,hot:false,resp:'~15 мин',mainPhoto:PHOTOS.elec2,thumbs:[PHOTOS.elec2,PHOTOS.bath1,PHOTOS.lam2]},
   {id:6,name:'Павел Кузнецов',init:'ПК',spec:'Ремонт квартир',city:'Минск',rating:4.8,reviews:63,price:22,verified:true,hot:true,resp:'~30 мин',mainPhoto:PHOTOS.paint2,thumbs:[PHOTOS.paint2,PHOTOS.bath3,PHOTOS.lam2]},
 ];

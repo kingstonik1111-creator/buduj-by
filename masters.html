@@ -252,12 +252,15 @@ nav{position:sticky;top:0;z-index:100;background:rgba(245,242,238,0.97);backdrop
       <div class="filter-options" id="catFilters">
         <label class="filter-opt"><input type="checkbox" value="Электрика" onchange="applyFilters()"> Электрика</label>
         <label class="filter-opt"><input type="checkbox" value="Сантехника" onchange="applyFilters()"> Сантехника</label>
-        <label class="filter-opt"><input type="checkbox" value="Ремонт квартир" onchange="applyFilters()"> Ремонт квартир</label>
+        <label class="filter-opt"><input type="checkbox" value="Ремонт квартир под ключ" onchange="applyFilters()"> Ремонт квартир под ключ</label>
         <label class="filter-opt"><input type="checkbox" value="Плитка" onchange="applyFilters()"> Плитка</label>
-        <label class="filter-opt"><input type="checkbox" value="Укладка полов" onchange="applyFilters()"> Укладка полов</label>
-        <label class="filter-opt"><input type="checkbox" value="Маляр-штукатур" onchange="applyFilters()"> Покраска</label>
-        <label class="filter-opt"><input type="checkbox" value="Кровельщик" onchange="applyFilters()"> Кровля</label>
-        <label class="filter-opt"><input type="checkbox" value="Сварщик" onchange="applyFilters()"> Сварка</label>
+        <label class="filter-opt"><input type="checkbox" value="Полы и ламинат" onchange="applyFilters()"> Полы и ламинат</label>
+        <label class="filter-opt"><input type="checkbox" value="Покраска и штукатурка" onchange="applyFilters()"> Покраска и штукатурка</label>
+        <label class="filter-opt"><input type="checkbox" value="Натяжные потолки" onchange="applyFilters()"> Натяжные потолки</label>
+        <label class="filter-opt"><input type="checkbox" value="Двери и окна" onchange="applyFilters()"> Двери и окна</label>
+        <label class="filter-opt"><input type="checkbox" value="Кровля" onchange="applyFilters()"> Кровля</label>
+        <label class="filter-opt"><input type="checkbox" value="Сварка" onchange="applyFilters()"> Сварка</label>
+        <label class="filter-opt"><input type="checkbox" value="Мебель и сборка" onchange="applyFilters()"> Мебель и сборка</label>
       </div>
     </div>
 
@@ -334,7 +337,7 @@ async function loadMasters(){
 
   // Мастера (только с активной подпиской — shadow ban через RLS)
   const{data,error}=await sb.from('profiles')
-    .select('id,name,spec,city,rating,reviews_count,avatar_url,is_verified,verified_status,bio')
+    .select('id,name,spec,categories,city,rating,reviews_count,avatar_url,is_verified,verified_status,bio')
     .eq('role','master')
     .order('rating',{ascending:false})
     .limit(200);
@@ -354,6 +357,7 @@ async function loadMasters(){
     name:p.name||'Мастер',
     init:(p.name||'М')[0].toUpperCase(),
     spec:p.spec||'Специалист',
+    categories:Array.isArray(p.categories)?p.categories:[],
     city:p.city||'—',
     rating:parseFloat(p.rating)||0,
     reviews:p.reviews_count||0,
@@ -379,8 +383,12 @@ function applyFilters(){
   const sort=document.getElementById('sortSelect').value;
 
   let filtered=ALL_MASTERS.filter(m=>{
-    if(search&&!m.name.toLowerCase().includes(search)&&!m.spec.toLowerCase().includes(search))return false;
-    if(catChecked.length&&!catChecked.some(c=>m.spec.toLowerCase().includes(c.toLowerCase())))return false;
+    if(search&&!m.name.toLowerCase().includes(search)&&!m.spec.toLowerCase().includes(search)
+       &&!m.categories.join(' ').toLowerCase().includes(search))return false;
+    // Точное совпадение по справочнику категорий, а не подстрока в свободном тексте.
+    // Раньше сверяли spec.includes('Электрика') — мастер писал «Электрик»,
+    // и не находился никогда.
+    if(catChecked.length&&!catChecked.some(c=>m.categories.includes(c)))return false;
     if(cityChecked.length&&!cityChecked.includes(m.city))return false;
     if(m.rating<minRating)return false;
     if(verifiedOnly&&!m.verified)return false;

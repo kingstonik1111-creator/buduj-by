@@ -150,8 +150,14 @@ select.input option{background:var(--bg3)}
     <label class="label">Ваше имя</label>
     <input class="input" id="nameInput" placeholder="Имя и фамилия">
     <div id="specWrap" style="display:none">
-      <label class="label">Специализация</label>
-      <input class="input" id="specInput" placeholder="Электрик, сантехник, плиточник…">
+      <label class="label">В каких работах вы мастер</label>
+      <div style="font-size:12px;color:var(--t3);margin:-4px 0 8px">Отметьте всё, что делаете — по этому вас будут находить заказчики</div>
+      <div id="catPick" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px"></div>
+      <div id="catMsg" style="font-size:12px;color:var(--red);display:none;margin-bottom:10px"></div>
+
+      <label class="label">Коротко о себе</label>
+      <input class="input" id="specInput" placeholder="Электрик с 12-летним стажем">
+      <div style="font-size:12px;color:var(--t3);margin-top:4px">Эта строка показывается под вашим именем</div>
     </div>
     <label class="label">Город</label>
     <select class="input" id="cityInput">
@@ -357,11 +363,34 @@ async function doRegister(password) {
   goStep(2);
 }
 
+// Единый справочник категорий. Те же названия в masters.html, orders.html,
+// jobs.html и в кабинете. «Другое» тут нет: это категория заказа, не мастера.
+const CATEGORIES = [
+  'Электрика','Сантехника','Ремонт квартир под ключ','Плитка',
+  'Полы и ламинат','Покраска и штукатурка','Натяжные потолки',
+  'Двери и окна','Кровля','Сварка','Мебель и сборка'
+];
+
+function renderCatPick() {
+  const box = document.getElementById('catPick');
+  if (!box || box.dataset.ready) return;
+  box.innerHTML = CATEGORIES.map(c => `
+    <label style="display:flex;align-items:center;gap:7px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--t2);cursor:pointer">
+      <input type="checkbox" value="${c}" style="accent-color:var(--gold);flex-shrink:0"> ${c}
+    </label>`).join('');
+  box.dataset.ready = '1';
+}
+
+function selectedCategories() {
+  return [...document.querySelectorAll('#catPick input:checked')].map(i => i.value);
+}
+
 function selectRole(r) {
   selectedRole = r;
   document.getElementById('rcClient').classList.toggle('sel', r === 'client');
   document.getElementById('rcMaster').classList.toggle('sel', r === 'master');
   document.getElementById('specWrap').style.display = r === 'master' ? 'block' : 'none';
+  if (r === 'master') renderCatPick();
 }
 
 async function createProfile() {
@@ -389,7 +418,18 @@ async function createProfile() {
     phone: pendingUser?.phone || null
   };
   if (selectedRole === 'master') {
-    profile.spec = document.getElementById('specInput').value.trim() || 'Строительные работы';
+    const cats = selectedCategories();
+    if (!cats.length) {
+      const cm = document.getElementById('catMsg');
+      cm.style.display = 'block';
+      cm.textContent = 'Отметьте хотя бы одну категорию — иначе заказчики вас не найдут';
+      document.getElementById('catPick').scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+    document.getElementById('catMsg').style.display = 'none';
+    profile.categories = cats;
+    // spec — свободная подпись под именем. По ней больше не ищут.
+    profile.spec = document.getElementById('specInput').value.trim() || cats[0];
     profile.subscription_plan = 'trial';
     profile.subscription_end = trialEnd.toISOString();
   }
