@@ -626,8 +626,8 @@ input,select,textarea{font-family:'Inter',sans-serif}
       <!-- Подписка -->
       <div class="sub-card">
         <div class="sub-plan">Текущий тариф</div>
-        <div class="sub-name" id="subName">Бесплатный</div>
-        <div class="sub-end" id="subEnd">Доступен до истечения пробного периода</div>
+        <div class="sub-name" id="subName">Не оформлена</div>
+        <div class="sub-end" id="subEnd">Выберите тариф, чтобы откликаться на заказы</div>
         <div class="sub-plans">
           <div class="plan-item" onclick="selPlan(this,'basic')" data-plan="basic">
             <div class="plan-price">19</div>
@@ -788,7 +788,7 @@ input,select,textarea{font-family:'Inter',sans-serif}
   <div class="modal-box" style="position:relative">
     <button class="modal-close" onclick="closeUpgrade()">✕</button>
     <div class="modal-title">🔒 Подписка истекла</div>
-    <div class="modal-sub">Ваш пробный период закончился. Оформите подписку чтобы продолжить получать заказы.</div>
+    <div class="modal-sub">Без активной подписки нельзя откликаться на заказы и видеть контакты заказчиков.</div>
     <div class="sub-plans" style="margin-bottom:20px">
       <div class="plan-item" onclick="selPlan(this,'basic')" data-plan="basic">
         <div class="plan-price">19</div>
