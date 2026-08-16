@@ -14,10 +14,12 @@ const SECRET_KEY  = Deno.env.get('BEPAID_SECRET_KEY') ?? ''
 const BEPAID_URL  = 'https://checkout.bepaid.by/ctp/api/checkouts'
 const SITE_URL    = 'https://buduj.by'
 
+// Цены в копейках. ЕДИНСТВЕННЫЙ источник правды по суммам списания.
+// Должны совпадать с витриной for-masters.html и с кабинетом dashboard.html.
 const PLANS: Record<string, { name: string; amount: number }> = {
-  basic: { name: 'Базовый',  amount: 2500  }, // 25 BYN в копейках
-  pro:   { name: 'Профи ⭐', amount: 6000  }, // 60 BYN
-  biz:   { name: 'Бизнес',   amount: 12500 }, // 125 BYN
+  basic: { name: 'Базовый',  amount: 1900 }, // 19 BYN
+  pro:   { name: 'Профи ⭐', amount: 3900 }, // 39 BYN
+  biz:   { name: 'Бизнес',   amount: 7900 }, // 79 BYN
 }
 
 const CORS = {

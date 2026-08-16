@@ -269,6 +269,21 @@ nav{position:sticky;top:0;z-index:100;background:rgba(28,21,18,0.95);backdrop-fi
     <div class="success-icon">🎉</div>
     <h2>Заказ размещён!</h2>
     <p>Мастера уже видят вашу заявку и скоро свяжутся с вами напрямую</p>
+
+    <!-- Привязка заказа к аккаунту: без неё заказчик не увидит отклики -->
+    <div id="claimBox" style="max-width:420px;margin:0 auto 28px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:left">
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px">Чтобы видеть отклики — задайте пароль</div>
+      <div style="font-size:13px;color:var(--t3);margin-bottom:16px">
+        Мастера отвечают в личном кабинете. Пароль нужен один раз, логин — ваш телефон.
+      </div>
+      <input class="form-input" type="password" id="cPass" placeholder="Придумайте пароль (от 6 символов)" autocomplete="new-password" style="margin-bottom:10px">
+      <div id="claimMsg" style="font-size:13px;margin-bottom:10px;display:none"></div>
+      <button class="submit-btn" id="claimBtn" style="margin-top:0" onclick="claimOrder()">Открыть кабинет →</button>
+      <div style="font-size:12px;color:var(--t3);text-align:center;margin-top:10px">
+        Уже регистрировались? <a href="#" onclick="goLogin();return false" style="color:var(--gold)">Войти</a>
+      </div>
+    </div>
+
     <div class="success-stats">
       <div class="s-stat"><div class="s-val">50+</div><div class="s-lbl">мастеров увидят</div></div>
       <div class="s-stat"><div class="s-val">2 ч</div><div class="s-lbl">первый отклик</div></div>
@@ -286,6 +301,81 @@ const SUPABASE_KEY='sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let selectedBudget='';
+let claimToken='', claimPhone='', claimName='', claimEmail='';
+
+function normalizePhone(p){
+  p=p.replace(/[\s\-()]/g,'');
+  if(p.startsWith('80'))p='+375'+p.slice(1);
+  if(/^375\d{9}$/.test(p))p='+'+p;
+  if(/^\+375\d{9}$/.test(p))return p;
+  return null;
+}
+function phoneToEmail(phone){
+  return 'u'+phone.replace(/\D/g,'')+'@budujauth.com';
+}
+function claimSay(text,ok){
+  const el=document.getElementById('claimMsg');
+  el.style.display='block';
+  el.style.color=ok?'var(--green)':'var(--red)';
+  el.textContent=text;
+}
+function goLogin(){
+  // Токен переживёт переход — после входа кабинет привяжет заказ
+  try{sessionStorage.setItem('claimToken',claimToken)}catch(e){}
+  location.href='login.html?claim='+encodeURIComponent(claimToken);
+}
+
+// Регистрируем заказчика и привязываем к нему только что созданный заказ
+async function claimOrder(){
+  const pass=document.getElementById('cPass').value;
+  if(pass.length<6){claimSay('Пароль от 6 символов');return}
+
+  const btn=document.getElementById('claimBtn');
+  btn.disabled=true;btn.textContent='Создаём кабинет...';
+
+  const norm=normalizePhone(claimPhone);
+  const login=(claimEmail&&claimEmail.includes('@'))?claimEmail
+             :(norm?phoneToEmail(norm):null);
+  if(!login){
+    claimSay('Не удалось разобрать телефон. Войдите вручную.');
+    btn.disabled=false;btn.textContent='Открыть кабинет →';return;
+  }
+
+  const {data,error}=await sb.auth.signUp({email:login,password:pass});
+
+  if(error){
+    if(String(error.message).includes('already')){
+      claimSay('Этот номер уже зарегистрирован — войдите, заказ привяжется автоматически.');
+      setTimeout(goLogin,1400);
+    }else{
+      claimSay('Ошибка: '+error.message);
+      btn.disabled=false;btn.textContent='Открыть кабинет →';
+    }
+    return;
+  }
+
+  // Профиль заказчика
+  const uid=data.user?.id;
+  if(uid){
+    await sb.from('profiles').insert({
+      id:uid, role:'client',
+      name:claimName||'Заказчик',
+      city:document.getElementById('fCity').value||null,
+      auth_email:login,
+      phone:norm||claimPhone
+    });
+  }
+
+  const {error:claimErr}=await sb.rpc('claim_order',{p_token:claimToken});
+  if(claimErr){
+    claimSay('Кабинет создан, но заказ не привязался. Напишем вам вручную.');
+    setTimeout(()=>location.href='dashboard.html',1600);
+    return;
+  }
+
+  location.href='dashboard.html';
+}
+
 function selectBudget(el,val){
   document.querySelectorAll('.budget-chip').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
@@ -310,18 +400,29 @@ async function submitOrder(){
   const btn=document.getElementById('submitBtn');
   btn.disabled=true;btn.textContent='Размещаем...';
 
-  const {error}=await sb.from('orders').insert({
-    title,city,phone,email,name,
-    category:category||'Другое',
-    budget:selectedBudget||'Нужна смета',
-    status:'open'
+  // Заказ создаётся через RPC — она возвращает claim_token, по которому
+  // заказ потом привязывается к аккаунту заказчика (иначе он не увидит отклики).
+  const {data:token,error}=await sb.rpc('create_order_public',{
+    p_title:title,
+    p_city:city,
+    p_phone:phone,
+    p_name:name,
+    p_category:category||'Другое',
+    p_email:email||null,
+    p_timing:timing||null,
+    p_budget:selectedBudget||'Нужна смета'
   });
 
-  if(error){
-    alert('Ошибка. Попробуйте ещё раз.');
+  if(error||!token){
+    alert('Ошибка: '+(error?.message||'не удалось разместить заказ')+'\nПопробуйте ещё раз.');
     btn.disabled=false;btn.textContent='Разместить заказ бесплатно →';
     return;
   }
+
+  claimToken=token;
+  claimPhone=phone;
+  claimName=name;
+  claimEmail=email;
 
   // Also notify via Formspree
   fetch('https://formspree.io/f/xjgqwdny',{
@@ -332,6 +433,16 @@ async function submitOrder(){
 
   document.getElementById('formCard').style.display='none';
   document.getElementById('successScreen').style.display='block';
+
+  // Если человек уже вошёл — заказ уже привязан к нему в самой RPC,
+  // пароль спрашивать не за чем, сразу зовём в кабинет.
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){
+    const box=document.getElementById('claimBox');
+    box.innerHTML='<div style="text-align:center">'
+      +'<div style="font-size:15px;font-weight:600;margin-bottom:12px">Заказ уже в вашем кабинете</div>'
+      +'<a href="dashboard.html" class="btn-home">Смотреть отклики →</a></div>';
+  }
 }
 </script>
 <!-- FLOATING CONTACTS -->

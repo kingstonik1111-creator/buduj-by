@@ -311,7 +311,20 @@ async function doLogin(password) {
     showMsg('mainMsg', error.message.includes('Invalid') ? 'Неверный пароль' : 'Ошибка: ' + error.message, 'error');
     return;
   }
+  await claimPendingOrder();
   location.href = 'dashboard.html';
+}
+
+// Заказ, размещённый на сайте до входа, привязываем к аккаунту.
+// Токен приходит в ?claim=... с orders.html (дубль — в sessionStorage).
+async function claimPendingOrder() {
+  let token = new URLSearchParams(location.search).get('claim');
+  if (!token) { try { token = sessionStorage.getItem('claimToken'); } catch (e) {} }
+  if (!token) return;
+  try {
+    await sb.rpc('claim_order', {p_token: token});
+    sessionStorage.removeItem('claimToken');
+  } catch (e) { /* заказ уже привязан или токен протух — не мешаем входу */ }
 }
 
 async function doRegister(password) {
@@ -383,6 +396,7 @@ async function createProfile() {
 
   const {error} = await sb.from('profiles').insert(profile);
   if (error) { showMsg('profileMsg', 'Ошибка: ' + error.message, 'error'); return; }
+  await claimPendingOrder();
   location.href = 'dashboard.html';
 }
 </script>

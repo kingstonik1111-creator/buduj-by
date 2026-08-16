@@ -594,17 +594,17 @@ input,select,textarea{font-family:'Inter',sans-serif}
         <div class="sub-end" id="subEnd">Доступен до истечения пробного периода</div>
         <div class="sub-plans">
           <div class="plan-item" onclick="selPlan(this,'basic')" data-plan="basic">
-            <div class="plan-price">25</div>
+            <div class="plan-price">19</div>
             <div class="plan-name-sm">BYN/мес • Базовый</div>
             <div class="plan-feat">5 фото · 3 отклика/мес</div>
           </div>
           <div class="plan-item sel" onclick="selPlan(this,'pro')" data-plan="pro">
-            <div class="plan-price">60</div>
+            <div class="plan-price">39</div>
             <div class="plan-name-sm">BYN/мес • Профи ⭐</div>
             <div class="plan-feat">20 фото · ∞ откликов · Приоритет</div>
           </div>
           <div class="plan-item" onclick="selPlan(this,'biz')" data-plan="biz">
-            <div class="plan-price">125</div>
+            <div class="plan-price">79</div>
             <div class="plan-name-sm">BYN/мес • Бизнес</div>
             <div class="plan-feat">До 5 мастеров · Топ выдачи</div>
           </div>
@@ -751,17 +751,17 @@ input,select,textarea{font-family:'Inter',sans-serif}
     <div class="modal-sub">Ваш пробный период закончился. Оформите подписку чтобы продолжить получать заказы.</div>
     <div class="sub-plans" style="margin-bottom:20px">
       <div class="plan-item" onclick="selPlan(this,'basic')" data-plan="basic">
-        <div class="plan-price">25</div>
+        <div class="plan-price">19</div>
         <div class="plan-name-sm">BYN/мес • Базовый</div>
         <div class="plan-feat">5 фото · 3 отклика/мес</div>
       </div>
       <div class="plan-item sel" onclick="selPlan(this,'pro')" data-plan="pro">
-        <div class="plan-price">60</div>
+        <div class="plan-price">39</div>
         <div class="plan-name-sm">BYN/мес • Профи ⭐</div>
         <div class="plan-feat">20 фото · ∞ откликов · Приоритет</div>
       </div>
       <div class="plan-item" onclick="selPlan(this,'biz')" data-plan="biz">
-        <div class="plan-price">125</div>
+        <div class="plan-price">79</div>
         <div class="plan-name-sm">BYN/мес • Бизнес</div>
         <div class="plan-feat">До 5 мастеров · Топ выдачи</div>
       </div>
@@ -1215,7 +1215,7 @@ function loadMasterProfile(){
   document.getElementById('mpRevCount').textContent=`(${CP.reviews_count||0} отзывов)`;
   document.getElementById('mpStars').textContent=stars(CP.rating||0);
   document.getElementById('subName').textContent=
-    CP.subscription_plan==='pro'?'Профи':CP.subscription_plan==='biz'?'Бизнес':'Бесплатный';
+    ({basic:'Базовый',pro:'Профи',biz:'Бизнес',trial:'Пробный период'})[CP.subscription_plan]||'Бесплатный';
   if(CP.subscription_end){
     document.getElementById('subEnd').textContent='Активен до: '+new Date(CP.subscription_end).toLocaleDateString('ru');
   }
