@@ -9,7 +9,16 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Библиотека лежит на нашем сервере: раньше она грузилась с внешнего CDN,
+     и при медленном или заблокированном соединении весь скрипт страницы
+     падал на window.supabase.createClient — переставали работать все кнопки.
+     CDN оставлен запасным вариантом. -->
+<script src="js/supabase.js"></script>
+<script>
+if (!window.supabase) {
+  document.write('<scr' + 'ipt src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/scr' + 'ipt>');
+}
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{

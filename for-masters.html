@@ -468,8 +468,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 24p
   <h2>Готов получать больше заказов?</h2>
   <p>Регистрируйтесь — если заказов не будет, месяц не пропадёт</p>
   <div class="reg-form">
-    <input class="reg-input" type="tel" placeholder="+375 __ ___ __ __">
-    <button class="btn-reg" onclick="location.href='login.html'">Зарегистрироваться</button>
+    <input class="reg-input" id="regPhone" type="tel" placeholder="+375 __ ___ __ __"
+           onkeydown="if(event.key==='Enter')handleReg()">
+    <button class="btn-reg" onclick="handleReg()">Зарегистрироваться</button>
   </div>
   <div class="reg-note">Нажимая кнопку, вы соглашаетесь с условиями использования. Без спама.</div>
 </section>
@@ -504,18 +505,18 @@ function showToast(msg,ok){
   t.classList.add('visible');
   setTimeout(()=>t.classList.remove('visible'),4000);
 }
+// Раньше эта функция никем не вызывалась, а кнопка просто уходила на
+// login.html, теряя введённый номер. Теперь номер переносится в регистрацию,
+// чтобы человек не вводил его дважды.
 function handleReg(){
-  const phone=document.querySelector('.reg-input').value.trim();
-  if(!phone||phone.length<6){showToast('⚠️ Введите номер телефона',false);return}
-  fetch('https://formspree.io/f/xjgqwdny',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify({type:'Регистрация мастера',phone})
-  }).then(r=>{
-    if(r.ok){showToast('✅ Заявка принята! Мы свяжемся в течение 1 рабочего дня.',true)}
-    else{showToast('❌ Ошибка отправки. Попробуйте снова.',false)}
-  }).catch(()=>showToast('❌ Нет соединения. Проверьте интернет.',false));
-  document.querySelector('.reg-input').value='';
+  const el=document.getElementById('regPhone');
+  const phone=(el?.value||'').trim();
+  if(!phone||phone.replace(/\D/g,'').length<9){
+    showToast('⚠️ Введите номер: +375 29 123-45-67',false);
+    el?.focus();
+    return;
+  }
+  location.href='login.html?role=master&phone='+encodeURIComponent(phone);
 }
 </script>
 <!-- FLOATING CONTACTS -->
