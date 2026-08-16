@@ -361,23 +361,26 @@ function requireLogin(){
 }
 function showContact(){if(!AUTHED){requireLogin();return}document.getElementById('contactModal').style.display='flex'}
 function showOrder(){if(!AUTHED){requireLogin();return}document.getElementById('contactModal').style.display='flex'}
-function submitContact(){
+async function submitContact(){
   const task=document.getElementById('contactTask').value.trim();
   const phone=document.getElementById('contactPhone').value.trim();
   if(!phone&&!task){alert('Заполните хотя бы одно поле');return}
   const master=document.getElementById('masterName')?document.getElementById('masterName').textContent:'';
-  fetch('https://formspree.io/f/xjgqwdny',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify({type:'Заявка клиента',master,task,phone})
-  }).then(r=>{
-    if(r.ok){
-      alert('Заявка отправлена! Мастер свяжется с вами.');
-      document.getElementById('contactModal').style.display='none';
-      document.getElementById('contactTask').value='';
-      document.getElementById('contactPhone').value='';
-    }else{alert('Ошибка отправки. Попробуйте ещё раз.')}
-  }).catch(()=>alert('Ошибка сети. Попробуйте ещё раз.'));
+
+  // Раньше уходило в Formspree — телефоны клиентов копились на стороннем
+  // сервисе без всякой пользы. Теперь пишем в свою таблицу leads.
+  const {error}=await sb.from('leads').insert({
+    source:'Заявка мастеру',
+    contact:phone||'не указан',
+    page:location.pathname+location.search,
+    note:`Мастер: ${master}. Задача: ${task||'не описана'}`
+  });
+
+  if(error){alert('Ошибка отправки. Попробуйте ещё раз.');return}
+  alert('Заявка отправлена! Мастер свяжется с вами.');
+  document.getElementById('contactModal').style.display='none';
+  document.getElementById('contactTask').value='';
+  document.getElementById('contactPhone').value='';
 }
 
 function showError(msg){
@@ -680,6 +683,14 @@ loadProfile().then(()=>{
   // Сохраняем master_id для формы отзыва
   const params=new URLSearchParams(location.search);
   reviewMasterId=params.get('id');
+
+  // Считаем просмотр профиля. Свои заходы функция отсекает сама,
+  // повторы с одной сессии — не чаще раза в час.
+  if(reviewMasterId){
+    let sid=sessionStorage.getItem('bd_sid');
+    if(!sid){ sid=Math.random().toString(36).slice(2); sessionStorage.setItem('bd_sid',sid); }
+    sb.rpc('track_profile_view',{p_master:reviewMasterId,p_source:sid}).then(()=>{},()=>{});
+  }
 
   // ?review=1 — пришли из кабинета сразу после отметки «работа выполнена».
   // Просить отзыв надо в этот момент: позже человек не вернётся.

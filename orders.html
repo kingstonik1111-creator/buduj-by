@@ -476,13 +476,8 @@ async function submitOrder(){
   claimPhone=phone;
   claimName=name;
   claimEmail=email;
-
-  // Also notify via Formspree
-  fetch('https://formspree.io/f/xjgqwdny',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify({type:'Новый заказ с сайта',name,category,title,city,phone,email,budget:selectedBudget})
-  });
+  // Дублирование в Formspree убрано: заказ и так в таблице orders,
+  // уведомление мастерам уходит через Telegram.
 
   document.getElementById('formCard').style.display='none';
   document.getElementById('successScreen').style.display='block';

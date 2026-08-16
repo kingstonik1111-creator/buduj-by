@@ -490,12 +490,9 @@ async function submitResponse(){
     const{data:ord}=await sb.from('orders').select('responses_count').eq('id',currentOrderId).single();
     if(ord) await sb.from('orders').update({responses_count:(ord.responses_count||0)+1}).eq('id',currentOrderId);
 
-    // Notify via Formspree
-    fetch('https://formspree.io/f/xjgqwdny',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify({type:'Отклик на заказ',order:currentOrderTitle,master_name:name,master_phone:phone,price})
-    });
+    // Дублирование в Formspree убрано: отклик и так лежит в таблице
+    // responses, а копия имени и телефона мастера на стороннем сервисе
+    // не нужна никому, кроме лишних вопросов по персональным данным.
   }
 
   closeRespond();

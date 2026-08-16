@@ -539,14 +539,19 @@ function mToast(msg){
   mToast._t=setTimeout(()=>el.classList.remove('show'),2800);
 }
 
-function submitNotify(city,cat){
+async function submitNotify(city,cat){
   const contact=document.getElementById('notifyPhone')?.value.trim();
   if(!contact){alert('Введите телефон или Telegram');return;}
-  fetch('https://formspree.io/f/xjgqwdny',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify({type:'Уведомить о мастере',city,cat,contact})
+
+  // Раньше уходило в Formspree. Теперь — в свою таблицу leads.
+  const {error}=await sb.from('leads').insert({
+    source:'Ждёт мастера',
+    contact,
+    page:location.pathname+location.search,
+    note:`Город: ${city||'—'}. Категория: ${cat||'любая'}`
   });
+  if(error){alert('Не удалось сохранить. Попробуйте ещё раз.');return}
+
   const btn=document.querySelector('[onclick^="submitNotify"]');
   if(btn){btn.textContent='✅ Запомнили!';btn.disabled=true;btn.style.background='var(--green)';}
   document.getElementById('notifyPhone').disabled=true;
