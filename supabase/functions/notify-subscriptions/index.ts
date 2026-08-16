@@ -14,6 +14,17 @@ const TG_TOKEN      = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? ''
 const TG_ADMIN      = Deno.env.get('TELEGRAM_ADMIN_ID') ?? ''
 const SITE_URL      = 'https://buduj.by'
 
+function serviceKey(): string {
+  const legacy = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  if (legacy) return legacy
+  try {
+    const parsed = JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') ?? '{}')
+    const first = Object.values(parsed).find(v => typeof v === 'string' && v.length > 20)
+    if (first) return first as string
+  } catch (_) { /* формат изменился */ }
+  throw new Error('Нет сервисного ключа')
+}
+
 // ── отправка email через Resend ──────────────────────────────────────────────
 async function sendEmail(to: string, subject: string, html: string) {
   if (!RESEND_KEY || to.includes('@users.buduj.by')) return // пропускаем fake email
@@ -35,10 +46,7 @@ async function sendTelegram(chatId: string, text: string) {
 }
 
 serve(async () => {
-  const sb = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  )
+  const sb = createClient(Deno.env.get('SUPABASE_URL')!, serviceKey())
 
   const now   = new Date()
   const d3    = new Date(now.getTime() + 3  * 86400000).toISOString()
@@ -76,15 +84,18 @@ serve(async () => {
         <h2 style="color:#F5A623">BUDUJ.BY</h2>
         <p>Здравствуйте, <strong>${name}</strong>!</p>
         <p>Ваша подписка <strong>истекла</strong>. Ваш профиль скрыт из поиска и отклики на заказы заблокированы.</p>
-        <a href="${SITE_URL}/login.html" style="display:inline-block;padding:12px 28px;background:#F5A623;color:#1C1512;border-radius:10px;font-weight:700;text-decoration:none;margin:16px 0">Продлить подписку →</a>
-        <p style="color:#888;font-size:12px">По вопросам: +375 29 000-00-00</p>
+        <a href="${SITE_URL}/dashboard.html" style="display:inline-block;padding:12px 28px;background:#F5A623;color:#1C1512;border-radius:10px;font-weight:700;text-decoration:none;margin:16px 0">Продлить подписку →</a>
+        <p style="color:#888;font-size:12px">По вопросам: +375 25 913-81-72</p>
       </div>
     `)
 
     // Telegram мастеру (если привязан)
     if (m.telegram_chat_id) {
       await sendTelegram(m.telegram_chat_id,
-        `🔒 <b>Подписка BUDUJ.BY истекла</b>\n\nВаш профиль скрыт из поиска. Продлите подписку: ${SITE_URL}/login.html`)
+        `🔒 <b>Подписка BUDUJ.BY истекла</b>\n\n` +
+        `Ваш профиль скрыт из поиска, откликаться нельзя.\n\n` +
+        `Если за оплаченный месяц вам никто не написал — продлим следующий ` +
+        `бесплатно, ничего делать не нужно.\n\n${SITE_URL}/dashboard.html`)
     }
 
     // Telegram вам (админу)
@@ -100,12 +111,12 @@ serve(async () => {
         <h2 style="color:#F5A623">BUDUJ.BY</h2>
         <p>Здравствуйте, <strong>${name}</strong>!</p>
         <p>До истечения подписки осталось <strong>3 дня</strong>. Продлите её заранее чтобы не потерять доступ.</p>
-        <a href="${SITE_URL}/login.html" style="display:inline-block;padding:12px 28px;background:#F5A623;color:#1C1512;border-radius:10px;font-weight:700;text-decoration:none;margin:16px 0">Продлить подписку →</a>
+        <a href="${SITE_URL}/dashboard.html" style="display:inline-block;padding:12px 28px;background:#F5A623;color:#1C1512;border-radius:10px;font-weight:700;text-decoration:none;margin:16px 0">Продлить подписку →</a>
       </div>
     `)
     if (m.telegram_chat_id) {
       await sendTelegram(m.telegram_chat_id,
-        `⚠️ До окончания подписки BUDUJ.BY осталось <b>3 дня</b>. Продлите: ${SITE_URL}/login.html`)
+        `⚠️ До окончания подписки BUDUJ.BY осталось <b>3 дня</b>. Продлите: ${SITE_URL}/dashboard.html`)
     }
   }
 
@@ -116,12 +127,12 @@ serve(async () => {
         <h2 style="color:#F5A623">BUDUJ.BY</h2>
         <p>Здравствуйте, <strong>${m.name ?? 'Мастер'}</strong>!</p>
         <p>Напоминаем: подписка истекает через <strong>14 дней</strong>.</p>
-        <a href="${SITE_URL}/login.html" style="display:inline-block;padding:12px 28px;background:#F5A623;color:#1C1512;border-radius:10px;font-weight:700;text-decoration:none;margin:16px 0">Продлить заранее →</a>
+        <a href="${SITE_URL}/dashboard.html" style="display:inline-block;padding:12px 28px;background:#F5A623;color:#1C1512;border-radius:10px;font-weight:700;text-decoration:none;margin:16px 0">Продлить заранее →</a>
       </div>
     `)
     if (m.telegram_chat_id) {
       await sendTelegram(m.telegram_chat_id,
-        `📅 Напоминание: подписка BUDUJ.BY истекает через 14 дней. ${SITE_URL}/login.html`)
+        `📅 Напоминание: подписка BUDUJ.BY истекает через 14 дней. ${SITE_URL}/dashboard.html`)
     }
   }
 
