@@ -84,6 +84,8 @@ input,select,textarea{font-family:'Inter',sans-serif}
 .tag{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;color:var(--t2)}
 .badge-open{background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.3);color:var(--green);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
 .badge-new{background:rgba(245,166,35,.1);border:1px solid var(--border2);color:var(--gold);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+.badge-work{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.35);color:var(--gold);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+.badge-ok{background:rgba(62,207,142,.16);border:1px solid rgba(62,207,142,.4);color:var(--green);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
 .badge-done{background:rgba(122,99,88,.15);color:var(--t3);padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
 
 /* BUTTONS */
@@ -1038,7 +1040,7 @@ async function loadMyOrders(){
     <div class="card card-clickable" onclick="openOrderDetail('${o.id}','${(o.title||'').replace(/'/g,'').substring(0,60)}','${o.category||''}','${o.city||''}','${o.budget||''}')">
       <div class="card-header">
         <div class="card-title-sm">${o.title||'Без названия'}</div>
-        <span class="${o.status==='open'?'badge-open':'badge-done'}">${o.status==='open'?'Открыт':'Закрыт'}</span>
+        ${statusBadge(o.status)}
       </div>
       <div class="card-meta">
         <span>📍 ${o.city||'—'}</span>
@@ -1056,6 +1058,88 @@ async function loadMyOrders(){
   `).join('');
 }
 
+// ============ ИСХОД ЗАКАЗА ============
+// Спрашиваем мягко и с тремя честными вариантами, включая «не сложилось» —
+// иначе заказчик просто закроет вкладку, и заказ повиснет навсегда.
+async function renderOutcomeBlock(orderId){
+  const host=document.getElementById('responsesList');
+  if(!host)return;
+  document.getElementById('outcomeBlock')?.remove();
+
+  const{data:o}=await sb.from('orders')
+    .select('id,status,accepted_response_id').eq('id',orderId).single();
+  if(!o)return;
+
+  let html='';
+  if(o.status==='in_progress'){
+    html=`<div id="outcomeBlock" style="background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:16px 18px;margin-bottom:16px">
+      <div style="font-weight:700;margin-bottom:4px">Как всё прошло?</div>
+      <div style="font-size:13px;color:var(--t3);margin-bottom:12px">
+        Отметьте исход — это займёт секунду и поможет другим заказчикам выбрать мастера.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-green btn-sm" onclick="finishOrder('${orderId}','done')">✅ Работа выполнена</button>
+        <button class="btn btn-ghost btn-sm" onclick="finishOrder('${orderId}','failed')">Не сложилось</button>
+      </div>
+    </div>`;
+  } else if(o.status==='done'){
+    const masterId=await acceptedMasterId(o.accepted_response_id);
+    html=`<div id="outcomeBlock" style="background:rgba(62,207,142,.07);border:1px solid rgba(62,207,142,.3);border-radius:12px;padding:16px 18px;margin-bottom:16px">
+      <div style="font-weight:700;color:var(--green);margin-bottom:4px">Заказ выполнен</div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:${masterId?'12px':'0'}">
+        Спасибо. Если работа понравилась — расскажите, это лучшая помощь мастеру.
+      </div>
+      ${masterId?`<button class="btn btn-gold btn-sm" onclick="location.href='profile.html?id=${masterId}&review=1'">Оставить отзыв</button>`:''}
+    </div>`;
+  } else if(o.status==='failed'||o.status==='cancelled'){
+    html=`<div id="outcomeBlock" style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:16px;font-size:13px;color:var(--t3)">
+      Заказ закрыт без сделки. Можно разместить новый — мастера увидят его сразу.
+    </div>`;
+  }
+  if(html) host.insertAdjacentHTML('beforebegin', html);
+}
+
+async function acceptedMasterId(responseId){
+  if(!responseId)return null;
+  const{data}=await sb.from('responses').select('master_user_id').eq('id',responseId).single();
+  return data?.master_user_id||null;
+}
+
+async function finishOrder(orderId,status){
+  const label = status==='done' ? 'Отметить заказ выполненным?' : 'Отметить, что не сложилось?';
+  if(!confirm(label))return;
+
+  const{error}=await sb.from('orders').update({status}).eq('id',orderId).eq('owner_id',CU.id);
+  if(error){toast('Ошибка: '+error.message,false);return}
+
+  toast(status==='done'?'Заказ отмечен выполненным':'Заказ закрыт');
+  await renderOutcomeBlock(orderId);
+  loadMyOrders();
+
+  // Отзыв просим сразу — потом человек не вернётся
+  if(status==='done'){
+    const{data:o}=await sb.from('orders').select('accepted_response_id').eq('id',orderId).single();
+    const masterId=await acceptedMasterId(o?.accepted_response_id);
+    if(masterId&&confirm('Оставить отзыв о мастере? Это займёт минуту.')){
+      location.href=`profile.html?id=${masterId}&review=1`;
+    }
+  }
+}
+
+// Статусов у заказа пять, а бейдж знал только «открыт / закрыт»:
+// заказ в работе показывался заказчику как «Закрыт» — враньё про его же заказ.
+function statusBadge(status){
+  const map={
+    open:        ['badge-open','Открыт'],
+    in_progress: ['badge-work','В работе'],
+    done:        ['badge-ok','Выполнен'],
+    failed:      ['badge-done','Не сложилось'],
+    cancelled:   ['badge-done','Отменён'],
+  };
+  const [cls,label]=map[status]||['badge-done','Закрыт'];
+  return `<span class="${cls}">${label}</span>`;
+}
+
 async function openOrderDetail(id,title,cat,city,budget){
   showPanel('p-order-detail');
   document.getElementById('detailTitle').textContent=title;
@@ -1063,6 +1147,11 @@ async function openOrderDetail(id,title,cat,city,budget){
     `<span class="tag">📍 ${city}</span><span class="tag">${cat}</span><span class="tag">💰 ${budget}</span>`;
   const el=document.getElementById('responsesList');
   el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto"></div></div>';
+
+  // Исход заказа. Без этого шага статус навсегда застревал в in_progress,
+  // и площадка не знала, состоялась сделка или нет — а значит не могла
+  // ни попросить отзыв вовремя, ни показать мастеру, что подписка окупилась.
+  await renderOutcomeBlock(id);
 
   const{data:resps}=await sb.from('responses').select('*').eq('order_id',id).order('created_at');
   document.getElementById('respCount').textContent=`(${resps?resps.length:0})`;
@@ -1129,6 +1218,8 @@ async function acceptResponse(responseId,orderId,masterName){
   if(!confirm(`Выбрать ${masterName} исполнителем этого заказа?`))return;
   await sb.from('orders').update({status:'in_progress',accepted_response_id:responseId}).eq('id',orderId).eq('owner_id',CU.id);
   toast('✅ Мастер выбран! Свяжитесь с ним по телефону или в чате.');
+  // Заказ перешёл в работу — показываем блок «как всё прошло»
+  renderOutcomeBlock(orderId);
   // обновляем карточки — помечаем выбранного
   document.querySelectorAll('.response-card').forEach(card=>{
     const btn=card.querySelector('.btn-green');
@@ -1541,7 +1632,7 @@ async function loadMyResponses(){
     <div class="card">
       <div class="card-header">
         <div class="card-title-sm">${o.title||'Заказ'}</div>
-        <span class="${o.status==='open'?'badge-open':'badge-done'}">${o.status==='open'?'Активен':'Закрыт'}</span>
+        ${statusBadge(o.status)}
       </div>
       <div class="card-meta">
         <span>📍 ${o.city||'—'}</span>

@@ -680,6 +680,12 @@ loadProfile().then(()=>{
   // Сохраняем master_id для формы отзыва
   const params=new URLSearchParams(location.search);
   reviewMasterId=params.get('id');
+
+  // ?review=1 — пришли из кабинета сразу после отметки «работа выполнена».
+  // Просить отзыв надо в этот момент: позже человек не вернётся.
+  if(params.get('review')==='1' && reviewMasterId){
+    setTimeout(()=>openReviewModal(), 400);
+  }
 });
 </script>
 <!-- Review Modal -->
