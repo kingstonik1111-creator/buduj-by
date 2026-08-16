@@ -33,6 +33,21 @@ const GATEWAY = 'https://gateway.bepaid.by'
 const PLANS: Record<string, number> = { basic: 1900, pro: 3900, biz: 7900 }
 const PLAN_DAYS = 30
 
+// Supabase выводит SUPABASE_SERVICE_ROLE_KEY из обращения в пользу
+// SUPABASE_SECRET_KEYS (JSON-словарь). Берём старый, пока он есть,
+// иначе достаём первый ключ из нового — чтобы деплой не сломался,
+// когда легаси уберут окончательно.
+function serviceKey(): string {
+  const legacy = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  if (legacy) return legacy
+  try {
+    const parsed = JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') ?? '{}')
+    const first = Object.values(parsed).find(v => typeof v === 'string' && v.length > 20)
+    if (first) return first as string
+  } catch (_) { /* формат изменился — упадём ниже с понятной ошибкой */ }
+  throw new Error('Нет сервисного ключа: ни SUPABASE_SERVICE_ROLE_KEY, ни SUPABASE_SECRET_KEYS')
+}
+
 function b64(buf: ArrayBuffer): string {
   return btoa(String.fromCharCode(...new Uint8Array(buf)))
 }
@@ -77,10 +92,7 @@ async function verifyWithBepaid(uid: string) {
 }
 
 serve(async (req) => {
-  const sb = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  )
+  const sb = createClient(Deno.env.get('SUPABASE_URL')!, serviceKey())
 
   try {
     const raw = await req.text()

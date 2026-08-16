@@ -27,6 +27,19 @@ const CORS = {
   'Access-Control-Allow-Headers': 'authorization, content-type',
 }
 
+// Supabase выводит легаси-ключи из обращения. Берём старый, пока он есть,
+// иначе достаём из нового JSON-словаря — чтобы деплой не сломался позже.
+function pickKey(legacyName: string, dictName: string): string {
+  const legacy = Deno.env.get(legacyName)
+  if (legacy) return legacy
+  try {
+    const parsed = JSON.parse(Deno.env.get(dictName) ?? '{}')
+    const first = Object.values(parsed).find(v => typeof v === 'string' && v.length > 20)
+    if (first) return first as string
+  } catch (_) { /* формат изменился */ }
+  throw new Error(`Нет ключа: ни ${legacyName}, ни ${dictName}`)
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
 
@@ -34,7 +47,7 @@ serve(async (req) => {
     // Проверяем авторизацию — только залогиненные мастера
     const sb = createClient(
       Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
+      pickKey('SUPABASE_ANON_KEY','SUPABASE_PUBLISHABLE_KEYS'),
       { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } }
     )
 
@@ -56,7 +69,7 @@ serve(async (req) => {
     // Получаем профиль мастера (email для BePaid)
     const sbAdmin = createClient(
       Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      pickKey('SUPABASE_SERVICE_ROLE_KEY','SUPABASE_SECRET_KEYS')
     )
     const { data: profile } = await sbAdmin
       .from('profiles')
@@ -69,7 +82,9 @@ serve(async (req) => {
 
     const payload = {
       checkout: {
-        test: false, // поменяй на true для тестовых платежей
+        // ТЕСТОВЫЙ РЕЖИМ. Деньги не списываются, платить тестовой картой.
+        // После успешной проверки поменять на false и передеплоить функцию.
+        test: true,
         transaction_type: 'payment',
         attempts: 3,
         settings: {
