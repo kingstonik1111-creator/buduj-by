@@ -6,6 +6,18 @@
 # редирект зацикливался (ERR_TOO_MANY_REDIRECTS). Перенаправление на https
 # нужно включать штатно в панели хостинга (Сайты → домен → перенаправлять на https).
 
+# ── Завершающий слэш у каталогов, без потери https ──────────────────────────
+# Apache за прокси hoster.by не знает, что запрос пришёл по https, и при
+# автодобавлении слэша к /minsk/elektrik отдаёт 301 на http://. Правило ниже
+# делает это перенаправление самостоятельно и сразу на https.
+# Петли нет: условие срабатывает только когда адрес БЕЗ слэша на конце.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteCond %{REQUEST_URI} !/$
+  RewriteRule ^(.*)$ https://buduj.by/$1/ [R=301,L]
+</IfModule>
+
 # Заголовки безопасности
 <IfModule mod_headers.c>
   Header always set X-Frame-Options "DENY"
