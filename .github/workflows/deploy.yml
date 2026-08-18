@@ -38,3 +38,6 @@ jobs:
             *.ts
             *.md
             _headers
+            seo/**
+            brand/**
+            *.py

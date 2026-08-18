@@ -1258,7 +1258,7 @@ function phoneButtons(phone, messengers){
   if(list.includes('whatsapp'))
     html+=chip('https://wa.me/'+digits,'#25D366','rgba(37,211,102,.12)','WhatsApp',true);
   if(list.includes('viber'))
-    html+=chip('viber://add?number='+digits,'#7360F2','rgba(115,96,242,.12)','Viber',false);
+    html+=chip('viber://chat?number=%2B'+digits,'#7360F2','rgba(115,96,242,.12)','Viber',false);
   if(list.includes('telegram'))
     html+=chip('https://t.me/+'+digits,'#2AABEE','rgba(42,171,238,.12)','Telegram',true);
 

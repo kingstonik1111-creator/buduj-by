@@ -525,7 +525,7 @@ async function loadProfile(){
     if(mess.includes('whatsapp')){ cfWa.href=`https://wa.me/${digits}`; cfWa.style.display='flex'; }
 
     const cfVb=document.getElementById('cfVb');
-    if(mess.includes('viber')){ cfVb.href=`viber://add?number=${digits}`; cfVb.style.display='flex'; }
+    if(mess.includes('viber')){ cfVb.href=`viber://chat?number=%2B${digits}`; cfVb.style.display='flex'; }
 
     // Contact row
     document.querySelectorAll('.contact-row').forEach(row=>{
