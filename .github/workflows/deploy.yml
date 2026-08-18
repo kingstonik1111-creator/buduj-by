@@ -41,3 +41,4 @@ jobs:
             seo/**
             brand/**
             *.py
+            *.command
