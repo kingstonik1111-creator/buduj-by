@@ -340,6 +340,17 @@ SERVICES = {
 
 # ─────────────────────────────────────────────────────────────
 
+METRIKA = r"""<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=110231398', 'ym');
+    ym(110231398, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/110231398" style="position:absolute; left:-9999px;" alt="" /></div></noscript>"""
+
 CSS = """
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#1C1512;--bg2:#241B14;--bg3:#2E2219;--gold:#F5A623;--white:#fff;
@@ -597,6 +608,7 @@ def build_page(city_slug, city, svc_slug, svc):
   <a href="/oplata.html">Оплата и возврат</a>
   <a href="/privacy.html">Конфиденциальность</a>
 </footer>
+{METRIKA}
 </body>
 </html>
 """
