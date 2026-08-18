@@ -619,6 +619,7 @@ def build_article(slug, a):
 <title>{esc(a["seo_title"])} | BUDUJ.BY</title>
 <meta name="description" content="{esc(a["desc"])}">
 <link rel="canonical" href="{url}">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" href="/favicon.svg">
 <meta property="og:type" content="article">
 <meta property="og:url" content="{url}">
@@ -705,6 +706,7 @@ def build_index():
 <title>Блог о ремонте — цены, договор, выбор мастера | BUDUJ.BY</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{url}">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" href="/favicon.svg">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{url}">

@@ -507,6 +507,7 @@ def build_page(city_slug, city, svc_slug, svc):
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{url}">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" href="/favicon.svg">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{url}">
