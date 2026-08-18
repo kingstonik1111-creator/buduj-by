@@ -311,7 +311,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(245,242,238,0.97);backdrop
       <button onclick="applyFilters()">Найти</button>
     </div>
     <div class="catalog-header">
-      <div class="results-count">Найдено: <strong id="resCount">0</strong> мастеров</div>
+      <div class="results-count" id="resCountBox" style="visibility:hidden">Найдено: <strong id="resCount">0</strong> мастеров</div>
       <select class="sort-select" id="sortSelect" onchange="applyFilters()">
         <option value="rating">По рейтингу</option>
         <option value="reviews">По отзывам</option>
@@ -352,12 +352,17 @@ async function loadMasters(){
     .limit(200);
 
   if(error||!data||!data.length){
+    // Заказчику, пришедшему за мастером, нельзя предлагать самому стать
+    // мастером — он уходит. Предлагаем то, что можем сделать руками.
     grid.innerHTML=`<div class="no-results" style="grid-column:1/-1">
-      <h3>Мастеров пока нет</h3>
-      <p>Станьте первым мастером на платформе!</p>
-      <a href="for-masters.html" style="display:inline-block;margin-top:12px;padding:10px 24px;background:var(--gold);color:var(--bg);border-radius:8px;font-weight:700;font-size:14px">Зарегистрироваться →</a>
+      <h3>Подберём мастера под вашу задачу</h3>
+      <p style="max-width:460px;margin:8px auto 0;line-height:1.6">Опишите, что нужно сделать,
+      и мы найдём исполнителя сами. Размещение заказа бесплатное, комиссии с работы нет.</p>
+      <a href="orders.html" style="display:inline-block;margin-top:18px;padding:12px 28px;background:var(--gold);color:var(--bg);border-radius:10px;font-weight:700;font-size:15px">Описать задачу</a>
+      <p style="margin-top:16px;font-size:13px;color:var(--t3)">Вы мастер?
+        <a href="for-masters.html" style="color:var(--gold)">Разместить профиль</a></p>
     </div>`;
-    document.getElementById('resCount').textContent=0;
+    document.getElementById('resCountBox').style.visibility='hidden';
     return;
   }
 
@@ -408,7 +413,10 @@ function applyFilters(){
   if(sort==='rating')filtered.sort((a,b)=>b.rating-a.rating);
   else if(sort==='reviews')filtered.sort((a,b)=>b.reviews-a.reviews);
 
+  // «Найдено: 0 мастеров» работает против нас — прячем строку целиком,
+  // пока показывать нечего.
   document.getElementById('resCount').textContent=filtered.length;
+  document.getElementById('resCountBox').style.visibility = filtered.length ? 'visible' : 'hidden';
 
   const grid=document.getElementById('mastersGrid');
   if(!filtered.length){
@@ -429,8 +437,12 @@ function applyFilters(){
             Уведомить меня
           </button>
         </div>
-        <p style="margin-top:16px;font-size:13px;color:var(--t3)">
-          Или <a href="for-masters.html" style="color:var(--gold)">зарегистрируйтесь как мастер</a> — заказы уже ждут
+        <p style="margin-top:20px;font-size:14px;color:var(--t2)">
+          Не хотите ждать? <a href="orders.html" style="color:var(--gold);font-weight:600">Опишите задачу</a>
+          — подберём исполнителя сами.
+        </p>
+        <p style="margin-top:10px;font-size:13px;color:var(--t3)">
+          Вы мастер? <a href="for-masters.html" style="color:var(--gold)">Разместить профиль</a>
         </p>
       </div>`;
     return;

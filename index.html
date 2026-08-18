@@ -911,19 +911,24 @@ const MASTERS=[
     headers:{'apikey':'sb_publishable_oxffTAZkqY9mHScYxnYZdg_S9bl2aI9'}
   }).then(r=>r.json()).then(rows=>{
     if(!Array.isArray(rows)||!rows.length){
+      // Пустой каталог заказчику показывать нельзя: он пришёл за мастером,
+      // а мы предлагали ему самому стать мастером. Теперь предлагаем то,
+      // что реально можем сделать сегодня — подобрать исполнителя руками.
       grid.innerHTML=`
         <div style="grid-column:1/-1;text-align:center;padding:48px 24px;border:1px dashed var(--border2);border-radius:16px">
-          <div style="font-size:40px;margin-bottom:14px">🏗️</div>
-          <h3 style="font-size:22px;margin-bottom:10px">Каталог наполняется</h3>
-          <p style="color:var(--t2);max-width:460px;margin:0 auto 22px;line-height:1.6">
-            Мы только запустились и принимаем первых мастеров. Зарегистрируйтесь сейчас —
-            мы отвечаем деньгами: не получили ни одного заказа за оплаченный месяц —
-      следующий бесплатно.
+          <div style="font-size:40px;margin-bottom:14px">📋</div>
+          <h3 style="font-size:22px;margin-bottom:10px">Подберём мастера под вашу задачу</h3>
+          <p style="color:var(--t2);max-width:480px;margin:0 auto 22px;line-height:1.6">
+            Опишите, что нужно сделать, и мы найдём исполнителя сами — по своей базе
+            и по проверенным бригадам. Размещение бесплатное, комиссии с заказа нет.
           </p>
-          <button onclick="location.href='login.html?role=master'"
+          <button onclick="location.href='orders.html'"
             style="padding:13px 28px;background:var(--gold);border:none;border-radius:12px;font-size:15px;font-weight:700;color:#1C1512;cursor:pointer;font-family:'Inter',sans-serif">
-            🔨 Стать одним из первых
+            Описать задачу
           </button>
+          <div style="margin-top:18px;font-size:13px;color:var(--t3)">
+            Вы мастер? <a href="for-masters.html" style="color:var(--gold)">Разместить профиль</a>
+          </div>
         </div>`;
       return;
     }

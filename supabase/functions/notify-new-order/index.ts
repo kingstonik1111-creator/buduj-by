@@ -6,11 +6,14 @@
 //
 // Секреты (Supabase → Settings → Edge Functions → Secrets):
 //   TELEGRAM_BOT_TOKEN — токен бота от @BotFather
+//   TELEGRAM_ADMIN_ID  — ваш личный chat_id (узнать у @userinfobot),
+//                        чтобы копия каждой заявки приходила лично вам
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const TG_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? ''
+const ADMIN_ID = Deno.env.get('TELEGRAM_ADMIN_ID') ?? ''
 const SITE_URL = 'https://buduj.by'
 
 async function sendTelegram(chatId: string, text: string) {
@@ -39,6 +42,25 @@ serve(async (req) => {
 
     // Database Webhook payload: { type, table, schema, record, old_record }
     const order = body.record ?? body
+
+    // Копия администратору. Стоит выше всех проверок и фильтров:
+    // владелец должен видеть каждую заявку, даже если она не подошла
+    // ни одному мастеру или пришла без города. Иначе площадка молчит,
+    // и о заказе узнаёшь случайно.
+    if (ADMIN_ID) {
+      const a = [
+        `🆕 <b>Заявка на BUDUJ.BY</b>`,
+        ``,
+        `📋 ${order.category || 'Без категории'}`,
+        `📍 ${order.city || 'город не указан'}`,
+        `${(order.title || 'Без названия').substring(0, 200)}`,
+        order.budget ? `💰 ${order.budget}` : ``,
+        order.is_urgent ? `🔥 Срочно` : ``,
+        ``,
+        `👉 ${SITE_URL}/jobs.html`,
+      ].filter(Boolean).join('\n')
+      await sendTelegram(ADMIN_ID, a)
+    }
 
     if (!order?.city || order.status !== 'open') {
       return new Response(JSON.stringify({ ok: true, skipped: true }), {
